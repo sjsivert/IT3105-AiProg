@@ -1,21 +1,58 @@
-import pytest
+#import pytest
+from typing import Any
+import unittest
+# ofrom mocker import mocker
+#from unittest.mock import Mock
+from unittest.mock import MagicMixin, MagicMock
 from HexBoard import createHexGrid
-import Node from HexBoard
-from mock import MagickMock
+from HexBoard import Node
 
 
-def testHeaxBoard():
-    board = createHexGrid(3)
-    node = MagickMock(Node)
-    for l in board:
-        print(l)
+class NodeTest(unittest.TestCase):
+    def testCanCreateNode(self):
+        # TODO
+        assert True
 
-    expected = [
-        [node],
-        [node, node],
-        [node, node, node]
-    ]
-    assert expected == createHexGrid(3)
+    def testCanAddNeighboar(self):
+        node1 = Node()
+        node2 = Node()
+        node1.addNeighbour(node2)
+        assert node2 in node1.neighbours
+
+    def testCanNotAddSameNeighbourTwice(self):
+        node1 = Node()
+        node2 = Node()
+        node1.addNeighbour(node2)
+        assert node1.addNeighbour(node2) == False
+
+
+class HexBoardTest(unittest.TestCase):
+    def testHeaxBoardWithSize3(self):
+        board = createHexGrid(3)
+        node = MagicMock()
+        for l in board:
+            print(l)
+        expected = [
+            [Node(1)],
+            [Node(2), Node(2)],
+            [Node(3), Node(3), Node(3)]
+        ]
+        for l in expected:
+            print(l)
+        for l in board:
+            print(l)
+        assert len(expected) == len(createHexGrid(3))
+
+    def testHexBoardWithParameter4(self):
+        node = MagicMock()
+
+        expect = [
+            [node],
+            [node, node],
+            [node, node, node],
+            [node, node, node, node]
+        ]
+        assert len(expect) == len(createHexGrid(4))
 
 
 """  class Test(TestCase):
