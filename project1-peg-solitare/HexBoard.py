@@ -11,10 +11,9 @@ class Node:
         return True
 
     def addNeighbour(self,  node) -> bool:
-        if node in self.neighbours:
+        if node in self.neighbours and node != self:
             return False
         self.neighbours.append(node)
-        print(self.neighbours)
         return True
 
     def __str__(self) -> str:
@@ -24,9 +23,36 @@ class Node:
         return str(self.location)
 
 
+def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int):
+    childrens = []
+    for index in range(numberOfChildren - 1):
+        child = Node()
+        # Add parents as neighboars
+        for parent in parents:
+            child.addNeighbour(parent)
+            parent.addNeighbour(child)
+        for previousMadeChildren in childrens:
+            child.addNeighbour(previousMadeChildren)
+        childrens.append(child)
+
+    if deapthLimit == 0:
+        return grid.append(childrens)
+    else:
+        return grid.append(createChildren(grid, childrens, numberOfChildren+1, deapthLimit-1))
+
+
 def createHexGrid(size: int) -> list:
     grid = []
-    for i in range(size):
+    # Create root node
+    root = Node()
+    grid.append([root])
+    grid.append(
+        createChildren([root], 2, 3)
+    )
+    return grid
+
+
+"""     for i in range(size):
         node = Node(i)
         if i != 0 and (i < size):
             # Add neighbors to node above
@@ -45,8 +71,7 @@ def createHexGrid(size: int) -> list:
                 # Add neighbour to node behind
                 node2.addNeighbour(grid[i][y-1])
                 grid[i][y-1].addNeighbour(grid[i][y-1])
-
-    return grid
+ """
 
 
 if __name__ == "__main__":
