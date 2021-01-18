@@ -5,7 +5,7 @@ import os
 import plotly.graph_objects as go
 import plotly.basedatatypes as base
 from HexBoard import createHexGrid
-from HexBoard import Node
+from Node import Node
 import plotly.graph_objects as go
 
 # plt.
@@ -14,6 +14,7 @@ from plotly.subplots import make_subplots
 
 
 def plotTree(node: Node, G, drawnList: list) -> None:
+    print(node.location)
     if node not in drawnList:
         G.add_node(node.location)
         drawnList.append(node)
@@ -41,11 +42,12 @@ def draw_figure(rootNode: Node):
         with_labels=True,
         #node_color={"blue", "red"},
         font_weight='bold')
-    plt.show()
+    plt.savefig("grid.png")
 
 
 if __name__ == "__main__":
     board = createHexGrid(3)
+    print(board)
     draw_figure(
         board[0][0]
     )

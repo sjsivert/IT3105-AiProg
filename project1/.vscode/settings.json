@@ -8,8 +8,9 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        ".",
+        "./sim_world",
         "-p",
         "test*.py"
-    ]
+    ],
+    "python.pythonPath": "/home/archie/code/IT3105-AiProg/venv/bin/python"
 }
