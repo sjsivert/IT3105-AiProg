@@ -1,23 +1,33 @@
+import json
 
-class Node:
-    todo = True
-    # TODO: Strongly typed?
+from matplotlib.font_manager import JSONEncoder
 
+
+class Node(JSONEncoder):
     def __init__(self, location: int = 1) -> None:
+        super().__init__()
+
         self.neighbours: list = []
         self.location = location
 
+    def default(self, o):
+        print(o.__dict__)
+        return o.__dict__
+
+
     def __eq__(self, o: object) -> bool:
-        return True
+        return self.location == o.location
+
 
     def addNeighbour(self,  node) -> bool:
-        if node in self.neighbours and node != self:
+        # if node in self.neighbours and node != self:
+        if node in self.neighbours:
             return False
         self.neighbours.append(node)
         return True
 
     def __str__(self) -> str:
-        return "node"
+        return str(self.location)
 
     def __repr__(self) -> str:
         return str(self.location)
@@ -25,8 +35,8 @@ class Node:
 
 def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int):
     childrens = []
-    for index in range(numberOfChildren - 1):
-        child = Node()
+    for index in range(numberOfChildren):
+        child = Node(deapthLimit + index)
         # Add parents as neighboars
         for parent in parents:
             child.addNeighbour(parent)
@@ -35,20 +45,23 @@ def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int)
             child.addNeighbour(previousMadeChildren)
         childrens.append(child)
 
-    if deapthLimit == 0:
-        return grid.append(childrens)
+    if deapthLimit == 1:
+        return childrens
     else:
-        return grid.append(createChildren(grid, childrens, numberOfChildren+1, deapthLimit-1))
+        grid.append(childrens)
+        createChildren(grid, childrens, numberOfChildren+1, deapthLimit-1)
 
 
 def createHexGrid(size: int) -> list:
     grid = []
     # Create root node
-    root = Node()
+    root = Node(0)
     grid.append([root])
-    grid.append(
-        createChildren([root], 2, 3)
-    )
+    createChildren(
+        grid = grid,
+        parents = [root],
+        numberOfChildren = 2,
+        deapthLimit=size)
     return grid
 
 
@@ -75,5 +88,5 @@ def createHexGrid(size: int) -> list:
 
 
 if __name__ == "__main__":
-    t = createHexGrid(3)
+    t = createHexGrid(4)
     print(t)

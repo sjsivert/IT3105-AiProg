@@ -54,6 +54,17 @@ class HexBoardTest(unittest.TestCase):
         ]
         assert len(expect) == len(createHexGrid(4))
 
+    def testHexBoardNeighboars(self):
+
+        got = createHexGrid(3)
+        print(got)
+        print(got[0][0].neighbours)
+        print(got[1][0].neighbours)
+        print(got[2][0].neighbours)
+        assert len(got[0][0].neighbours) == 2
+        assert got[0][0].neighbours == got[1]
+        assert got[1][1] in got[1][0].neighbours
+
 
 """  class Test(TestCase):
 
