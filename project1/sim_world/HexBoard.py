@@ -17,15 +17,15 @@ def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int)
             parentsToAdd = parents[index-1: index+1]
         for parent in parentsToAdd:
             if (index % 2 == 0):
-                child.addNeighbour(parent, "-11")
-                parent.addNeighbour(child, "1-1")
+                child.addNeighbour(parent, "-1,1")
+                parent.addNeighbour(child, "1,-1")
             elif (index % 2 == 1 or parentsToAdd.index(parent) == 1):
-                child.addNeighbour(parent, "-1-1")
-                parent.addNeighbour(child, "11")
+                child.addNeighbour(parent, "-1,-1")
+                parent.addNeighbour(child, "1,1")
 
         for previousMadeChildren in childrens[index-1:index+1]:
-            child.addNeighbour(previousMadeChildren, "0-1")
-            previousMadeChildren.addNeighbour(child, "01")
+            child.addNeighbour(previousMadeChildren, "0,-1")
+            previousMadeChildren.addNeighbour(child, "0,1")
         childrens.append(child)
 
     if deapthLimit == 0:
