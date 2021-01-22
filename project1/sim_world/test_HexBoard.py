@@ -5,9 +5,6 @@ from typing import Any
 #from unittest.mock import Mock
 from unittest.mock import MagicMixin, MagicMock
 
-from Node import Node
-from HexBoard import createHexGrid
-
 
 class HexBoardTest(unittest.TestCase):
     def testHeaxBoardWithSize3(self):

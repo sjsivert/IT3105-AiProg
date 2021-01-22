@@ -4,3 +4,4 @@ pytest
 networkx
 plotly
 matplotlib
+pylint

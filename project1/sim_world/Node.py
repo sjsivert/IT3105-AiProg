@@ -2,8 +2,7 @@ class Node():
     # TODO: Add state
     nodeNumber = 0
 
-    def __init__(self, location: int = nodeNumber) -> None:
-        self.neighbours: list = []
+    def __init__(self) -> None:
         self.location = Node.nodeNumber
         Node.nodeNumber += 1
         self.neighboursDic = {}
@@ -21,11 +20,33 @@ class Node():
     def __eq__(self, o: object) -> bool:
         return self.location == o.location
 
-    def addNeighbour(self,  node, location: str) -> bool:
+    def addNeighbour(self, node, location: str) -> bool:
         # if node in self.neighbours and node != self:
-        if node.location == 7:
-            print(node.neighbours)
-        if node in self.neighboursDic.values():
+        if node in self.neighboursDic.values() and node != self:
+            return False
+        self.neighboursDic[location] = node
+        return True
+
+    def __str__(self) -> str:
+        return str(self.location)
+
+    def __repr__(self) -> str:
+        return str(self.location)
+
+
+class Peg(Node):
+    def __init__(self, location, isEmpty=False):
+        super().__init__()
+        self.location = location
+        self.neighboursDic = {}
+        self.isEmpty = isEmpty
+
+    def __eq__(self, o: object) -> bool:
+        return self.location == o.location
+
+    def addNeighbour(self, node, location: str) -> bool:
+        # if node in self.neighbours and node != self:
+        if node in self.neighboursDic.values() and node != self:
             return False
         self.neighboursDic[location] = node
         return True
