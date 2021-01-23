@@ -12,5 +12,8 @@
         "-p",
         "test*.py"
     ],
-    "python.pythonPath": "/home/archie/code/IT3105-AiProg/venv/bin/python"
+    "python.pythonPath": "/home/archie/code/IT3105-AiProg/venv/bin/python",
+    "python.linting.flake8Enabled": false,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }
