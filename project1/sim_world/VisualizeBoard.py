@@ -8,7 +8,10 @@ import plotly.graph_objects as go
 import plotly.basedatatypes as base
 from Node import Node
 import plotly.graph_objects as go
+from matplotlib.animation import FuncAnimation
 
+
+#TODO add to class
 def plotTree(node: Peg, G, drawnList: list) -> None:
     print(node.location)
     if node not in drawnList:
@@ -52,3 +55,4 @@ def VisualizePegs(pegList, lastAction =[], pegColor ='#0000ff',noPegColor ='#000
     plt.ylim(-1,1)
     plt.axis('off')
     plt.show()
+    return plt
