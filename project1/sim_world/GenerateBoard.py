@@ -14,7 +14,7 @@ class Boardtype(Enum):
 
 
 class HexBoard():
-    def __init__(self, boardType: Boardtype, boardWidth: int, removeLocations: list[tuple[int]] = []) -> None:
+    def __init__(self, boardType: Boardtype, boardWidth: int, removeLocations: [(int)] = []) -> None:
         if (boardType is Boardtype.triangle):
             self.board = self.generateTriangle(width=boardWidth)
             self.board = self.removePegs(removeLocations, self.board)
@@ -24,19 +24,19 @@ class HexBoard():
         else:  # boardType has to be diamond
             raise ValueError("BoardType has to be triangle or diamond")
 
-    def generateTriangle(self, width: int) -> list[list[int]]:
+    def generateTriangle(self, width: int) -> [[int]]:
         board = []
         for i in range(1, width+1):
             board.append(i * [1])
         return board
 
-    def generateDiamond(self, width: int) -> list[list[int]]:
+    def generateDiamond(self, width: int) -> [[int]]:
         board = self.generateTriangle(width)
         for i in range(width - 1, 0, -1):
             board.append(i * [1])
         return board
 
-    def removePegs(self, removeLocations: list[tuple[int]], board: list[list[int]]) -> list[list[int]]:
+    def removePegs(self, removeLocations: [[int]], board: [[int]]) -> [[int]]:
         for removeLocation in removeLocations:
             board[removeLocation[0]][removeLocation[1]] = 0
         return board
@@ -55,7 +55,7 @@ class BoardState():
     def __init__(self, hexBoard: HexBoard) -> None:
         self.state = self.boardToNodes(hexBoard=hexBoard)
 
-    def boardToNodes(self, hexBoard: HexBoard) -> list[list[Peg]]:
+    def boardToNodes(self, hexBoard: HexBoard) -> [[Peg]]:
         board = hexBoard.board
         pegList = []
         for x in range(len(board)):
