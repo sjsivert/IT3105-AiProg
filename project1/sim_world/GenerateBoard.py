@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import plotly.graph_objects as go
 import plotly.basedatatypes as base
+from typing import List, Tuple
 import plotly.graph_objects as go
 from Node import Peg
 from enum import Enum
@@ -14,7 +15,7 @@ class Boardtype(Enum):
 
 
 class HexBoard():
-    def __init__(self, boardType: Boardtype, boardWidth: int, removeLocations: [(int)] = []) -> None:
+    def __init__(self, boardType: Boardtype, boardWidth: int, removeLocations: List[(int)] = []) -> None:
         if (boardType is Boardtype.triangle):
             self.board = self.generateTriangle(width=boardWidth)
             self.board = self.removePegs(removeLocations, self.board)
@@ -24,19 +25,19 @@ class HexBoard():
         else:  # boardType has to be diamond
             raise ValueError("BoardType has to be triangle or diamond")
 
-    def generateTriangle(self, width: int) -> [[int]]:
+    def generateTriangle(self, width: int) -> List[List[int]]:
         board = []
         for i in range(1, width+1):
             board.append(i * [1])
         return board
 
-    def generateDiamond(self, width: int) -> [[int]]:
+    def generateDiamond(self, width: int) -> List[List[int]]:
         board = self.generateTriangle(width)
         for i in range(width - 1, 0, -1):
             board.append(i * [1])
         return board
 
-    def removePegs(self, removeLocations: [[int]], board: [[int]]) -> [[int]]:
+    def removePegs(self, removeLocations: List[List[int]], board: List[List[int]]) -> List[List[int]]:
         for removeLocation in removeLocations:
             board[removeLocation[0]][removeLocation[1]] = 0
         return board
@@ -53,9 +54,9 @@ class HexBoard():
 
 class BoardState():
     def __init__(self, hexBoard: HexBoard) -> None:
-        self.state = self.boardToNodes(hexBoard=hexBoard)
+        self.state = self._boardToNodes(hexBoard=hexBoard)
 
-    def boardToNodes(self, hexBoard: HexBoard) -> [[Peg]]:
+    def _boardToNodes(self, hexBoard: HexBoard) -> List[List[Peg]]:
         board = hexBoard.board
         pegList = []
         for x in range(len(board)):
@@ -106,7 +107,7 @@ if __name__ == "__main__":
                 G.add_edge(node.location, child.location)
                 plotTree(child, G, drawnList)
         return G
-        
+
     def draw_figure(rootNode: Peg):
         G = nx.Graph()
         G = plotTree(rootNode, G, [])
@@ -115,7 +116,7 @@ if __name__ == "__main__":
         nx.draw(
             G,
             with_labels=True,
-            #node_color={"blue", "red"},
+            # node_color={"blue", "red"},
             font_weight='bold')
         plt.show()
         plt.savefig("grid.png")

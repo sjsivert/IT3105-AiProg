@@ -1,6 +1,6 @@
 import json
 
-from sim_world.Node import Node
+from project1.sim_world.Node import Node
 
 
 def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int):
