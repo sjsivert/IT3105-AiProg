@@ -18,14 +18,13 @@ class Action():
 class SimWorld():
     def __init__(
             self,
-            boardType: Boardtype,
+            boardType: str,
             boardWith: int,
             removeLocations: List[(int)] = []
     ) -> None:
-        hexboard = HexBoard(boardType, boardWith, removeLocations)
+        hexboard = HexBoard(Boardtype[boardType], boardWith, removeLocations)
         self.boardState = BoardState(hexboard)
-        # self.actionListLog
-        # self.boardState
+        self.stateActionLog = []
 
     def getLegalActions(self) -> List[Action]:
         state = self.boardState.state
@@ -47,17 +46,32 @@ class SimWorld():
         return actionList
     # TODO make pegMethod: set value
 
+    def getGameLog(self):
+        return self.stateActionLog
+
     def makeAction(self, action) -> bool:
-        state = self.boardState.state
-        state[action[0][0]][action[0][1]].pegValue = 0
-        state[action[1][0]][action[1][1]].pegValue = 0
-        state[action[2][0]][action[2][1]].pegValue = 1
+        self.stateActionLog.append((self.boardState, action))
+        state = self.boardState
+        state.setPegValue((action.moveFrom.location[0], action.moveFrom.location[1]), 0)
+        state.setPegValue((action.jumpOver.location[0], action.jumpOver.location[1]), 0)
+        state.setPegValue((action.moveTo.location[0], action.moveTo.location[1]), 1)
 
-    def toHash(self) -> str:
-        pass
+        return self.getReward()
+    
+    def peekAction(self, action) -> str:
+        state = self.boardState.hexboard.copy()
+        state[action.moveFrom.location[0]] [action.moveFrom.location[1]] = 0
+        state[action.jumpOver.location[0]][action.jumpOver.location[1]] = 0
+        state[action.moveTo.location[0]][action.moveTo.location[1]] = 1
+        return str(state)
 
-    def getReward(self) -> int:
-        pass
+    def getReward(self):
+        if(len(self.getLegalActions()) != 0):
+            return -1#TODO generalize
+        elif self.boardState.countPegs() == 1:
+            return 10#TODO generalize
+        return -10#TODO generalize
 
     def stateToHash(self) -> str:
         return str(self.boardState.state)
+
