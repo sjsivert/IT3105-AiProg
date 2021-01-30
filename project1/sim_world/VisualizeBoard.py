@@ -13,7 +13,6 @@ from matplotlib.animation import FuncAnimation
 
 #TODO add to class
 def plotTree(node: Peg, G, drawnList: list) -> None:
-    print(node.location)
     if node not in drawnList:
         G.add_node(node.location)
         drawnList.append(node)
@@ -23,7 +22,7 @@ def plotTree(node: Peg, G, drawnList: list) -> None:
     return G
 
 
-def VisualizePegs(pegList, lastAction =[], pegColor ='#0000ff',noPegColor ='#000000',nodeSize = 120, movedSize = 300):
+def VisualizePegs(pegList, lastAction =None, pegColor ='#0000ff',noPegColor ='#000000',nodeSize = 120, movedSize = 300):
     nodes = []
     colors = []
     pos ={}
@@ -43,8 +42,11 @@ def VisualizePegs(pegList, lastAction =[], pegColor ='#0000ff',noPegColor ='#000
                 colors[-1] = pegColor
 
             nodeSizes.append(nodeSize)
-            if pegList[layer][node].location in lastAction and lastAction[1] != pegList[layer][node].location:
-                nodeSizes[-1] = movedSize
+            if lastAction != None:
+                if pegList[layer][node].location == lastAction.moveFrom.location:
+                    nodeSizes[-1] = movedSize
+                if pegList[layer][node].location == lastAction.moveTo.location:
+                    nodeSizes[-1] = movedSize
 
 
     G = nx.Graph()
