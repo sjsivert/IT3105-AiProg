@@ -8,8 +8,11 @@ import plotly.graph_objects as go
 import plotly.basedatatypes as base
 from Node import Node
 import plotly.graph_objects as go
-from matplotlib.animation import FuncAnimation
+import cv2
+import numpy as np
+import glob
 
+videoFps = 2
 
 #TODO add to class
 def plotTree(node: Peg, G, drawnList: list) -> None:
@@ -22,7 +25,7 @@ def plotTree(node: Peg, G, drawnList: list) -> None:
     return G
 
 
-def VisualizePegs(pegList, lastAction =None, pegColor ='#0000ff',noPegColor ='#000000',nodeSize = 120, movedSize = 300):
+def VisualizePegs(pegList, stepNumber = 0, lastAction =None, pegColor ='#0000ff',noPegColor ='#000000',nodeSize = 120, movedSize = 300):
     nodes = []
     colors = []
     pos ={}
@@ -52,9 +55,23 @@ def VisualizePegs(pegList, lastAction =None, pegColor ='#0000ff',noPegColor ='#0
     G = nx.Graph()
     G = plotTree(pegList[0][0], G, [])
 
-    plt.subplot(121)
+    fig, ax = plt.subplots()
+    
     nx.draw_networkx(G, pos, nodelist=nodes, node_size=nodeSizes, node_color=colors,with_labels=False)
     plt.ylim(-1,1)
+    ax.set_facecolor('deepskyblue')
     plt.axis('off')
-    plt.show()
-    return plt
+    fig.set_facecolor('deepskyblue')
+    plt.savefig('images/' +str(stepNumber) + '.png')
+def GenerateVideo(stepNumber):
+    img_array = []
+    for filename in range(stepNumber + 1):
+        img = cv2.imread('C:/Users/eivin/OneDrive/Documents/GitHub/IT3105-AiProg/images/' +str(filename) +'.png')
+        height, width, layers = img.shape
+        size = (width,height)
+        img_array.append(img)
+    out = cv2.VideoWriter('game.avi',cv2.VideoWriter_fourcc(*'DIVX'), videoFps, size)
+ 
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+    out.release()

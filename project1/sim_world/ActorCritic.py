@@ -6,13 +6,12 @@ import random
 valueTable = {}
 policyTable = {}
 episodeRewards = []
-stepsTaken = 0
 eligibilityDecayValue = 0.9
 eligibilityDecayPolicy = 0.9
 discountFactor = 0.9
 learningRateActor = 0.1
 learningRateCritic = 0.1
-epsylon = 0.1
+epsylon = 0.6
 
 def GetValue(key: str) -> float:
     if valueTable.get(key, False):
@@ -59,16 +58,17 @@ def GetRemovePegs(boardSize, it):
             List.append(t)
     return List
 
-def GetRandomizedBoard(boardSize, maxRemovePegs):
+def GetRandomizedBoard(boardSize, maxRemovePegs, boardType):
     removePegs = GetRemovePegs(boardSize, maxRemovePegs)
-    return SimWorld("triangle", boardSize, removePegs)
+    return SimWorld(boardType, boardSize, removePegs)
 
-def DoEpisodes(episodes, boardSize, stepsTaken):
-    
+def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
+    TotalError = 0
+    stepsTaken = 1
     ReadTables() 
     
     for i in range(episodes):
-        world = GetRandomizedBoard(boardSize, 4)
+        world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
 
         eligibilityValueDict = {}
         eligibilityPolicyDict = {}
@@ -88,7 +88,7 @@ def DoEpisodes(episodes, boardSize, stepsTaken):
             
             TDError = reward + (discountFactor * GetValue(world.stateToHash())) - GetValue(state)
             eligibilityValueDict[state] = 1
-            
+            TotalError += abs(TDError)
             for SAP in world.getGameLog():
                 value = GetValue(SAP[0])
                 eligibilityValue = eligibilityValueDict[SAP[0]]
@@ -108,24 +108,27 @@ def DoEpisodes(episodes, boardSize, stepsTaken):
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1
-        print('Episode:' , i, 'Iteration:', stepsTaken)
+        print('Episode:' , i, 'MeanError', TotalError / stepsTaken)
         
     WriteTables()
 
-def TestModel(boardSize, maxRemovePegs):
+def TestModel(boardSize, maxRemovePegs, boardType):
+    global epsylon
     epsylon = 0
     ReadTables()
-    world = GetRandomizedBoard(boardSize, maxRemovePegs)
+    stepNumber = 0
+    world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
     chosenAction = ChooseActionByPolicy(world)
     
-    visualizer.VisualizePegs(world.boardState.state)
+    visualizer.VisualizePegs(world.boardState.state, stepNumber)
     while True:
         world.makeAction(chosenAction)
-        visualizer.VisualizePegs(world.boardState.state, chosenAction)
+        visualizer.VisualizePegs(world.boardState.state, stepNumber, chosenAction)
         chosenAction = ChooseActionByPolicy(world)
         if chosenAction == None:
             break
-
+        stepNumber+=1
+    visualizer.GenerateVideo(stepNumber)
 def ReadTables():
     with open('value.csv', mode='r') as infile:
         reader = csv.DictReader(infile)
@@ -150,5 +153,6 @@ def WriteTables():
             writer.writerow({'Policy': key, 'Eligibility': policyTable[key]})
 
 
-DoEpisodes(20000, 5, stepsTaken)
-TestModel(5, 4)
+
+
+TestModel(4, 4, 'triangle')
