@@ -11,7 +11,25 @@ eligibilityDecayPolicy = 0.9
 discountFactor = 0.9
 learningRateActor = 0.1
 learningRateCritic = 0.1
-epsylon = 0.6
+epsylon = 0.6 
+
+solvableRemovePegs ={
+    4:[
+        [(1,0)],
+        [(2,0)],
+        [(1,1)],
+        [(2,2)],
+        [(3,1)],
+        [(3,2)],
+        [(2,1)],
+        [(2,0), (3,0)],
+        [(3,1), (3,0)],
+        [(3,3), (3,2)],
+        [(3,3), (2,2)],
+        [(0,0), (1,0)],
+        [(0,0), (1,1)]
+    ]
+}
 
 def GetValue(key: str) -> float:
     if valueTable.get(key, False):
@@ -58,8 +76,16 @@ def GetRemovePegs(boardSize, it):
             List.append(t)
     return List
 
+def GetSolvableRemovePegs(boardSize, name):
+    solvableInSize = len(solvableRemovePegs[boardSize])
+    return solvableRemovePegs[boardSize][min(solvableInSize -1, name)]
+
 def GetRandomizedBoard(boardSize, maxRemovePegs, boardType):
     removePegs = GetRemovePegs(boardSize, maxRemovePegs)
+    return SimWorld(boardType, boardSize, removePegs)
+
+def GetSolvableBoard(boardSize, boardType, name):
+    removePegs = GetSolvableRemovePegs(boardSize, name)
     return SimWorld(boardType, boardSize, removePegs)
 
 def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
@@ -112,12 +138,13 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
         
     WriteTables()
 
-def TestModel(boardSize, maxRemovePegs, boardType):
+def TestModel(boardSize, maxRemovePegs, boardType, name):
     global epsylon
     epsylon = 0
     ReadTables()
     stepNumber = 0
     world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
+    world = GetSolvableBoard(boardSize, boardType, name)
     chosenAction = ChooseActionByPolicy(world)
     
     visualizer.VisualizePegs(world.boardState.state, stepNumber)
@@ -128,7 +155,8 @@ def TestModel(boardSize, maxRemovePegs, boardType):
         if chosenAction == None:
             break
         stepNumber+=1
-    visualizer.GenerateVideo(stepNumber)
+    visualizer.GenerateVideo(stepNumber, name)
+
 def ReadTables():
     with open('value.csv', mode='r') as infile:
         reader = csv.DictReader(infile)
@@ -154,5 +182,19 @@ def WriteTables():
 
 
 
+WriteTables()
+DoEpisodes(5000, 4, 4, 'diamond')
+learningRateActor = 0.04
+learningRateCritic = 0.04
+epsylon = 0
+DoEpisodes(5000, 4, 4, 'diamond')
 
-TestModel(4, 4, 'triangle')
+
+TestModel(4, 4, 'diamond', 0)
+TestModel(4, 4, 'diamond', 1)
+TestModel(4, 4, 'diamond', 2)
+TestModel(4, 4, 'diamond', 3)
+TestModel(4, 4, 'diamond', 4)
+TestModel(4, 4, 'diamond', 5)
+TestModel(4, 4, 'diamond', 6)
+TestModel(4, 4, 'diamond', 7)

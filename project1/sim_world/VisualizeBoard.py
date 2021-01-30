@@ -63,14 +63,14 @@ def VisualizePegs(pegList, stepNumber = 0, lastAction =None, pegColor ='#0000ff'
     plt.axis('off')
     fig.set_facecolor('deepskyblue')
     plt.savefig('images/' +str(stepNumber) + '.png')
-def GenerateVideo(stepNumber):
+def GenerateVideo(stepNumber, name):
     img_array = []
     for filename in range(stepNumber + 1):
         img = cv2.imread('C:/Users/eivin/OneDrive/Documents/GitHub/IT3105-AiProg/images/' +str(filename) +'.png')
         height, width, layers = img.shape
         size = (width,height)
         img_array.append(img)
-    out = cv2.VideoWriter('game.avi',cv2.VideoWriter_fourcc(*'DIVX'), videoFps, size)
+    out = cv2.VideoWriter(str(name) + '.avi',cv2.VideoWriter_fourcc(*'DIVX'), videoFps, size)
  
     for i in range(len(img_array)):
         out.write(img_array[i])
