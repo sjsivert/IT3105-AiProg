@@ -15,6 +15,16 @@ class Action():
         return str(self.moveFrom.location[0])+',' + str(self.moveFrom.location[1])+',' + str(self.moveTo.location[0]) + ',' + str(self.moveTo.location[1])
 
 
+class SAP:
+    """
+        State Action Pair
+    """
+
+    def __init__(self, stateHash: str, action: Action):
+        self.stateHash = stateHash
+        self.action = action
+
+
 class SimWorld():
     def __init__(
             self,
@@ -23,12 +33,12 @@ class SimWorld():
             removeLocations: List[(int)] = []
     ) -> None:
         hexboard = HexBoard(Boardtype[boardType], boardWith, removeLocations)
-        self.boardState = BoardState(hexboard)
-        self.stateActionLog = []
+        self._boardState = BoardState(hexboard)
+        self._stateActionLog = []
 
     def getLegalActions(self) -> List[Action]:
 
-        state = self.boardState.state
+        state = self._boardState.state
         if state == None:
             return []
         actionList = []
@@ -53,18 +63,22 @@ class SimWorld():
         return actionList
     # TODO make pegMethod: set value
 
-    def getGameLog(self):
-        return self.stateActionLog
+    def getState(self) -> List[BoardState]:
+        return self._boardState
 
-    # TODO: Write log to file
+    def getGameLog(self) -> List[SAP]:
+        return self._stateActionLog
+
     def makeAction(self, action) -> bool:
 
-        self.stateActionLog.insert(0, (str(self.boardState.state), action))
+        self._stateActionLog.insert(
+            0, (SAP(self.stateToHash(), action)))
+        # TODO: Write log to file
         if action == None:
             reward = self.getReward(action)
-            self.boardState.state = None
+            self._boardState.state = None
             return reward
-        state = self.boardState
+        state = self._boardState
         state.setPegValue(
             (action.moveFrom.location[0], action.moveFrom.location[1]), 0)
         state.setPegValue(
@@ -77,9 +91,9 @@ class SimWorld():
     def getReward(self, action):
         if action != None:
             return -0.1  # TODO generalize
-        elif self.boardState.countPegs() == 1:
+        elif self._boardState.countPegs() == 1:
             return 10  # TODO generalize
-        return -self.boardState.countPegs()  # TODO generalize
+        return -self._boardState.countPegs()  # TODO generalize
 
     def stateToHash(self) -> str:
-        return str(self.boardState.state)
+        return str(self._boardState)

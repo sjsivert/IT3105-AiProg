@@ -55,7 +55,10 @@ class HexBoard():
 class BoardState():
     def __init__(self, hexBoard: HexBoard) -> None:
         self.state = self._boardToNodes(hexBoard=hexBoard)
-        self.hexboard = hexBoard.board
+        self.hexBoard = hexBoard.board
+
+    def getStateList(self) -> List[Peg]:
+        return self.state
 
     def _boardToNodes(self, hexBoard: HexBoard) -> List[List[Peg]]:
         board = hexBoard.board
@@ -81,13 +84,14 @@ class BoardState():
 
             pegList.append(layerList)
         return pegList
+
     def countPegs(self):
         counter = 0
         for layer in self.state:
             for peg in layer:
                 counter += peg.pegValue
         return counter
-    
+
     def setPegValue(self, location: Tuple, newValue: int) -> bool:
         self.state[location[0]][location[1]].pegValue = newValue
         return True

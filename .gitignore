@@ -131,3 +131,6 @@ dmypy.json
 .vscode*
 *.avi
 *.png
+*.png
+**.png
+images/*

@@ -10,7 +10,6 @@ from Node import Node
 import plotly.graph_objects as go
 import cv2
 import numpy as np
-import glob
 
 videoFps = 2
 
@@ -32,6 +31,7 @@ def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor='#0000ff', no
     colors = []
     pos = {}
     nodeSizes = []
+    pegList = pegList.getStateList()
     for layer in range(len(pegList)):
         for node in range(len(pegList[layer])):
 

@@ -130,22 +130,23 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
                 (discountFactor * GetValue(world.stateToHash())) - GetValue(state)
             eligibilityValueDict[state] = 1
             TotalError += abs(TDError)
-            for SAP in world.getGameLog():
-                value = GetValue(SAP[0])
-                eligibilityValue = eligibilityValueDict[SAP[0]]
-                SetValue(SAP[0], value + (learningRateCritic *
-                                          TDError * eligibilityValue))
 
-                eligibilityValueDict[SAP[0]] = eligibilityValue * \
+            for SAP in world.getGameLog():
+                value = GetValue(SAP.stateHash)
+                eligibilityValue = eligibilityValueDict[SAP.stateHash]
+                SetValue(SAP.stateHash, value + (learningRateCritic *
+                                                 TDError * eligibilityValue))
+
+                eligibilityValueDict[SAP.stateHash] = eligibilityValue * \
                     discountFactor * eligibilityDecayValue
 
-                policyKey = str(SAP[0]) + str(SAP[1])
+                policyKey = str(SAP.stateHash) + str(SAP.action)
                 poicyValue = GetPolicy(policyKey)
                 eligibilityPolicy = eligibilityPolicyDict[policyKey]
                 SetPolicy(policyKey, poicyValue +
                           (learningRateActor * TDError * eligibilityPolicy))
 
-                eligibilityPolicyDict[SAP[0]] = eligibilityPolicy * \
+                eligibilityPolicyDict[SAP.stateHash] = eligibilityPolicy * \
                     discountFactor * eligibilityDecayPolicy
 
             if chosenAction == None:
@@ -167,11 +168,11 @@ def TestModel(boardSize, maxRemovePegs, boardType, name):
     world = GetSolvableBoard(boardSize, boardType, name)
     chosenAction = ChooseActionByPolicy(world)
 
-    visualizer.VisualizePegs(world.boardState.state, stepNumber)
+    visualizer.VisualizePegs(world.getState(), stepNumber)
     while True:
         world.makeAction(chosenAction)
         visualizer.VisualizePegs(
-            world.boardState.state, stepNumber, chosenAction)
+            world.getState(), stepNumber, chosenAction)
         chosenAction = ChooseActionByPolicy(world)
         if chosenAction == None:
             break
@@ -183,7 +184,7 @@ def ReadTables():
     with open('value.csv', mode='r') as infile:
         reader = csv.DictReader(infile)
         for row in reader:
-            valueTable[row['Value']] = float(row['Eligibility'])
+            valueTable[row['stateHash']] = float(row['stateValue'])
     with open('policy.csv', mode='r') as infile:
         reader = csv.DictReader(infile)
         for row in reader:
@@ -192,10 +193,10 @@ def ReadTables():
 
 def WriteTables():
     with open('value.csv', mode='w') as infile:
-        writer = csv.DictWriter(infile, ['Value', 'Eligibility'])
+        writer = csv.DictWriter(infile, ['stateHash', 'stateValue'])
         writer.writeheader()
         for key in valueTable.keys():
-            writer.writerow({'Value': key, 'Eligibility': valueTable[key]})
+            writer.writerow({'stateHash': key, 'stateValue': valueTable[key]})
 
     with open('policy.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['Policy', 'Eligibility'])
