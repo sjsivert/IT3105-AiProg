@@ -12,7 +12,7 @@ class Action():
         return [self.moveFrom, self.jumpOver, self.moveTo]
 
     def __str__(self) -> str:
-        return str(self.moveFrom.location[0])+',' + str(self.moveFrom.location[1])+','+  str(self.moveTo.location[0]) +',' +  str(self.moveTo.location[1])
+        return str(self.moveFrom.location[0])+',' + str(self.moveFrom.location[1])+',' + str(self.moveTo.location[0]) + ',' + str(self.moveTo.location[1])
 
 
 class SimWorld():
@@ -27,7 +27,7 @@ class SimWorld():
         self.stateActionLog = []
 
     def getLegalActions(self) -> List[Action]:
-        
+
         state = self.boardState.state
         if state == None:
             return []
@@ -41,52 +41,45 @@ class SimWorld():
             if node.pegValue == 1:
                 for direction, neighboar in node.neighboursDic.items():
                     if neighboar.pegValue == 1 and direction in neighboar.neighboursDic:
-                            
+
                         if neighboar.neighboursDic[direction].pegValue == 0:
                             jumpFrom = node
                             jumpTo = neighboar.neighboursDic[direction]
                             jumpOver = neighboar
                             action = Action(jumpFrom, jumpOver, jumpTo)
                             actionList.append(action)
-        #for i in actionList:
-        #    print(i.moveFrom.location, i.moveTo.location, "f")  
+        # for i in actionList:
+        #    print(i.moveFrom.location, i.moveTo.location, "f")
         return actionList
     # TODO make pegMethod: set value
 
     def getGameLog(self):
         return self.stateActionLog
 
+    # TODO: Write log to file
     def makeAction(self, action) -> bool:
-        
-        self.stateActionLog.insert(0,(str(self.boardState.state), action))
+
+        self.stateActionLog.insert(0, (str(self.boardState.state), action))
         if action == None:
             reward = self.getReward(action)
             self.boardState.state = None
             return reward
         state = self.boardState
-        state.setPegValue((action.moveFrom.location[0], action.moveFrom.location[1]), 0)
-        state.setPegValue((action.jumpOver.location[0], action.jumpOver.location[1]), 0)
-        state.setPegValue((action.moveTo.location[0], action.moveTo.location[1]), 1)
+        state.setPegValue(
+            (action.moveFrom.location[0], action.moveFrom.location[1]), 0)
+        state.setPegValue(
+            (action.jumpOver.location[0], action.jumpOver.location[1]), 0)
+        state.setPegValue(
+            (action.moveTo.location[0], action.moveTo.location[1]), 1)
 
         return self.getReward(action)
-    
-    def peekAction(self, action) -> str:
-        if action == None:
-            return str(self.boardState.state)
-
-        state = self.boardState.hexboard.copy()
-        state[action.moveFrom.location[0]] [action.moveFrom.location[1]] = 0
-        state[action.jumpOver.location[0]][action.jumpOver.location[1]] = 0
-        state[action.moveTo.location[0]][action.moveTo.location[1]] = 1
-        return str(state)
 
     def getReward(self, action):
         if action != None:
-            return -0.1#TODO generalize
+            return -0.1  # TODO generalize
         elif self.boardState.countPegs() == 1:
-            return 10#TODO generalize
-        return -self.boardState.countPegs()#TODO generalize
+            return 10  # TODO generalize
+        return -self.boardState.countPegs()  # TODO generalize
 
     def stateToHash(self) -> str:
         return str(self.boardState.state)
-

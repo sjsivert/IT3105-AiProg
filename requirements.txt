@@ -5,3 +5,4 @@ networkx
 plotly
 matplotlib
 pylint
+opencv_python

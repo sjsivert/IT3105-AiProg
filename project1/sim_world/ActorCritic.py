@@ -1,5 +1,5 @@
 import csv
-from SimWorld import SimWorld,Action
+from SimWorld import SimWorld, Action
 import VisualizeBoard as visualizer
 import random
 
@@ -11,25 +11,26 @@ eligibilityDecayPolicy = 0.9
 discountFactor = 0.9
 learningRateActor = 0.1
 learningRateCritic = 0.1
-epsylon = 0.6 
+epsylon = 0.6
 
-solvableRemovePegs ={
-    4:[
-        [(1,0)],
-        [(2,0)],
-        [(1,1)],
-        [(2,2)],
-        [(3,1)],
-        [(3,2)],
-        [(2,1)],
-        [(2,0), (3,0)],
-        [(3,1), (3,0)],
-        [(3,3), (3,2)],
-        [(3,3), (2,2)],
-        [(0,0), (1,0)],
-        [(0,0), (1,1)]
+solvableRemovePegs = {
+    4: [
+        [(1, 0)],
+        [(2, 0)],
+        [(1, 1)],
+        [(2, 2)],
+        [(3, 1)],
+        [(3, 2)],
+        [(2, 1)],
+        [(2, 0), (3, 0)],
+        [(3, 1), (3, 0)],
+        [(3, 3), (3, 2)],
+        [(3, 3), (2, 2)],
+        [(0, 0), (1, 0)],
+        [(0, 0), (1, 1)]
     ]
 }
+
 
 def GetValue(key: str) -> float:
     if valueTable.get(key, False):
@@ -37,8 +38,10 @@ def GetValue(key: str) -> float:
     else:
         return 0
 
+
 def SetValue(key, value):
     valueTable[key] = value
+
 
 def GetPolicy(key: str) -> float:
     if policyTable.get(key, False):
@@ -46,8 +49,10 @@ def GetPolicy(key: str) -> float:
     else:
         return 0
 
+
 def SetPolicy(key, value):
     policyTable[key] = value
+
 
 def ChooseActionByPolicy(world):
     actions = world.getLegalActions()
@@ -62,37 +67,46 @@ def ChooseActionByPolicy(world):
                 value = GetPolicy(world.stateToHash() + str(actions[i]))
         return actions[bestIndex]
 
-    maxRand = len(actions) -1
+    maxRand = len(actions) - 1
     rand = random.randint(0, maxRand)
     return actions[rand]
 
-def GetRemovePegs(boardSize, it):
+
+def GetRandomisedRemovePegs(boardSize, maxRemovePegs):
+    """
+        Generates random starting stated
+        TODO: Make better
+    """
     List = []
-    it = random.randint(1, it)
-    for i in range(it):
-        x = random.randint(0, boardSize -1)
-        t = (x, random.randint(0, x) )
+    maxRemovePegs = random.randint(1, maxRemovePegs)
+    for i in range(maxRemovePegs):
+        x = random.randint(0, boardSize - 1)
+        t = (x, random.randint(0, x))
         if t not in List:
             List.append(t)
     return List
 
+
 def GetSolvableRemovePegs(boardSize, name):
     solvableInSize = len(solvableRemovePegs[boardSize])
-    return solvableRemovePegs[boardSize][min(solvableInSize -1, name)]
+    return solvableRemovePegs[boardSize][min(solvableInSize - 1, name)]
+
 
 def GetRandomizedBoard(boardSize, maxRemovePegs, boardType):
-    removePegs = GetRemovePegs(boardSize, maxRemovePegs)
+    removePegs = GetRandomisedRemovePegs(boardSize, maxRemovePegs)
     return SimWorld(boardType, boardSize, removePegs)
+
 
 def GetSolvableBoard(boardSize, boardType, name):
     removePegs = GetSolvableRemovePegs(boardSize, name)
     return SimWorld(boardType, boardSize, removePegs)
 
+
 def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
     TotalError = 0
     stepsTaken = 1
-    ReadTables() 
-    
+    ReadTables()
+
     for i in range(episodes):
         world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
 
@@ -105,38 +119,44 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType):
         if (len(world.getLegalActions()) > 0):
             chosenAction = ChooseActionByPolicy(world)
         while True:
-            
+
             reward = world.makeAction(chosenAction)
-            
+
             nextAction = ChooseActionByPolicy(world)
             nextState = world.stateToHash()
             eligibilityPolicyDict[state + str(chosenAction)] = 1
-            
-            TDError = reward + (discountFactor * GetValue(world.stateToHash())) - GetValue(state)
+
+            TDError = reward + \
+                (discountFactor * GetValue(world.stateToHash())) - GetValue(state)
             eligibilityValueDict[state] = 1
             TotalError += abs(TDError)
             for SAP in world.getGameLog():
                 value = GetValue(SAP[0])
                 eligibilityValue = eligibilityValueDict[SAP[0]]
-                SetValue(SAP[0], value + (learningRateCritic* TDError* eligibilityValue))
-                
-                eligibilityValueDict[SAP[0]] = eligibilityValue * discountFactor * eligibilityDecayValue
-                
+                SetValue(SAP[0], value + (learningRateCritic *
+                                          TDError * eligibilityValue))
+
+                eligibilityValueDict[SAP[0]] = eligibilityValue * \
+                    discountFactor * eligibilityDecayValue
+
                 policyKey = str(SAP[0]) + str(SAP[1])
                 poicyValue = GetPolicy(policyKey)
                 eligibilityPolicy = eligibilityPolicyDict[policyKey]
-                SetPolicy(policyKey, poicyValue + (learningRateActor* TDError * eligibilityPolicy))
-                
-                eligibilityPolicyDict[SAP[0]] = eligibilityPolicy * discountFactor * eligibilityDecayPolicy
-            
+                SetPolicy(policyKey, poicyValue +
+                          (learningRateActor * TDError * eligibilityPolicy))
+
+                eligibilityPolicyDict[SAP[0]] = eligibilityPolicy * \
+                    discountFactor * eligibilityDecayPolicy
+
             if chosenAction == None:
                 break
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1
-        print('Episode:' , i, 'MeanError', TotalError / stepsTaken)
-        
+        print('Episode:', i, 'MeanError', TotalError / stepsTaken)
+
     WriteTables()
+
 
 def TestModel(boardSize, maxRemovePegs, boardType, name):
     global epsylon
@@ -146,16 +166,18 @@ def TestModel(boardSize, maxRemovePegs, boardType, name):
     world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
     world = GetSolvableBoard(boardSize, boardType, name)
     chosenAction = ChooseActionByPolicy(world)
-    
+
     visualizer.VisualizePegs(world.boardState.state, stepNumber)
     while True:
         world.makeAction(chosenAction)
-        visualizer.VisualizePegs(world.boardState.state, stepNumber, chosenAction)
+        visualizer.VisualizePegs(
+            world.boardState.state, stepNumber, chosenAction)
         chosenAction = ChooseActionByPolicy(world)
         if chosenAction == None:
             break
-        stepNumber+=1
+        stepNumber += 1
     visualizer.GenerateVideo(stepNumber, name)
+
 
 def ReadTables():
     with open('value.csv', mode='r') as infile:
@@ -166,6 +188,7 @@ def ReadTables():
         reader = csv.DictReader(infile)
         for row in reader:
             policyTable[row['Policy']] = float(row['Eligibility'])
+
 
 def WriteTables():
     with open('value.csv', mode='w') as infile:
@@ -179,7 +202,6 @@ def WriteTables():
         writer.writeheader()
         for key in policyTable.keys():
             writer.writerow({'Policy': key, 'Eligibility': policyTable[key]})
-
 
 
 WriteTables()

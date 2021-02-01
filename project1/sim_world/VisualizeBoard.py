@@ -14,7 +14,9 @@ import glob
 
 videoFps = 2
 
-#TODO add to class
+# TODO add to class
+
+
 def plotTree(node: Peg, G, drawnList: list) -> None:
     if node not in drawnList:
         G.add_node(node.location)
@@ -25,19 +27,19 @@ def plotTree(node: Peg, G, drawnList: list) -> None:
     return G
 
 
-def VisualizePegs(pegList, stepNumber = 0, lastAction =None, pegColor ='#0000ff',noPegColor ='#000000',nodeSize = 120, movedSize = 300):
+def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor='#0000ff', noPegColor='#000000', nodeSize=120, movedSize=300):
     nodes = []
     colors = []
-    pos ={}
+    pos = {}
     nodeSizes = []
     for layer in range(len(pegList)):
         for node in range(len(pegList[layer])):
-            
+
             nodes.append(pegList[layer][node].location)
 
             halfLayerSize = (len(pegList[layer]) / 2)
             nodeXPos = node - halfLayerSize
-            nodeYPos =  0.9 - (layer / len(pegList)) * 1.8
+            nodeYPos = 0.9 - (layer / len(pegList)) * 1.8
             pos[pegList[layer][node].location] = [nodeXPos, nodeYPos]
 
             colors.append(noPegColor)
@@ -51,27 +53,31 @@ def VisualizePegs(pegList, stepNumber = 0, lastAction =None, pegColor ='#0000ff'
                 if pegList[layer][node].location == lastAction.moveTo.location:
                     nodeSizes[-1] = movedSize
 
-
     G = nx.Graph()
     G = plotTree(pegList[0][0], G, [])
 
     fig, ax = plt.subplots()
-    
-    nx.draw_networkx(G, pos, nodelist=nodes, node_size=nodeSizes, node_color=colors,with_labels=False)
-    plt.ylim(-1,1)
+
+    nx.draw_networkx(G, pos, nodelist=nodes, node_size=nodeSizes,
+                     node_color=colors, with_labels=False)
+    plt.ylim(-1, 1)
     ax.set_facecolor('deepskyblue')
     plt.axis('off')
     fig.set_facecolor('deepskyblue')
-    plt.savefig('images/' +str(stepNumber) + '.png')
+    plt.savefig('images/' + str(stepNumber) + '.png')
+    plt.close()
+
+
 def GenerateVideo(stepNumber, name):
     img_array = []
     for filename in range(stepNumber + 1):
-        img = cv2.imread('C:/Users/eivin/OneDrive/Documents/GitHub/IT3105-AiProg/images/' +str(filename) +'.png')
+        img = cv2.imread('images/' + str(filename) + '.png')
         height, width, layers = img.shape
-        size = (width,height)
+        size = (width, height)
         img_array.append(img)
-    out = cv2.VideoWriter(str(name) + '.avi',cv2.VideoWriter_fourcc(*'DIVX'), videoFps, size)
- 
+    out = cv2.VideoWriter(str(name) + '.avi',
+                          cv2.VideoWriter_fourcc(*'DIVX'), videoFps, size)
+
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
