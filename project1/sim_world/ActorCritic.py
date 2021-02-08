@@ -16,23 +16,7 @@ learningRateCritic = 0.1
 epsylon = 0.6
 """
 
-solvableRemovePegs = {
-    4: [
-        [(1, 0)],
-        [(2, 0)],
-        [(1, 1)],
-        [(2, 2)],
-        [(3, 1)],
-        [(3, 2)],
-        [(2, 1)],
-        [(2, 0), (3, 0)],
-        [(3, 1), (3, 0)],
-        [(3, 3), (3, 2)],
-        [(3, 3), (2, 2)],
-        [(0, 0), (1, 0)],
-        [(0, 0), (1, 1)]
-    ]
-}
+solvableRemovePegs = {}
 
 class Actor():
     def __init__(self,
@@ -136,35 +120,35 @@ class Critic:
         currentEligibility = self.eligibility[StateActionPair.stateHash]
         self.eligibility[StateActionPair.stateHash] = currentEligibility * self.discountFactor * self.eligibilityDecay
 
-def GetRandomisedRemovePegs(boardSize, maxRemovePegs):
-    """
-        Generates random starting stated
-        TODO: Make better
-    """
-    List = []
-    maxRemovePegs = random.randint(1, maxRemovePegs)
-    for i in range(maxRemovePegs):
-        x = random.randint(0, boardSize - 1)
-        t = (x, random.randint(0, x))
-        if t not in List:
-            List.append(t)
-    return List
-
+def GetRandomizedBoard(boardSize, RemovePegs, boardType):
+    newWorld = SimWorld(boardType, boardSize)
+    newWorld.RemoveRandomPegs(RemovePegs)
+    return newWorld
 
 def GetSolvableRemovePegs(boardSize, name):
     solvableInSize = len(solvableRemovePegs[boardSize])
     return solvableRemovePegs[boardSize][min(solvableInSize - 1, name)]
 
-
-def GetRandomizedBoard(boardSize, maxRemovePegs, boardType):
-    removePegs = GetRandomisedRemovePegs(boardSize, maxRemovePegs)
-    return SimWorld(boardType, boardSize, removePegs)
-
-
 def GetSolvableBoard(boardSize, boardType, name):
-    removePegs = GetSolvableRemovePegs(boardSize, name)
+    removePegs = GetSolvableRemovePegs(boardType + str(boardSize), name)
     return SimWorld(boardType, boardSize, removePegs)
 
+def updateSolvableStates(boardName, removeLocations):
+    if boardName not in solvableRemovePegs.keys():
+        solvableRemovePegs[boardName] = []
+    notIn = True
+    for removeTuples in solvableRemovePegs[boardName]:
+        if len(removeTuples) == len(removeLocations):
+            inTuple = True
+            for removeTuple in removeLocations:
+                if removeTuple not in removeTuples:
+                    inTuple = False
+                    break
+            if inTuple:
+                notIn = False
+    
+    if notIn:
+        solvableRemovePegs[boardName].append(removeLocations)
 
 def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, learningRate = 0.1, policyTable = {}, valueTable = {}):
     TotalError = 0
@@ -201,6 +185,9 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
                 actor.updatePolicy(SAP, critic.tdError)
                 actor.decayEligibility(SAP)
             
+            if reward == 10:
+                #print(world.startRemoveLocations, stepsTaken, world.getGameLog()[-1].stateHash)
+                updateSolvableStates(boardType + str(boardSize), world.startRemoveLocations)
             if chosenAction == None:
                 break
             chosenAction = nextAction
@@ -210,7 +197,6 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
         print('Episode:', i, 'MeanError', TotalError / stepsTaken)
 
     WriteTables(critic.getValueTable(), actor.getPolicyTable())
-
 
 def TestModel(boardSize, maxRemovePegs, boardType, name):
 
@@ -223,17 +209,19 @@ def TestModel(boardSize, maxRemovePegs, boardType, name):
     chosenAction = actor.ChooseActionByPolicy(world)
 
     visualizer.VisualizePegs(world.getState(), stepNumber)
+    reward = 0
     while True:
         world.makeAction(chosenAction)
         visualizer.VisualizePegs(
             world.getState(), stepNumber, chosenAction)
         chosenAction = actor.ChooseActionByPolicy(world)
         if chosenAction == None:
+            reward = world.makeAction(chosenAction)
+            print("EndState:", world._boardState.state, 'reward:', reward)
             break
         stepNumber += 1
-    print(world.getGameLog()[0].stateHash)
     visualizer.GenerateVideo(stepNumber, name)
-
+    return reward
 
 def ReadTables():
     values = {}
@@ -246,9 +234,19 @@ def ReadTables():
         reader = csv.DictReader(infile)
         for row in reader:
             policy[row['Policy']] = float(row['Eligibility'])
+    with open('solvable.csv', mode='r') as infile:
+        reader = csv.DictReader(infile)
+        for row in reader:
+            boardsList = []
+            for states in row['States'].split('|'):
+                statesList = []
+                for tuples in states.split('/'):
+                    removeTuple = (int(tuples.split(',')[0]),int(tuples.split(',')[1]))
+                    statesList.append(removeTuple)
+                boardsList.append(statesList)
+            solvableRemovePegs[row['Board']] = boardsList
             
     return values, policy
-
 
 def WriteTables(values, policy):
     with open('value.csv', mode='w') as infile:
@@ -263,17 +261,29 @@ def WriteTables(values, policy):
         for key in policy.keys():
             writer.writerow({'Policy': key, 'Eligibility': policy[key]})
 
+    with open('solvable.csv', mode='w') as infile:
+        writer = csv.DictWriter(infile, ['Board', 'States'])
+        writer.writeheader()
+        for key in solvableRemovePegs.keys():
+            solvableSatesString = ''
+            for states in solvableRemovePegs[key]:
+                for tuples in states:
+                    for item in tuples:
+                        solvableSatesString += str(item) + ','
+                    solvableSatesString = solvableSatesString[:-1]
+                    solvableSatesString += '/' 
+                solvableSatesString = solvableSatesString[:-1]
+                solvableSatesString += '|' 
+            solvableSatesString = solvableSatesString[:-1]
+            writer.writerow({'Board': key, 'States': solvableSatesString})
+ReadTables()
+DoEpisodes(5000, 4, 2, 'diamond')
+DoEpisodes(5000, 4, 2, 'diamond', 0, 0.04)
 
-DoEpisodes(5000, 4, 4, 'diamond')
-DoEpisodes(5000, 4, 4, 'diamond', 0, 0.04)
+totalReward = 0
+for i in range(len(solvableRemovePegs['diamond4'])):
+    print (i + 1, "/", len(solvableRemovePegs['diamond4']))
 
+    totalReward += TestModel(4, 2, 'diamond', i)
 
-TestModel(4, 4, 'diamond', 0)
-TestModel(4, 4, 'diamond', 1)
-TestModel(4, 4, 'diamond', 2)
-TestModel(4, 4, 'diamond', 3)
-TestModel(4, 4, 'diamond', 4)
-TestModel(4, 4, 'diamond', 5)
-TestModel(4, 4, 'diamond', 6)
-TestModel(4, 4, 'diamond', 7)
-
+print ((totalReward / 10 )/ len(solvableRemovePegs['diamond4']))

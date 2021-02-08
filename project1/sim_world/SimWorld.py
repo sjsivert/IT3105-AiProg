@@ -1,6 +1,6 @@
 from GenerateBoard import Boardtype, BoardState, HexBoard
 from typing import List, Tuple
-
+import random
 
 class Action():
     def __init__(self, moveFrom: Tuple[int], jumpOver: Tuple[int], moveTo: Tuple[Tuple]) -> None:
@@ -33,6 +33,7 @@ class SimWorld():
             removeLocations: List[(int)] = []
     ) -> None:
         hexboard = HexBoard(Boardtype[boardType], boardWith, removeLocations)
+        self.startRemoveLocations = removeLocations
         self._boardState = BoardState(hexboard)
         self._stateActionLog = []
 
@@ -97,3 +98,15 @@ class SimWorld():
 
     def stateToHash(self) -> str:
         return str(self._boardState)
+
+    def RemoveRandomPegs(self, count):
+        count = count % self._boardState.countPegs()
+        self.startRemoveLocations = []
+        while count > 0:
+            state = self._boardState
+            x = random.randint(0, len(state.state) - 1)
+            y = random.randint(0, len(state.state[x]) - 1)
+            if state.state[x][y].pegValue == 1:
+                state.setPegValue((x,y),0)
+                count -= 1
+                self.startRemoveLocations.append((x,y))
