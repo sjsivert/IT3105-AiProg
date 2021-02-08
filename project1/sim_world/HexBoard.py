@@ -2,6 +2,8 @@ import json
 
 from project1.sim_world.Node import Node
 
+# TODO: REMOVE FILE
+
 
 def createChildren(grid, parents: list, numberOfChildren: int, deapthLimit: int):
     childrens = []
