@@ -65,7 +65,7 @@ class Actor():
         policyChange = (self.learningRate * tdError * currentEligibility)
         self.setPolicy(policyKey, poicyValue + policyChange)
 
-    def updateEligibility(self, SateActionPair):
+    def decayEligibility(self, SateActionPair):
         policyKey = str(SateActionPair.stateHash) + str(SateActionPair.action)
         currentEligibility = self.eligibility[policyKey]
         self.eligibility[SateActionPair.stateHash] = currentEligibility * self.discountFactor * self.eligibilityDecay
@@ -189,7 +189,7 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
             nextAction = actor.ChooseActionByPolicy(world)
             nextState = world.stateToHash()
 
-            actor.eligibility[state + str(chosenAction)] = 1 # Set eligibility to 1 in given state
+            actor.eligibility[state + str(chosenAction)] = 1
             critic.updateTDError(reward, state, nextState)
             critic.eligibility[state] = 1
             TotalError += abs(critic.tdError)
@@ -199,7 +199,7 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
                 critic.decayEligibility(SAP)
                 
                 actor.updatePolicy(SAP, critic.tdError)
-                actor.updateEligibility(SAP)
+                actor.decayEligibility(SAP)
             
             if chosenAction == None:
                 break
