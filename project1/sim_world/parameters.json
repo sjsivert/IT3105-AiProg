@@ -4,19 +4,19 @@
     "open_cells": [
         [
             2,
-            1
+            0
         ]
     ],
-    "num_episodes": 10000,
+    "num_episodes": 100,
     "critic_type": "table",
     "nn_dimensions": "",
-    "learning_rate_actor": 0.7,
-    "learning_rate_critic": 0.7,
+    "learning_rate_actor": 0.04,
+    "learning_rate_critic": 0.04,
     "decay_rate_actor": 0.9,
-    "decay_rate_critic": 0.8,
-    "discount_factor_actor": 0.95,
-    "discount_factor_critic": 0.8,
-    "epsilon": 0.8,
+    "decay_rate_critic": 0.9,
+    "discount_factor_actor": 0.9,
+    "discount_factor_critic": 0.9,
+    "epsilon": 0,
     "epsilon_decay_rate": 0.01,
     "use_neural_critic": false,
     "hidden_layers_dim": [

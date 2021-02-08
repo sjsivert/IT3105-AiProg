@@ -41,14 +41,7 @@ def main():
         discountFactorCritic=discount_factor_critic,
     )
 
-    TestModel(4, 4, 'diamond', 0)
-    TestModel(4, 4, 'diamond', 1)
-    TestModel(4, 4, 'diamond', 2)
-    TestModel(4, 4, 'diamond', 3)
-    TestModel(4, 4, 'diamond', 4)
-    TestModel(4, 4, 'diamond', 5)
-    TestModel(4, 4, 'diamond', 6)
-    TestModel(4, 4, 'diamond', 7)
+    TestModel(4, 'diamond', open_cells)
 
 
 def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligibilityDecayActor, eligibilityDecayCritic, epsilon=0.6,

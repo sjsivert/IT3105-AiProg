@@ -2,135 +2,22 @@ import csv
 from SimWorld import SimWorld, Action
 import VisualizeBoard as visualizer
 import random
+from Actor import Actor
+from Critic import Critic
 
 
 episodeRewards = []
 discountFactor = 0.9
-"""
-valueTable = {}
-policyTable = {}
-eligibilityDecayValue = 0.9
-eligibilityDecayPolicy = 0.9
-learningRateActor = 0.1
-learningRateCritic = 0.1
-epsylon = 0.6
-"""
 
 solvableRemovePegs = {}
-
-class Actor():
-    def __init__(self,
-        eligibilityDecay = 0.9,
-        learningRate = 0.1,
-        epsilon = 0.6,
-        policyTable = {},
-        discountFactor = 0.9
-    ) -> None:
-        self.policyTable = policyTable
-        self.eligibility = {}
-        self.eligibilityDecay = eligibilityDecay
-        self.learningRate = learningRate
-        self.epsilon = epsilon
-        self.discountFactor = discountFactor
-
-    def resetEligibility(self):
-        self.eligibility = {}
-    
-    def getPolicy(self, key: str) -> float:
-        if self.policyTable.get(key, False):
-            return self.policyTable[key]
-        else:
-            return 0
-
-    def updatePolicy(self, SateActionPair, tdError):
-        policyKey = str(SateActionPair.stateHash) + str(SateActionPair.action)
-        poicyValue = self.getPolicy(policyKey)
-        currentEligibility = self.eligibility[policyKey]
-        policyChange = (self.learningRate * tdError * currentEligibility)
-        self.setPolicy(policyKey, poicyValue + policyChange)
-
-    def decayEligibility(self, SateActionPair):
-        policyKey = str(SateActionPair.stateHash) + str(SateActionPair.action)
-        currentEligibility = self.eligibility[policyKey]
-        self.eligibility[SateActionPair.stateHash] = currentEligibility * self.discountFactor * self.eligibilityDecay
-       
-    def getPolicyTable(self) -> dict:
-        return self.policyTable
-
-    def setPolicy(self, key, value):
-        self.policyTable[key] = value
-
-    def ChooseActionByPolicy(self, world):
-        actions = world.getLegalActions()
-        if len(actions) == 0: # Safeguard against wrong startingstate
-            return None
-        if random.uniform(0, 1) > self.epsilon:
-            bestIndex = 0
-            value = -100000000000000000
-            for i in range(len(actions)):
-                if self.getPolicy(world.stateToHash() + str(actions[i])) > value:
-                    bestIndex = i
-                    value = self.getPolicy(world.stateToHash() + str(actions[i]))
-            return actions[bestIndex]
-
-        maxRand = len(actions) - 1
-        rand = random.randint(0, maxRand)
-        return actions[rand]
-    
-    
-
-class Critic: 
-    def __init__(self,
-        learningRate = 0.1,
-        eligibilityDecay = 0.9,
-        valueTable = {},
-        discountFactor = 0.9
-    ) -> None:
-        self.valueTable = valueTable
-        self.eligibilityDecay = eligibilityDecay
-        self.eligibility = {}
-        self.tdError = 0
-        self.learningRate = learningRate
-        self.discountFactor = discountFactor
-        
-    def resetEligibility(self):
-        self.eligibility = {}
-
-    def getValueTable(self) -> dict:
-        return self.valueTable
-
-    def getValue(self, key: str) -> float:
-        if self.valueTable.get(key, False):
-            return self.valueTable[key]
-        else:
-            return 0
-
-    def setValue(self, key, value):
-        self.valueTable[key] = value
-
-    def updateTDError(self, reward, state, nextState):
-        self.tdError = reward + (self.discountFactor * self.getValue(nextState)) - self.getValue(state)
-
-    def updateValue(self, StateActionPair):
-        currentEligibility = self.eligibility[StateActionPair.stateHash]
-        value = self.getValue(StateActionPair.stateHash)
-        self.setValue(StateActionPair.stateHash, value + (self.learningRate * self.tdError * currentEligibility))
-
-    def decayEligibility(self, StateActionPair):
-        currentEligibility = self.eligibility[StateActionPair.stateHash]
-        self.eligibility[StateActionPair.stateHash] = currentEligibility * self.discountFactor * self.eligibilityDecay
 
 def GetRandomizedBoard(boardSize, RemovePegs, boardType):
     newWorld = SimWorld(boardType, boardSize)
     newWorld.RemoveRandomPegs(RemovePegs)
     return newWorld
 
-def GetSolvableRemovePegs(boardSize, name):
-    solvableInSize = len(solvableRemovePegs[boardSize])
-    return solvableRemovePegs[boardSize][min(solvableInSize - 1, name)]
-
-def GetSolvableBoard(boardSize, boardType, name):
-    removePegs = GetSolvableRemovePegs(boardType + str(boardSize), name)
+def GetSolvableBoard(boardSize, boardType, index):
+    removePegs = solvableRemovePegs[boardType + str(boardSize)][index]
     return SimWorld(boardType, boardSize, removePegs)
 
 def updateSolvableStates(boardName, removeLocations):
@@ -198,14 +85,13 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
 
     WriteTables(critic.getValueTable(), actor.getPolicyTable())
 
-def TestModel(boardSize, maxRemovePegs, boardType, name):
+def TestModel(boardSize, maxRemovePegs, boardType, index):
 
-    critricTable , actorTable= ReadTables()
-    actor = Actor(0.9, 0.1, 0, actorTable)    
-    critic = Critic(0.9, 0.1, critricTable)  
+    _ , actorTable = ReadTables()
+    actor = Actor(0.9, 0.1, 0, actorTable)
     stepNumber = 0
     #world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
-    world = GetSolvableBoard(boardSize, boardType, name)
+    world = GetSolvableBoard(boardSize, boardType, index)
     chosenAction = actor.ChooseActionByPolicy(world)
 
     visualizer.VisualizePegs(world.getState(), stepNumber)
@@ -216,11 +102,12 @@ def TestModel(boardSize, maxRemovePegs, boardType, name):
             world.getState(), stepNumber, chosenAction)
         chosenAction = actor.ChooseActionByPolicy(world)
         if chosenAction == None:
+            endstate = str(world._boardState.state)
             reward = world.makeAction(chosenAction)
-            print("EndState:", world._boardState.state, 'reward:', reward)
+            print("EndState:", endstate, 'reward:', reward)
             break
         stepNumber += 1
-    visualizer.GenerateVideo(stepNumber, name)
+    visualizer.GenerateVideo(stepNumber, index)
     return reward
 
 def ReadTables():

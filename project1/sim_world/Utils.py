@@ -67,14 +67,12 @@ def GetSolvableBoard(boardSize, boardType, name):
     return SimWorld(boardType, boardSize, removePegs)
 
 
-def TestModel(boardSize, maxRemovePegs, boardType, name):
+def TestModel(boardSize, boardType, removePegs):
 
-    critricTable, actorTable = ReadTables()
+    _ , actorTable = ReadTables()
     actor = Actor(0.9, 0.1, 0, actorTable)
-    critic = Critic(0.9, 0.1, critricTable)
     stepNumber = 0
-    #world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
-    world = GetSolvableBoard(boardSize, boardType, name)
+    world = SimWorld(boardType, boardSize, removePegs)
     chosenAction = actor.ChooseActionByPolicy(world)
 
     visualizer.VisualizePegs(world.getState(), stepNumber)
@@ -84,10 +82,12 @@ def TestModel(boardSize, maxRemovePegs, boardType, name):
             world.getState(), stepNumber, chosenAction)
         chosenAction = actor.ChooseActionByPolicy(world)
         if chosenAction == None:
+            endstate = str(world._boardState.state)
+            reward = world.makeAction(chosenAction)
+            print("EndState:", endstate, 'reward:', reward)
             break
         stepNumber += 1
-    print(world.getGameLog()[0].stateHash)
-    visualizer.GenerateVideo(stepNumber, name)
+    visualizer.GenerateVideo(stepNumber, boardType + str(boardSize))
 
 
 def ReadTables():
