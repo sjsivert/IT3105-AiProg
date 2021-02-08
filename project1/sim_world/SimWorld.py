@@ -93,7 +93,7 @@ class SimWorld():
             return -0.1  # TODO generalize
         elif self._boardState.countPegs() == 1:
             return 10  # TODO generalize
-        return -self._boardState.countPegs()  # TODO generalize
+        return -10 # TODO generalize
 
     def stateToHash(self) -> str:
         return str(self._boardState)

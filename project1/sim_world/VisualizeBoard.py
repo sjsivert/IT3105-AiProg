@@ -31,7 +31,10 @@ def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor='#0000ff', no
     colors = []
     pos = {}
     nodeSizes = []
+    
     pegList = pegList.getStateList()
+    if pegList == None: 
+        return
     for layer in range(len(pegList)):
         for node in range(len(pegList[layer])):
 
