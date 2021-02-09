@@ -6,3 +6,5 @@ plotly
 matplotlib
 pylint
 opencv_python
+tensorflow
+torch

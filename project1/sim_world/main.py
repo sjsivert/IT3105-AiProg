@@ -3,6 +3,7 @@ from SimWorld import SimWorld
 from GenerateBoard import Boardtype, BoardState, HexBoard
 from Actor import Actor
 from Critic import Critic
+from CriticNeural import CriticNeural
 from Utils import GetRandomizedBoard, WriteTables, ReadTables, TestModel
 
 
@@ -22,8 +23,8 @@ def main():
     epsilon_decay_rate = parameters['epsilon_decay_rate']
     num_episodes = parameters['num_episodes']
     board_size = parameters['board_size']
-    use_neural_critic = parameters['use_neural_critic']
     hidden_layers_dim = parameters['hidden_layers_dim']
+    critic_type = parameters['critic_type']
     open_cells = parameters['open_cells']
 
     doEpisodes(
@@ -32,27 +33,42 @@ def main():
         eligibilityDecayActor=decay_rate_actor,
         eligibilityDecayCritic=decay_rate_critic,
         maxRemovePegs=4,  # Why do we need this?,
+        criticType=critic_type,
         boardType=board_type,
         removePegs=open_cells,
         epsilon=epsilon,
+        epsilonDecayRate=epsilon_decay_rate,
         learningRateActor=learning_rate_actor,
         learningRateCritic=learning_rate_critic,
         discountFactorActor=discount_factor_actor,
         discountFactorCritic=discount_factor_critic,
     )
 
-    TestModel(4, 'diamond', open_cells)
+    TestModel(board_size, board_type, open_cells)
 
 
-def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligibilityDecayActor, eligibilityDecayCritic, epsilon=0.6,
-               learningRateActor=0.1, learningRateCritic=0.1, discountFactorActor=0.9, discountFactorCritic=0.9, policyTable={}, valueTable={}):
+def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligibilityDecayActor, eligibilityDecayCritic,
+               epsilon=0.6, hiddenLayersDim=[50],
+               learningRateActor=0.1, learningRateCritic=0.1, criticType="table", discountFactorActor=0.9, discountFactorCritic=0.9, policyTable={}, valueTable={}, epsilonDecayRate=1):
     TotalError = 0
     stepsTaken = 1
 
     actor = Actor(eligibilityDecayActor, learningRateActor, epsilon, policyTable,
                   discountFactorActor)
-    critic = Critic(eligibilityDecayCritic, learningRateCritic, valueTable,
-                    discountFactor=discountFactorCritic)
+
+    if criticType == "neuralnet":
+        critic = CriticNeural(
+            hiddenLayersDim=hiddenLayersDim,
+            eligibilityDecay=eligibilityDecayCritic,
+            learningRate=learningRateCritic,
+            valueTable=valueTable,
+            boardSize=boardSize,
+            boardType=boardType,
+            discountFactor=discountFactorCritic)
+    else:
+        print("Using regular critic")
+        critic = Critic(eligibilityDecayCritic, learningRateCritic, valueTable,
+                        discountFactor=discountFactorCritic)
 
     for i in range(episodes):
         #world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
@@ -88,12 +104,14 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
                 actor.decayEligibility(SAP)
 
             if chosenAction == None:
+                actor.epsilon = actor.epsilon * epsilonDecayRate
                 break
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1
 
-        print('Episode:', i, 'MeanError', TotalError / stepsTaken)
+        print('Episode:', i, 'MeanError', TotalError /
+              stepsTaken, "Epsilon:", actor.epsilon)
 
     WriteTables(critic.getValueTable(), actor.getPolicyTable())
 

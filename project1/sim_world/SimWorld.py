@@ -1,6 +1,8 @@
 from GenerateBoard import Boardtype, BoardState, HexBoard
 from typing import List, Tuple
 import random
+from copy import copy, deepcopy
+
 
 class Action():
     def __init__(self, moveFrom: Tuple[int], jumpOver: Tuple[int], moveTo: Tuple[Tuple]) -> None:
@@ -20,8 +22,9 @@ class SAP:
         State Action Pair
     """
 
-    def __init__(self, stateHash: str, action: Action):
-        self.stateHash = stateHash
+    def __init__(self, state, action: Action):
+        self.stateHash = state.stateToHash()
+        self.state = deepcopy(state._boardState.state)
         self.action = action
 
 
@@ -73,7 +76,7 @@ class SimWorld():
     def makeAction(self, action) -> bool:
 
         self._stateActionLog.insert(
-            0, (SAP(self.stateToHash(), action)))
+            0, (SAP(self, action)))
         # TODO: Write log to file
         if action == None:
             reward = self.getReward(action)
@@ -91,10 +94,10 @@ class SimWorld():
 
     def getReward(self, action):
         if action != None:
-            return -0.1  # TODO generalize
+            return -0.01  # TODO generalize
         elif self._boardState.countPegs() == 1:
             return 10  # TODO generalize
-        return -10 # TODO generalize
+        return -10  # TODO generalize
 
     def stateToHash(self) -> str:
         return str(self._boardState)
@@ -107,6 +110,6 @@ class SimWorld():
             x = random.randint(0, len(state.state) - 1)
             y = random.randint(0, len(state.state[x]) - 1)
             if state.state[x][y].pegValue == 1:
-                state.setPegValue((x,y),0)
+                state.setPegValue((x, y), 0)
                 count -= 1
-                self.startRemoveLocations.append((x,y))
+                self.startRemoveLocations.append((x, y))

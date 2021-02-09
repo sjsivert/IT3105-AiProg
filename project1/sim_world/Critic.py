@@ -19,9 +19,10 @@ class Critic:
     def getValueTable(self) -> dict:
         return self.valueTable
 
-    def getValue(self, key: str) -> float:
+    def getValue(self, state) -> float:
+        key = state.stateToHash()
         if self.valueTable.get(key, False):
-            return self.valueTable[key]
+            return self.valueTable[str(key)]
         else:
             return 0
 
@@ -35,7 +36,7 @@ class Critic:
     def updateValue(self, StateActionPair):
         currentEligibility = self.eligibility[StateActionPair.stateHash]
         value = self.getValue(StateActionPair.stateHash)
-        self.setValue(StateActionPair.stateHash, value +
+        self.setValue(StateActionPair, value +
                       (self.learningRate * self.tdError * currentEligibility))
 
     def decayEligibility(self, StateActionPair):
