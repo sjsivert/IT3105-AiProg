@@ -82,18 +82,18 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
         critic.resetEligibility()
         critic.tdError = 0
         reward = 0
-        state = world.stateToHash()
+        state = world.stateToList()
 
         chosenAction = actor.ChooseActionByPolicy(world)
 
         while True:
             reward = world.makeAction(chosenAction)
             nextAction = actor.ChooseActionByPolicy(world)
-            nextState = world.stateToHash()
+            nextState = world.stateToList()
 
-            actor.eligibility[state + str(chosenAction)] = 1
+            actor.eligibility[str(state) + str(chosenAction)] = 1
             critic.updateTDError(reward, state, nextState)
-            critic.eligibility[state] = 1
+            critic.eligibility[str(state)] = 1
             TotalError += abs(critic.tdError)
             for SAP in world.getGameLog():
 

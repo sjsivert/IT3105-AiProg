@@ -80,7 +80,7 @@ class SimWorld():
         # TODO: Write log to file
         if action == None:
             reward = self.getReward(action)
-            self._boardState.state = None
+            #self._boardState.state = None
             return reward
         state = self._boardState
         state.setPegValue(
@@ -101,6 +101,9 @@ class SimWorld():
 
     def stateToHash(self) -> str:
         return str(self._boardState)
+    
+    def stateToList(self) -> str:
+        return deepcopy(self._boardState.state)
 
     def RemoveRandomPegs(self, count):
         count = count % self._boardState.countPegs()

@@ -31,8 +31,7 @@ class CriticNeural:
         if boardType == "triangle":
             inputSize = ((boardSize ** 2) + boardSize) / 2
         elif boardType == "diamond":
-            if boardType == "triangle":
-                inputSize = boardSize ** 2
+            inputSize = boardSize ** 2
         self.neuralNet = NeuralNetwork(
             input_size=inputSize,
             hidden_layers_dim=hiddenLayersDim
@@ -48,8 +47,8 @@ class CriticNeural:
     def getValueTable(self) -> dict:
         return self.valueTable
 
-    def getValue(self, stateActionPair: SAP) -> float:
-        state = StateToArray(stateCationPair.state)
+    def getValue(self, state: list) -> float:
+        state = StateToArray(state)
         return self.neuralNet(torch.tensor([int(s) for s in state], dtype=torch.float32)).item()
 
     # def setValue(self, key, value):
@@ -75,17 +74,17 @@ class CriticNeural:
         return self.eligibility[nodeIndex]
 
     def updateValue(self, stateActionPair: SAP):
-        state = StateToArray(stateCationPair.state)
+        state = StateToArray(stateActionPair.state)
         input_tensor = torch.tensor(
             [int(s)for s in state], dtype=torch.float32)
 
         self.optimizer.zero_grad()
-        output = self.net(input_tensor)
+        output = self.neuralNet(input_tensor)
 
         if self.tdError == 0:
             self.tdError = 0.000000000001
 
-        loss = self.criterion(output + td_error, output)
+        loss = self.criterion(output + self.tdError, output)
 
         loss.backward()
 

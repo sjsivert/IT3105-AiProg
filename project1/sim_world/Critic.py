@@ -20,7 +20,7 @@ class Critic:
         return self.valueTable
 
     def getValue(self, state) -> float:
-        key = state.stateToHash()
+        key = str(state)
         if self.valueTable.get(key, False):
             return self.valueTable[str(key)]
         else:

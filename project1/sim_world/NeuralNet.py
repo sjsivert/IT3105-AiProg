@@ -20,6 +20,7 @@ class NeuralNetwork(nn.Module):
         current_dim = input_size
 
         for hdim in hidden_layers_dim:
+            print(current_dim, hdim)
             self.layers.append(nn.Linear(current_dim, hdim))
             current_dim = hdim
 
@@ -98,10 +99,13 @@ def neuralNet(
 """
 
 
-def StateToArray(state: BoardState) -> List[int]:
+def StateToArray(state: List) -> List[int]:
     pegList = []
 
-    for layer in state.state:
+    if state == None:
+        return pegList
+
+    for layer in state:
         for peg in layer:
             pegList.append(peg.pegValue)
     return pegList
