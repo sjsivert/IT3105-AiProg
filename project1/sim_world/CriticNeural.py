@@ -103,6 +103,10 @@ class CriticNeural:
         return tf.reduce_mean(loss).numpy() if avg else loss
 
     def decayEligibility(self, StateActionPair):
+        
+        for i in self.eligibility.keys():
+            self.eligibility[i] = self.eligibility[i]  * self.discountFactor * self.eligibilityDecay
+        return
         currentEligibility = self.eligibility[StateActionPair.stateHash]
         self.eligibility[StateActionPair.stateHash] = currentEligibility * \
             self.discountFactor * self.eligibilityDecay

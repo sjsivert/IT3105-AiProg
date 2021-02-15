@@ -21,6 +21,7 @@ def GetSolvableBoard(boardSize, boardType, index):
     return SimWorld(boardType, boardSize, removePegs)
 
 def updateSolvableStates(boardName, removeLocations):
+    print(boardName)
     if boardName not in solvableRemovePegs.keys():
         solvableRemovePegs[boardName] = []
     notIn = True
@@ -37,7 +38,7 @@ def updateSolvableStates(boardName, removeLocations):
     if notIn:
         solvableRemovePegs[boardName].append(removeLocations)
 
-def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, learningRate = 0.1, policyTable = {}, valueTable = {}):
+def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.5, learningRate = 0.9, policyTable = {}, valueTable = {}):
     TotalError = 0
     stepsTaken = 1
 
@@ -83,11 +84,11 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.6, lea
             
         print('Episode:', i, 'MeanError', TotalError / stepsTaken)
 
-    WriteTables(critic.getValueTable(), actor.getPolicyTable())
+    WriteTables(critic.getValueTable(), actor.getPolicyTable(), boardType, boardSize)
 
 def TestModel(boardSize, maxRemovePegs, boardType, index):
 
-    _ , actorTable = ReadTables()
+    _ , actorTable = ReadTables(boardType, boardSize)
     actor = Actor(0.9, 0.1, 0, actorTable)
     stepNumber = 0
     #world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
@@ -110,45 +111,51 @@ def TestModel(boardSize, maxRemovePegs, boardType, index):
     visualizer.GenerateVideo(stepNumber, index)
     return reward
 
-def ReadTables():
+def ReadTables(boardType, boardSize):
     values = {}
     policy = {}
-    with open('value.csv', mode='r') as infile:
-        reader = csv.DictReader(infile)
-        for row in reader:
-            values[row['stateHash']] = float(row['stateValue'])
-    with open('policy.csv', mode='r') as infile:
-        reader = csv.DictReader(infile)
-        for row in reader:
-            policy[row['Policy']] = float(row['Eligibility'])
-    with open('solvable.csv', mode='r') as infile:
-        reader = csv.DictReader(infile)
-        for row in reader:
-            boardsList = []
-            for states in row['States'].split('|'):
-                statesList = []
-                for tuples in states.split('/'):
-                    removeTuple = (int(tuples.split(',')[0]),int(tuples.split(',')[1]))
-                    statesList.append(removeTuple)
-                boardsList.append(statesList)
-            solvableRemovePegs[row['Board']] = boardsList
-            
+    try:
+        with open('value' +boardType + str(boardSize) + '.csv', mode='r') as infile:
+            reader = csv.DictReader(infile)
+            for row in reader:
+                values[row['stateHash']] = float(row['stateValue'])
+        with open('policy' +boardType + str(boardSize) + '.csv', mode='r') as infile:
+            reader = csv.DictReader(infile)
+            for row in reader:
+                policy[row['Policy']] = float(row['Eligibility'])
+    except Exception as e:
+        print(e)
+    try:
+        with open('solvable.csv', mode='r') as infile:
+            reader = csv.DictReader(infile)
+            for row in reader:
+                boardsList = []
+                for states in row['States'].split('|'):
+                    statesList = []
+                    for tuples in states.split('/'):
+                        removeTuple = (int(tuples.split(',')[0]),int(tuples.split(',')[1]))
+                        statesList.append(removeTuple)
+                    boardsList.append(statesList)
+                solvableRemovePegs[row['Board']] = boardsList
+    except Exception as e:
+        print(e)
+
     return values, policy
 
-def WriteTables(values, policy):
-    with open('value.csv', mode='w') as infile:
+def WriteTables(values, policy, boardType, boardSize):
+    with open('value' +boardType + str(boardSize) + '.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['stateHash', 'stateValue'])
         writer.writeheader()
         for key in values.keys():
             writer.writerow({'stateHash': key, 'stateValue': values[key]})
 
-    with open('policy.csv', mode='w') as infile:
+    with open('policy' +boardType + str(boardSize) + '.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['Policy', 'Eligibility'])
         writer.writeheader()
         for key in policy.keys():
             writer.writerow({'Policy': key, 'Eligibility': policy[key]})
 
-    with open('solvable.csv', mode='w') as infile:
+    """with open('solvable.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['Board', 'States'])
         writer.writeheader()
         for key in solvableRemovePegs.keys():
@@ -162,15 +169,19 @@ def WriteTables(values, policy):
                 solvableSatesString = solvableSatesString[:-1]
                 solvableSatesString += '|' 
             solvableSatesString = solvableSatesString[:-1]
-            writer.writerow({'Board': key, 'States': solvableSatesString})
-ReadTables()
-DoEpisodes(5000, 4, 2, 'diamond')
-DoEpisodes(5000, 4, 2, 'diamond', 0, 0.04)
+            writer.writerow({'Board': key, 'States': solvableSatesString})"""
+
+boardType = 'triangle'
+boardSize = 8
+
+ReadTables(boardType, boardSize)
+#DoEpisodes(2000, boardSize, 10, boardType, 0.2, 0.4)
+DoEpisodes(2000, boardSize, 1, boardType, 0.1, 0.99)
 
 totalReward = 0
-for i in range(len(solvableRemovePegs['diamond4'])):
-    print (i + 1, "/", len(solvableRemovePegs['diamond4']))
+for i in range(len(solvableRemovePegs[boardType + str(boardSize)])):
+    print (i + 1, "/", len(solvableRemovePegs[boardType + str(boardSize)]), 'startRemove:', solvableRemovePegs[boardType + str(boardSize)][i] )
 
-    totalReward += TestModel(4, 2, 'diamond', i)
+    totalReward += TestModel(boardSize, 2, boardType, i)
 
-print ((totalReward / 10 )/ len(solvableRemovePegs['diamond4']))
+print ((totalReward / 10 )/ len(solvableRemovePegs[boardType + str(boardSize)]))

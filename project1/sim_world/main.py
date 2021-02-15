@@ -52,7 +52,7 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
                learningRateActor=0.1, learningRateCritic=0.1, criticType="table", discountFactorActor=0.9, discountFactorCritic=0.9, policyTable={}, valueTable={}, epsilonDecayRate=1):
     TotalError = 0
     stepsTaken = 1
-
+    completed = 0
     actor = Actor(eligibilityDecayActor, learningRateActor, epsilon, policyTable,
                   discountFactorActor)
 
@@ -105,13 +105,15 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
 
             if chosenAction == None:
                 actor.epsilon = actor.epsilon * epsilonDecayRate
+                if reward == 10:
+                    completed += 1
                 break
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1
 
-        print('Episode:', i, 'MeanError', TotalError /
-              stepsTaken, "Epsilon:", actor.epsilon)
+        print('Episode:', i, 'TotalMeanError', TotalError /
+              stepsTaken, "Epsilon:", actor.epsilon , "reward:", reward, 'completedBoards:', completed)
 
     WriteTables(critic.getValueTable(), actor.getPolicyTable())
 

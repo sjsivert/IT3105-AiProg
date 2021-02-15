@@ -1,25 +1,22 @@
 {
-    "board_type": "diamond",
-    "board_size": 10,
+    "board_type": "triangle",
+    "board_size": 8   ,
     "open_cells": [
-        [
-            2,
-            0
-        ]
+        [6,4]
     ],
-    "num_episodes": 4000,
-    "critic_type": "neuralnet",
+    "num_episodes": 200,
+    "critic_type": "",
     "nn_dimensions": "",
-    "learning_rate_actor": 0.04,
-    "learning_rate_critic": 0.04,
+    "learning_rate_actor": 0.9,
+    "learning_rate_critic": 0.9,
     "decay_rate_actor": 0.99,
     "decay_rate_critic": 0.99,
-    "discount_factor_actor": 0.99,
-    "discount_factor_critic": 0.99,
-    "epsilon": 0.6,
-    "epsilon_decay_rate": 0.99,
+    "discount_factor_actor": 0.999,
+    "discount_factor_critic": 0.999,
+    "epsilon": 0.5, 
+    "epsilon_decay_rate": 0.993,
     "hidden_layers_dim": [
-        50
+        15, 20, 30, 5
     ],
     "display_var": 1,
     "frame_delay": 0.5

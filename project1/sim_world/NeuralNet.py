@@ -20,8 +20,8 @@ class NeuralNetwork(nn.Module):
         current_dim = input_size
 
         for hdim in hidden_layers_dim:
-            print(current_dim, hdim)
-            self.layers.append(nn.Linear(current_dim, hdim))
+            print(int(current_dim), hdim)
+            self.layers.append(nn.Linear(int(current_dim), hdim))
             current_dim = hdim
 
         self.layers.append(nn.Linear(current_dim, 1))
