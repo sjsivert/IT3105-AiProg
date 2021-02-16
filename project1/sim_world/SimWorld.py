@@ -1,4 +1,4 @@
-from sim_world.GenerateBoard import Boardtype, BoardState, HexBoard
+from sim_world.Board import Boardtype, BoardState, HexBoard
 from typing import List, Tuple
 import random
 from copy import copy, deepcopy

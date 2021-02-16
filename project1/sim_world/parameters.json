@@ -1,5 +1,5 @@
 {
-    "board_type": "triangle",
+    "board_type": "diamond",
     "board_size": 4,
     "open_cells": [
         [
@@ -7,7 +7,7 @@
             0
         ]
     ],
-    "num_episodes": 50,
+    "num_episodes": 500,
     "critic_type": "neuralnet",
     "nn_dimensions": "",
     "learning_rate_actor": 0.999,

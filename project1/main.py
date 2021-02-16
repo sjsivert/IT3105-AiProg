@@ -1,10 +1,9 @@
 import json
 from sim_world.SimWorld import SimWorld
-from sim_world.GenerateBoard import Boardtype, BoardState, HexBoard
 from actor_critic.Actor import Actor
 from actor_critic.Critic import Critic
 from actor_critic.CriticNeural import CriticNeural
-from Utils import GetRandomizedBoard, WriteTables, ReadTables, TestModel
+from Utils import WriteTables, TestModel
 
 
 def main():
@@ -27,6 +26,7 @@ def main():
     critic_type = parameters['critic_type']
     open_cells = parameters['open_cells']
 
+    # Train the model
     doEpisodes(
         episodes=num_episodes,
         boardSize=board_size,
@@ -44,6 +44,7 @@ def main():
         discountFactorCritic=discount_factor_critic,
     )
 
+    # Run the model one last time with the trained values and low epsilon
     TestModel(board_size, board_type, open_cells)
 
 

@@ -1,5 +1,4 @@
-
-from sim_world.GenerateBoard import BoardState
+from sim_world.Board import BoardState
 from tensorflow import keras
 import tensorflow.keras.models as keras_model
 import tensorflow.keras.layers as keras_layers

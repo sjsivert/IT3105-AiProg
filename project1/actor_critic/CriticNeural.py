@@ -96,7 +96,7 @@ class CriticNeural:
         for nodeIndex, weight in enumerate(self.neuralNet.parameters()):
             # Get gradient for the weight and update it using eligibility
             self.eligibility[nodeIndex] = self.getEligibility(nodeIndex) + weight.grad * \
-                ((-2 * float(self.tdError)) ** (-1))
+                ((-2 * 1/float(self.tdError)))
             weight.grad = float(self.tdError) * self.eligibility[nodeIndex]
 
         # Update the weights for the network using the gradients stored above
