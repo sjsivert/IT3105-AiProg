@@ -1,4 +1,4 @@
-from GenerateBoard import Boardtype, BoardState, HexBoard
+from sim_world.GenerateBoard import Boardtype, BoardState, HexBoard
 from typing import List, Tuple
 import random
 from copy import copy, deepcopy
@@ -101,7 +101,7 @@ class SimWorld():
 
     def stateToHash(self) -> str:
         return str(self._boardState)
-    
+
     def stateToList(self) -> str:
         return deepcopy(self._boardState.state)
 

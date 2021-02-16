@@ -1,0 +1,8 @@
+{
+    "include": [
+        "./project1",
+        "./project1/sim_world",
+        "./project1/actor_critic",
+        "./project1/neuralnet"
+    ]
+}
