@@ -4,7 +4,7 @@ from typing import Any
 # ofrom mocker import mocker
 #from unittest.mock import Mock
 from unittest.mock import MagicMixin, MagicMock
-from GenerateBoard import HexBoard, BoardState, Boardtype
+from project1.sim_world.Board import HexBoard, BoardState, Boardtype
 #from Node import Peg
 
 

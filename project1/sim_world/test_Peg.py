@@ -1,6 +1,6 @@
 from unittest.mock import MagicMixin, MagicMock
 import unittest
-from Node import Peg
+from project1.sim_world.Node import Peg
 
 
 class PegTest(unittest.TestCase):
