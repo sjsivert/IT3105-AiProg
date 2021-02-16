@@ -11,14 +11,17 @@ discountFactor = 0.9
 
 solvableRemovePegs = {}
 
+
 def GetRandomizedBoard(boardSize, RemovePegs, boardType):
     newWorld = SimWorld(boardType, boardSize)
     newWorld.RemoveRandomPegs(RemovePegs)
     return newWorld
 
+
 def GetSolvableBoard(boardSize, boardType, index):
     removePegs = solvableRemovePegs[boardType + str(boardSize)][index]
     return SimWorld(boardType, boardSize, removePegs)
+
 
 def updateSolvableStates(boardName, removeLocations):
     print(boardName)
@@ -34,28 +37,29 @@ def updateSolvableStates(boardName, removeLocations):
                     break
             if inTuple:
                 notIn = False
-    
+
     if notIn:
         solvableRemovePegs[boardName].append(removeLocations)
 
-def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.5, learningRate = 0.9, policyTable = {}, valueTable = {}):
+
+def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon=0.5, learningRate=0.9, policyTable={}, valueTable={}):
     TotalError = 0
     stepsTaken = 1
 
-    actor = Actor(0.9, learningRate, epsilon, policyTable)    
-    critic = Critic(0.9, learningRate, valueTable)    
+    actor = Actor(0.9, learningRate, epsilon, policyTable)
+    critic = Critic(0.9, learningRate, valueTable)
 
     for i in range(episodes):
         world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
-        
+
         actor.resetEligibility()
         critic.resetEligibility()
         critic.tdError = 0
         reward = 0
         state = world.stateToHash()
-        
+
         chosenAction = actor.ChooseActionByPolicy(world)
-        
+
         while True:
             reward = world.makeAction(chosenAction)
             nextAction = actor.ChooseActionByPolicy(world)
@@ -69,26 +73,29 @@ def DoEpisodes(episodes, boardSize, maxRemovePegs, boardType, epsilon = 0.5, lea
 
                 critic.updateValue(SAP)
                 critic.decayEligibility(SAP)
-                
+
                 actor.updatePolicy(SAP, critic.tdError)
                 actor.decayEligibility(SAP)
-            
+
             if reward == 10:
                 #print(world.startRemoveLocations, stepsTaken, world.getGameLog()[-1].stateHash)
-                updateSolvableStates(boardType + str(boardSize), world.startRemoveLocations)
+                updateSolvableStates(
+                    boardType + str(boardSize), world.startRemoveLocations)
             if chosenAction == None:
                 break
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1
-            
+
         print('Episode:', i, 'MeanError', TotalError / stepsTaken)
 
-    WriteTables(critic.getValueTable(), actor.getPolicyTable(), boardType, boardSize)
+    WriteTables(critic.getValueTable(),
+                actor.getPolicyTable(), boardType, boardSize)
+
 
 def TestModel(boardSize, maxRemovePegs, boardType, index):
 
-    _ , actorTable = ReadTables(boardType, boardSize)
+    _, actorTable = ReadTables(boardType, boardSize)
     actor = Actor(0.9, 0.1, 0, actorTable)
     stepNumber = 0
     #world = GetRandomizedBoard(boardSize, maxRemovePegs, boardType)
@@ -111,15 +118,16 @@ def TestModel(boardSize, maxRemovePegs, boardType, index):
     visualizer.GenerateVideo(stepNumber, index)
     return reward
 
+
 def ReadTables(boardType, boardSize):
     values = {}
     policy = {}
     try:
-        with open('value' +boardType + str(boardSize) + '.csv', mode='r') as infile:
+        with open('value' + boardType + str(boardSize) + '.csv', mode='r') as infile:
             reader = csv.DictReader(infile)
             for row in reader:
                 values[row['stateHash']] = float(row['stateValue'])
-        with open('policy' +boardType + str(boardSize) + '.csv', mode='r') as infile:
+        with open('policy' + boardType + str(boardSize) + '.csv', mode='r') as infile:
             reader = csv.DictReader(infile)
             for row in reader:
                 policy[row['Policy']] = float(row['Eligibility'])
@@ -133,7 +141,8 @@ def ReadTables(boardType, boardSize):
                 for states in row['States'].split('|'):
                     statesList = []
                     for tuples in states.split('/'):
-                        removeTuple = (int(tuples.split(',')[0]),int(tuples.split(',')[1]))
+                        removeTuple = (int(tuples.split(',')[0]), int(
+                            tuples.split(',')[1]))
                         statesList.append(removeTuple)
                     boardsList.append(statesList)
                 solvableRemovePegs[row['Board']] = boardsList
@@ -142,14 +151,15 @@ def ReadTables(boardType, boardSize):
 
     return values, policy
 
+
 def WriteTables(values, policy, boardType, boardSize):
-    with open('value' +boardType + str(boardSize) + '.csv', mode='w') as infile:
+    with open('value' + boardType + str(boardSize) + '.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['stateHash', 'stateValue'])
         writer.writeheader()
         for key in values.keys():
             writer.writerow({'stateHash': key, 'stateValue': values[key]})
 
-    with open('policy' +boardType + str(boardSize) + '.csv', mode='w') as infile:
+    with open('policy' + boardType + str(boardSize) + '.csv', mode='w') as infile:
         writer = csv.DictWriter(infile, ['Policy', 'Eligibility'])
         writer.writeheader()
         for key in policy.keys():
@@ -171,17 +181,19 @@ def WriteTables(values, policy, boardType, boardSize):
             solvableSatesString = solvableSatesString[:-1]
             writer.writerow({'Board': key, 'States': solvableSatesString})"""
 
-boardType = 'triangle'
-boardSize = 8
+
+boardType = 'diamond'
+boardSize = 5
 
 ReadTables(boardType, boardSize)
-#DoEpisodes(2000, boardSize, 10, boardType, 0.2, 0.4)
-DoEpisodes(2000, boardSize, 1, boardType, 0.1, 0.99)
+DoEpisodes(2000, boardSize, 2, boardType, 0.2, 0.4)
+DoEpisodes(2000, boardSize, 2, boardType, 0.1, 0.99)
 
 totalReward = 0
 for i in range(len(solvableRemovePegs[boardType + str(boardSize)])):
-    print (i + 1, "/", len(solvableRemovePegs[boardType + str(boardSize)]), 'startRemove:', solvableRemovePegs[boardType + str(boardSize)][i] )
+    print(i + 1, "/", len(solvableRemovePegs[boardType + str(boardSize)]),
+          'startRemove:', solvableRemovePegs[boardType + str(boardSize)][i])
 
     totalReward += TestModel(boardSize, 2, boardType, i)
 
-print ((totalReward / 10 )/ len(solvableRemovePegs[boardType + str(boardSize)]))
+print((totalReward / 10) / len(solvableRemovePegs[boardType + str(boardSize)]))

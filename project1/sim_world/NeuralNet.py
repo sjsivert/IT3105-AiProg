@@ -12,30 +12,29 @@ import torch.nn.functional as F
 
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, input_size, hidden_layers_dim=[]):
+    def __init__(self, input_size, hiddenLayersDimension=[]):
         super(NeuralNetwork, self).__init__()
 
         self.layers = nn.ModuleList()
 
         current_dim = input_size
 
-        for hdim in hidden_layers_dim:
-            print(int(current_dim), hdim)
-            self.layers.append(nn.Linear(int(current_dim), hdim))
-            current_dim = hdim
+        for dimension in hiddenLayersDimension:
+            print(int(current_dim), dimension)
+            self.layers.append(nn.Linear(int(current_dim), dimension))
+            current_dim = dimension
 
         self.layers.append(nn.Linear(current_dim, 1))
 
-    def forward(self, tensor):
-        # Input layer
-        t = tensor
-
+    # Define the forward pass for the data in the network
+    def forward(self, input):
         # Hidden layers
         for layer in self.layers[:-1]:
-            t = F.relu(layer(t))
+            input = F.relu(layer(input))
 
         # Output layer
-        out = torch.tanh(self.layers[-1](t))
+        # Hyperbolic tangent
+        out = torch.tanh(self.layers[-1](input))
         return out
 
 

@@ -26,7 +26,7 @@ class CriticNeural:
         self.tdError = 0
         self.learningRate = learningRate
         self.discountFactor = discountFactor
-        # TODO: Pass in parameters
+
         inputSize = 0
         if boardType == "triangle":
             inputSize = ((boardSize ** 2) + boardSize) / 2
@@ -34,12 +34,12 @@ class CriticNeural:
             inputSize = boardSize ** 2
         self.neuralNet = NeuralNetwork(
             input_size=inputSize,
-            hidden_layers_dim=hiddenLayersDim
+            hiddenLayersDimension=hiddenLayersDim
         )
         self.optimizer = optim.SGD(
             self.neuralNet.parameters(), lr=self.learningRate)
 
-        self.criterion = nn.MSELoss()
+        self.lossFunction = nn.MSELoss()
 
     def resetEligibility(self):
         self.eligibility = {}
@@ -75,24 +75,31 @@ class CriticNeural:
 
     def updateValue(self, stateActionPair: SAP):
         state = StateToArray(stateActionPair.state)
-        input_tensor = torch.tensor(
+
+        # Map state to a pytorch friendly format
+        input = torch.tensor(
             [int(s)for s in state], dtype=torch.float32)
 
+        # We have to zero out gradients for each pass, or they will accumulate
         self.optimizer.zero_grad()
-        output = self.neuralNet(input_tensor)
+        output = self.neuralNet(input)
 
         if self.tdError == 0:
             self.tdError = 0.000000000001
 
-        loss = self.criterion(output + self.tdError, output)
+        loss = self.lossFunction(output + self.tdError, output)
 
+        # Store the gradients for the network
         loss.backward()
 
-        for nodeIndex, node in enumerate(self.neuralNet.parameters()):
-            self.eligibility[nodeIndex] = self.getEligibility(nodeIndex) + node.grad * \
-                ((2 * float(self.tdError)) ** (-1))
-            node.grad = float(self.tdError) * self.eligibility[nodeIndex]
+        # For each gradient in the network
+        for nodeIndex, weight in enumerate(self.neuralNet.parameters()):
+            # Get gradient for the weight and update it using eligibility
+            self.eligibility[nodeIndex] = self.getEligibility(nodeIndex) + weight.grad * \
+                ((-2 * float(self.tdError)) ** (-1))
+            weight.grad = float(self.tdError) * self.eligibility[nodeIndex]
 
+        # Update the weights for the network using the gradients stored above
         self.optimizer.step()
 
     def gen_loss(self, features, targets, avg=False):
@@ -103,9 +110,10 @@ class CriticNeural:
         return tf.reduce_mean(loss).numpy() if avg else loss
 
     def decayEligibility(self, StateActionPair):
-        
+
         for i in self.eligibility.keys():
-            self.eligibility[i] = self.eligibility[i]  * self.discountFactor * self.eligibilityDecay
+            self.eligibility[i] = self.eligibility[i] * \
+                self.discountFactor * self.eligibilityDecay
         return
         currentEligibility = self.eligibility[StateActionPair.stateHash]
         self.eligibility[StateActionPair.stateHash] = currentEligibility * \

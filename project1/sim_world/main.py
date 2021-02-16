@@ -32,7 +32,7 @@ def main():
         boardSize=board_size,
         eligibilityDecayActor=decay_rate_actor,
         eligibilityDecayCritic=decay_rate_critic,
-        maxRemovePegs=4,  # Why do we need this?,
+        maxRemovePegs=4,  # Used for the general method when not defining the startboard
         criticType=critic_type,
         boardType=board_type,
         removePegs=open_cells,
@@ -113,7 +113,7 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
             stepsTaken += 1
 
         print('Episode:', i, 'TotalMeanError', TotalError /
-              stepsTaken, "Epsilon:", actor.epsilon , "reward:", reward, 'completedBoards:', completed)
+              stepsTaken, "Epsilon:", actor.epsilon, "reward:", reward, 'completedBoards:', completed)
 
     WriteTables(critic.getValueTable(), actor.getPolicyTable())
 
