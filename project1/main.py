@@ -8,7 +8,7 @@ from Utils import WriteTables, TestModel
 
 def main():
     # Load parameters from file
-    with open('project1/sim_world/parameters.json') as f:
+    with open('sim_world/parameters.json') as f:
         parameters = json.load(f)
 
     board_type = parameters['board_type'].lower()
