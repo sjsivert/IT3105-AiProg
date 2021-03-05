@@ -36,6 +36,7 @@ class CriticNeural:
             input_size=inputSize,
             hiddenLayersDimension=hiddenLayersDim
         )
+        # Optimizer stochastic gradient descent
         self.optimizer = optim.SGD(
             self.neuralNet.parameters(), lr=self.learningRate)
 
@@ -58,16 +59,6 @@ class CriticNeural:
         self.tdError = reward + \
             (self.discountFactor * self.getValue(nextState)) - self.getValue(state)
 
-    def modify_gradients(self, gradients, parameters):
-        print(parameters, gradients)
-        print(len(parameters), len(gradients))
-        """for num, f in parameters:
-            self.e[num] = self.get_e(num) + f.grad * \
-                ((2 * float(td_error)) ** (-1))
-            f.grad = float(td_error) * self.e[num]"""
-
-        return gradients
-
     def getEligibility(self, nodeIndex):
         if nodeIndex not in self.eligibility:
             self.eligibility[nodeIndex] = 0
@@ -84,6 +75,7 @@ class CriticNeural:
         self.optimizer.zero_grad()
         output = self.neuralNet(input)
 
+        # Avoid dividing ny zero
         if self.tdError == 0:
             self.tdError = 0.000000000001
 
@@ -102,19 +94,7 @@ class CriticNeural:
         # Update the weights for the network using the gradients stored above
         self.optimizer.step()
 
-    def gen_loss(self, features, targets, avg=False):
-        # Feed-forward pass to produce outputs/predictions
-        predictions = self.model(features)
-        # model.loss = the loss function
-        loss = self.model.loss(targets, predictions)
-        return tf.reduce_mean(loss).numpy() if avg else loss
-
     def decayEligibility(self, StateActionPair):
-
         for i in self.eligibility.keys():
             self.eligibility[i] = self.eligibility[i] * \
                 self.discountFactor * self.eligibilityDecay
-        return
-        currentEligibility = self.eligibility[StateActionPair.stateHash]
-        self.eligibility[StateActionPair.stateHash] = currentEligibility * \
-            self.discountFactor * self.eligibilityDecay

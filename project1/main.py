@@ -51,6 +51,7 @@ def main():
 def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligibilityDecayActor, eligibilityDecayCritic,
                epsilon=0.6, hiddenLayersDim=[50],
                learningRateActor=0.1, learningRateCritic=0.1, criticType="table", discountFactorActor=0.9, discountFactorCritic=0.9, policyTable={}, valueTable={}, epsilonDecayRate=1):
+    # Used for print statements
     TotalError = 0
     stepsTaken = 1
     completed = 0
@@ -83,20 +84,22 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
         critic.resetEligibility()
         critic.tdError = 0
         reward = 0
-        state = world.stateToList()
+        state = world.stateToList()  # State = startState
 
         chosenAction = actor.ChooseActionByPolicy(world)
 
         while True:
+            # Make an action and get a reward
             reward = world.makeAction(chosenAction)
-            nextAction = actor.ChooseActionByPolicy(world)
+            nextAction = actor.ChooseActionByPolicy(world)  # Chose next action
             nextState = world.stateToList()
 
             actor.eligibility[str(state) + str(chosenAction)] = 1
             critic.updateTDError(reward, state, nextState)
             critic.eligibility[str(state)] = 1
+            # Total error for print statements
             TotalError += abs(critic.tdError)
-            for SAP in world.getGameLog():
+            for SAP in world.getGameLog():  # Går baklengs. Siste episode først
 
                 critic.updateValue(SAP)
                 critic.decayEligibility(SAP)
@@ -104,11 +107,15 @@ def doEpisodes(episodes, boardSize, maxRemovePegs, boardType, removePegs, eligib
                 actor.updatePolicy(SAP, critic.tdError)
                 actor.decayEligibility(SAP)
 
+            # Når du gjør et None action på finalstate får du rewarden.
+            # Hack for å holde generell kode
             if chosenAction == None:
                 actor.epsilon = actor.epsilon * epsilonDecayRate
                 if reward == 10:
                     completed += 1
                 break
+
+            # Set new actions
             chosenAction = nextAction
             state = nextState
             stepsTaken += 1

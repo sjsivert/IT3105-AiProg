@@ -27,6 +27,10 @@ def plotTree(node: Peg, G, drawnList: list) -> None:
 
 
 def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor='#0000ff', noPegColor='#000000', nodeSize=120, movedSize=300):
+    """
+    På slutten av hvert steg i en episode i TestModel() så lagres ett bilde til disk.
+    På slutten av episoden kjører GenerateVideo og gjør det om til en film.
+    """
     nodes = []
     colors = []
     pos = {}
