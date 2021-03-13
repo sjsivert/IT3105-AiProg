@@ -1,7 +1,12 @@
 from typing import List
 
 
-class GameInterface:
+class SimWorld:
+    """
+        Interface for SimWorld.
+        This class is not finished
+    """
+
     def __init__(self):
         pass
 
@@ -15,6 +20,9 @@ class GameInterface:
         pass
 
     def isWinState(self) -> bool:
+        pass
+
+    def getReward(self) -> int:
         pass
 
     def changePlayerTurn(self) -> int:

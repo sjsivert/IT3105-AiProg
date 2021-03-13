@@ -1,8 +1,8 @@
-from sim_world.GameInterface import GameInterface
+from sim_world.sim_world import SimWorld
 from typing import List
 
 
-class Nim(GameInterface):
+class Nim(SimWorld):
     def __init__(
         self,
         numberOfStones,
@@ -33,6 +33,10 @@ class Nim(GameInterface):
         if(self.numberofStonesInPile - action < 0):
             raise Exception("Illegal action, not enough stones in pile")
         self.numberofStonesInPile = self.numberofStonesInPile - action
+
+    def getReward(self) -> int:
+        # TODO: Make reward system parameterTunable
+        return 10 if self.isWinState else -1
 
     def playGayme(self):
         while(not self.isWinState()):
