@@ -23,5 +23,9 @@ def main():
 
 if __name__ == '__main__':
     print("Run!")
-    nim = Nim()
-    main()
+    # main()
+    nim = Nim(
+        10,
+        3
+    )
+    nim.playGayme()

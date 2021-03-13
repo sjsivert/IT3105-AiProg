@@ -1,8 +1,17 @@
+from typing import List
+
+
 class GameInterface:
     def __init__(self):
         pass
 
-    def makeAction(self, action):
+    def getPossibleActions(self) -> List[str]:
+        pass
+
+    def isAllowedAction(self, action: str) -> bool:
+        pass
+
+    def makeAction(self, action: str):
         pass
 
     def isWinState(self) -> bool:
