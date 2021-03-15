@@ -1,5 +1,7 @@
 import json
 from sim_world.nim.Nim import Nim
+from TreeNode import TreeNode
+from sim_world import SimWorld
 
 
 def main():
@@ -18,7 +20,26 @@ def main():
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
 
-    # Train the model
+
+    # is = save interval for ANET (the actor network) parameters
+
+    # clear replay buffer (RBUF)
+
+    # randomly initialize parameters for ANET
+
+    # for each number in actial games
+
+        # simWorld = Initialize the actual game board to an empty board
+
+        # currentState = startingBoardState (trengs denne?)
+
+        # while simWorld not in final state
+            # MTCS = initialize monte carlo sim world to same as root
+            # for each number_search_games:
+                # use three policy Pi to search from root to leaf
+                # update MTCS.simWorld with each move
+
+                # use ANET
 
 
 if __name__ == '__main__':
@@ -29,3 +50,29 @@ if __name__ == '__main__':
         3
     )
     nim.playGayme()
+
+
+def doGames(self, rolloutsPerLeaf:int, numberOfTreeGames:int, numberOfGames:int)-> None:
+    for i in range(numberOfGames):
+        simWorld = SimWorld()
+        currentState = simWorld.__str__()
+        root = TreeNode(state = currentState, parent = None) 
+        while not simWorld.isWinState():
+            mcts = MCTS(
+                root= root
+            )
+            monteCarloSimWorld = SimWorld(currentState)
+
+            for i in range(numberOfTreeGames):
+                leafNode  = treeSearch(root, monteCarloSimWorld)
+
+                
+
+
+
+        
+
+
+
+
+def nodeExpantion(node:TreeNode, action:str)-> TreeNode:
