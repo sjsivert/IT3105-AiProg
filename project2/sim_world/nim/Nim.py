@@ -16,7 +16,7 @@ class Nim(SimWorld):
         return map(str, list(range(1, self.maxRemoveEachTurn + 1)))
 
     def changePlayerTurn(self) -> int:
-        self.playerTurn = 1 if self.playerTurn == 2 else 2
+        self.playerTurn = 1 if self.playerTurn == -1 else -1
         return self.playerTurn
 
     def isWinState(self) -> bool:

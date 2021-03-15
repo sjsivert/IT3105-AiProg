@@ -20,7 +20,6 @@ def main():
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
 
-
     # is = save interval for ANET (the actor network) parameters
 
     # clear replay buffer (RBUF)
@@ -29,17 +28,17 @@ def main():
 
     # for each number in actial games
 
-        # simWorld = Initialize the actual game board to an empty board
+    # simWorld = Initialize the actual game board to an empty board
 
-        # currentState = startingBoardState (trengs denne?)
+    # currentState = startingBoardState (trengs denne?)
 
-        # while simWorld not in final state
-            # MTCS = initialize monte carlo sim world to same as root
-            # for each number_search_games:
-                # use three policy Pi to search from root to leaf
-                # update MTCS.simWorld with each move
+    # while simWorld not in final state
+    # MTCS = initialize monte carlo sim world to same as root
+    # for each number_search_games:
+    # use three policy Pi to search from root to leaf
+    # update MTCS.simWorld with each move
 
-                # use ANET
+    # use ANET
 
 
 if __name__ == '__main__':
@@ -52,27 +51,16 @@ if __name__ == '__main__':
     nim.playGayme()
 
 
-def doGames(self, rolloutsPerLeaf:int, numberOfTreeGames:int, numberOfGames:int)-> None:
+def doGames(self, rolloutsPerLeaf: int, numberOfTreeGames: int, numberOfGames: int) -> None:
     for i in range(numberOfGames):
         simWorld = SimWorld()
         currentState = simWorld.__str__()
-        root = TreeNode(state = currentState, parent = None) 
+        root = TreeNode(state=currentState, parent=None)
+        mcts = MCTS(
+            root=root
+        )
         while not simWorld.isWinState():
-            mcts = MCTS(
-                root= root
-            )
-            monteCarloSimWorld = SimWorld(currentState)
-
+            #monteCarloSimWorld = SimWorld(root)
             for i in range(numberOfTreeGames):
-                leafNode  = treeSearch(root, monteCarloSimWorld)
-
-                
-
-
-
-        
-
-
-
-
-def nodeExpantion(node:TreeNode, action:str)-> TreeNode:
+                leafNode = mcts.treeSearch(currentState, simWorld.playerTurn)
+                buffer = mcts.rollout()
