@@ -12,7 +12,7 @@ class TreeNode:
     def getExpectedResult(self, action: int) -> float:
         return self.totalEvaluation / self.numTakenAction[action]
 
-    def addChild(self, action: int, child) -> TreeNode:
+    def addChild(self, action: int, child) -> None:
         if action in self.children.keys():
             raise Exception("duplicate child is illigal (no twins!)")
         self.children[action] = child

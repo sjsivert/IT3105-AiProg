@@ -6,13 +6,17 @@ from sim_world.sim_world import SimWorld
 from MCTS.GenerateMCTS import MCTS
 from Models.NeuralNet import NeuralActor
 from Models import SaveLoadModel
+from sim_world.hex.Hex import Hex
+
 
 def main():
     # Load parameters from file
-    with open('parameters.json') as f:
+    with open('project2/parameters.json') as f:
         parameters = json.load(f)
 
     gameType = parameters['game_type']
+    boardType = parameters['board_type']
+    boardSize = parameters['board_size']
     boardSize = parameters['board_size']
     numEpisodes = parameters['mcts_num_episodes']
     numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
@@ -23,6 +27,22 @@ def main():
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
 
+    if gameType == "hex":
+        simWorld = Hex(
+            boardType=boardType,
+            boardWith=boardSize,
+            playerTurn=1
+        )
+        simWorld.playGame()
+
+    elif gameType == "nim":
+        nim = Nim(
+            10,
+            3
+        )
+        nim.playGayme()
+    else:
+        print("Game not specified. Quitting...")
     # is = save interval for ANET (the actor network) parameters
 
     # clear replay buffer (RBUF)
@@ -46,12 +66,7 @@ def main():
 
 if __name__ == '__main__':
     print("Run!")
-    # main()
-    nim = Nim(
-        10,
-        3
-    )
-    nim.playGayme()
+    main()
 
 RBUF = []
 RBUFSamples = 10
