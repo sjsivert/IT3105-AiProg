@@ -34,13 +34,20 @@ class Nim(SimWorld):
             raise Exception("Illegal action, not enough stones in pile")
         self.numberofStonesInPile = self.numberofStonesInPile - action
 
+        self.changePlayerTurn()
+
     def getReward(self) -> int:
         # TODO: Make reward system parameterTunable
         return 10 if self.isWinState else -1
 
+    def getPlayerTurn(self) -> int:
+        return self.playerTurn
+
+    def getMaxPossibleActionSpace(self) -> int:
+        return self.maxRemoveEachTurn
+
     def playGayme(self):
         while(not self.isWinState()):
-            self.changePlayerTurn()
             action = input(
                 f"There are {self.numberofStonesInPile} left. \nplayer {self.playerTurn} how many stones do oyou remove?: ")
             self.makeAction(action)
