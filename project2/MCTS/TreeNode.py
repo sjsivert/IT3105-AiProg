@@ -16,7 +16,7 @@ class TreeNode:
             return 0
         return self.totalEvaluation / self.numTakenAction.get(action)
 
-    def addChild(self, action: str, child: TreeNode) -> None:
+    def addChild(self, action: str, child) -> None:
         if action in self.children.keys():
             raise Exception("duplicate child is illigal (no twins!)")
         self.children[action] = child
