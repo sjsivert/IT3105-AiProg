@@ -12,8 +12,8 @@ class Nim(SimWorld):
         self.numberofStonesInPile = numberOfStones
         self.maxRemoveEachTurn = maxRemoveEachTurn
 
-    def getPossibleActions(self) -> List[str]:
-        return map(str, list(range(1, self.maxRemoveEachTurn + 1)))
+    def getPossibleActions(self) -> List[int]:
+        return list(range(1, self.maxRemoveEachTurn + 1))
 
     def changePlayerTurn(self) -> int:
         self.playerTurn = 1 if self.playerTurn == -1 else -1
@@ -22,14 +22,14 @@ class Nim(SimWorld):
     def isWinState(self) -> bool:
         return True if self.numberofStonesInPile == 0 else False
 
-    def isAllowedAction(self, action: str) -> bool:
+    def isAllowedAction(self, action: int) -> bool:
         return action in self.getPossibleActions()
 
-    def makeAction(self, action: str):
+    def makeAction(self, action: int):
+        print(self.getPossibleActions())
         if (not self.isAllowedAction(action)):
             raise("Action not allowed")
 
-        action = int(action)
         if(self.numberofStonesInPile - action < 0):
             raise Exception("Illegal action, not enough stones in pile")
         self.numberofStonesInPile = self.numberofStonesInPile - action
@@ -50,6 +50,7 @@ class Nim(SimWorld):
         while(not self.isWinState()):
             action = input(
                 f"There are {self.numberofStonesInPile} left. \nplayer {self.playerTurn} how many stones do oyou remove?: ")
+            action = int(action)
             self.makeAction(action)
 
         print(f"Player {self.playerTurn} wins!")
