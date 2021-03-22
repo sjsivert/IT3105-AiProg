@@ -13,43 +13,76 @@ class MCTS:
         self.currentNode = root
         self.currentLeafNode = root
 
-    def treePolicyFindAction(self, opponentFactor: int) -> str:
+    def treePolicyFindAction(self, opponentFactor: int) -> int:
         # TODO: Check if this works as expected
         # Or if we should use max() and min()
         bestAction = None
-        bestValue = -math.inf()
-        for action in self.root.numTakenAction.key():
+        bestValue = -math.inf
+        for action in range(len(self.currentNode.numTakenAction)):
             currentActionNodeValue = (opponentFactor * self.currentNode.getExpectedResult(
                 action)) + self.currentNode.getExplorationBias(action)
             if(currentActionNodeValue > bestValue):
                 bestValue = currentActionNodeValue
                 bestAction = action
-        return action
+        return bestAction
 
     def nodeExpansion(self):
         possibleActions = self.simWorld.getPossibleActions()
         for action in possibleActions:
             self.currentNode.addChild(
                 action=action,
-                child=TreeNode(self.simWorld.state)
+                child=TreeNode(self.simWorld.state, self.simWorld.getMaxPoscibleActionSpace)
             )
+
+    def makeAction(self, action:int):
+        self.currentNode.addActionTaken(action)
+
+        self.currentNode = self.currentNode.children.get(action)
+        self.simWorld.makeAction(action)
+
+        return self.currentNode
+
+    def makeSearchAction(self, action:int):
+        self.currentNode.addActionTaken(action)
+
+        self.currentNode = self.currentNode.children.get(action)
+        self.simWorld.makeAction(action)
+
+        self.currentNode.numTimesVisited += 1
+        return self.currentNode
 
     def treeSearch(self, node: TreeNode, playerTurn: int) -> TreeNode:
         self.simWorld = SimWorld(node.state, playerTurn)
+        currentNode = self.currentNode
 
         while len(self.currentNode.numTakenAction) != 0:
-            opponentFactor = self.simWorld.playerTurn
-            treePolicyAction = self.treePolicyFindAction(opponentFactor)
-            currentNode = self.currentNode.children.get(treePolicyAction)
+            playerTurn = self.simWorld.playerTurn
+            treePolicyAction = self.treePolicyFindAction(playerTurn)
+            currentNode = self.makeSearchAction(treePolicyAction)
 
-            self.simWorld.makeAction(treePolicyAction)
-            self.simWorld.changePlayerTurn()
         self.currentLeafNode = currentNode
+        self.nodeExpansion()
+
         return currentNode
 
     def rollout(self):
-        pass
+        while not self.simWorld.isWinState():
+            defaultPolicyAction = self.defaultPolicyFindAction()
+            self.simWorld.makeAction(defaultPolicyAction)
+        return self.simWorld.getReward()
+    
+    def defaultPolicyFindAction(self) -> int:
+        # TODO: make use default policy
+        for action in self.simWorld.getPossibleActions():
+            return action
+    
+    def backPropogate(self, propogateValue:float):
+        self.currentNode.totalEvaluation += propogateValue
+        while self.currentNode.parent != None:
+            self.currentNode = self.currentNode.parent
 
+    def reRootTree(self):
+       self.currentNode.parent = None
 
 """
     def doGames(self, rolloutsPerLeaf:int, numberOfTreeGames:int, numberOfGames:int)-> None:
