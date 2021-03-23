@@ -89,6 +89,9 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE HERE
+        # Burde mulig trene nettet på resultatet. Backprob med discount gjennom alle actions?
+        # Usikker på om modellene er 100% greedy, hvis de er kan dette gi litt tilfeldighet inn i bildet.
+        # Hvis motstanderen trener så burde modellen vår være litt tilfeldig i valg.
         #
         #
         ##############################
@@ -106,7 +109,8 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE HERE
-        #
+        # Mulig vi burde resette ting her. Er nokk ikke sikkert at det vi lærer mot en agent er brukbart/klokt mot en bedre.
+        # 
         #
         #############################
         print("Series ended, these are the stats:")
