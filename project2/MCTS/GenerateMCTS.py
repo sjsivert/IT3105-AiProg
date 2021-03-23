@@ -1,6 +1,6 @@
 import math
-from TreeNode import TreeNode
-from sim_world import SimWorld
+from MCTS.TreeNode import TreeNode
+from sim_world.sim_world import SimWorld
 
 
 class MCTS:
@@ -31,10 +31,11 @@ class MCTS:
         for action in possibleActions:
             self.currentNode.addChild(
                 action=action,
-                child=TreeNode(self.simWorld.state, self.simWorld.getMaxPoscibleActionSpace)
+                child=TreeNode(self.simWorld.state,
+                               self.simWorld.getMaxPoscibleActionSpace)
             )
 
-    def makeAction(self, action:int):
+    def makeAction(self, action: int):
         self.currentNode.addActionTaken(action)
 
         self.currentNode = self.currentNode.children.get(action)
@@ -42,7 +43,7 @@ class MCTS:
 
         return self.currentNode
 
-    def makeSearchAction(self, action:int):
+    def makeSearchAction(self, action: int):
         self.currentNode.addActionTaken(action)
 
         self.currentNode = self.currentNode.children.get(action)
@@ -70,19 +71,20 @@ class MCTS:
             defaultPolicyAction = self.defaultPolicyFindAction()
             self.simWorld.makeAction(defaultPolicyAction)
         return self.simWorld.getReward()
-    
+
     def defaultPolicyFindAction(self) -> int:
         # TODO: make use default policy
         for action in self.simWorld.getPossibleActions():
             return action
-    
-    def backPropogate(self, propogateValue:float):
+
+    def backPropogate(self, propogateValue: float):
         self.currentNode.totalEvaluation += propogateValue
         while self.currentNode.parent != None:
             self.currentNode = self.currentNode.parent
 
     def reRootTree(self):
-       self.currentNode.parent = None
+        self.currentNode.parent = None
+
 
 """
     def doGames(self, rolloutsPerLeaf:int, numberOfTreeGames:int, numberOfGames:int)-> None:

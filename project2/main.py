@@ -4,7 +4,7 @@ from sim_world.nim.Nim import Nim
 from MCTS.TreeNode import TreeNode
 from sim_world.sim_world import SimWorld
 from MCTS.GenerateMCTS import MCTS
-from Models.NeuralNet import NeuralActor
+# from Models.NeuralNet import NeuralActor
 from Models import SaveLoadModel
 from sim_world.hex.Hex import Hex
 
@@ -77,10 +77,9 @@ layers = [2, 20, 3]
 learningRate = 0.1
 
 
-
 def doGames(self, rolloutsPerLeaf: int, numberOfTreeGames: int, numberOfGames: int, saveInterval) -> None:
-    #TODO Initialize neural net
-    ANET = NeuralActor(inputSize,layers, learningRate)
+    # TODO Initialize neural net
+    # ANET = NeuralActor(inputSize, layers, learningRate)
 
     for i in range(numberOfGames):
         simWorld = SimWorld()
@@ -98,7 +97,7 @@ def doGames(self, rolloutsPerLeaf: int, numberOfTreeGames: int, numberOfGames: i
             actionDistributtion = mcts.currentNode.numTakenAction
             RBUF.append((mcts.simWorld.getStateHash(), actionDistributtion))
 
-            #TODO add epsilon
+            # TODO add epsilon
             bestMove = None
             bestMoveValue = -math.inf
             for move in range(len(actionDistributtion)):
@@ -109,8 +108,8 @@ def doGames(self, rolloutsPerLeaf: int, numberOfTreeGames: int, numberOfGames: i
             mcts.makeAction(bestMove)
             mcts.reRootTree()
 
-        #TODO Train ANET on a random minibatch of cases from RBUF
+        # TODO Train ANET on a random minibatch of cases from RBUF
         ANET.trainOnRBUF(RBUF, RBUFSamples)
         if numberOfGames % saveInterval == 0:
             saveInterval.SaveModel(ANET.neuralNet.parameters, fileName)
-            #TODO Save ANET’s current parameters for later use in tournament play
+            # TODO Save ANET’s current parameters for later use in tournament play

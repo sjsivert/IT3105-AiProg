@@ -2,7 +2,7 @@ from sim_world.sim_world import SimWorld
 from sim_world.hex.Board import Boardtype, BoardState
 from sim_world.hex.Board import HexBoard, Boardtype
 from sim_world.hex.VisualizeBoard import VisualizePegs
-from typing import List, Dic, Tuple
+from typing import List, Tuple
 
 
 class Hex(SimWorld):
@@ -17,14 +17,15 @@ class Hex(SimWorld):
         playerTurn: int
     ):
         self.playerTurn = playerTurn
+        self.boardWidth = boardWith
         hexBoard = HexBoard(Boardtype[boardType], boardWith)
         self.state = BoardState(hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
         # TODO: Add action log
 
-    def generatePossibleActions(self) -> Dic[Tuple]:
-        board = self.state.board
+    def generatePossibleActions(self):
+        board = self.state.state
         actions = {}
         count = 0
         for x in range(len(board)):
@@ -48,13 +49,24 @@ class Hex(SimWorld):
 
     def isWinState(self) -> bool:
         k = 4 - 1
+        pass
 
-        upperLeft = [00, 10, 20]
+    def generateBoardSideCordinates(self):
+        #upperLeft = [00, 10, 20]
         upperRight = [11, 22, 33]
         lowerLeft = [30, 40, 50]
         lowerRight = [42, 51, 60]
 
-        pass
+        upperLeft = [(n, 0) for n in range(self.boardWidth - 1)]
+        upperRight = [(x, x) for x in range(1, self.boardWidth)]
+        lowerLeft = [(x, 0)
+                     for x in range(self.boardWidth - 1, self.boardWidth*2 - 2)]
+        # lowerRight = [(x, 0) for]  # TODO
+
+        print(upperLeft)
+        print(upperRight)
+        print(lowerLeft)
+        return upperLeft, upperRight, lowerLeft, lowerRight
 
     def depthFirstSearch(self, node, isTheRightState):
         # if isTheRightState
@@ -82,6 +94,7 @@ class Hex(SimWorld):
         )
 
     def playGame(self):
+        self.generateBoardSideCordinates()
         while (not self.isWinState()):
             self.changePlayerTurn()
             self.visualizeBord()
@@ -89,3 +102,9 @@ class Hex(SimWorld):
                 f"Player {self.playerTurn}, where do you place your peg? "
             )
             self.makeAction(action)
+
+
+class Cordinates:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
