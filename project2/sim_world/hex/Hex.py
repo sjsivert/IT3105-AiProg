@@ -52,20 +52,28 @@ class Hex(SimWorld):
         pass
 
     def generateBoardSideCordinates(self):
-        #upperLeft = [00, 10, 20]
-        upperRight = [11, 22, 33]
-        lowerLeft = [30, 40, 50]
-        lowerRight = [42, 51, 60]
+        """
+            The sides of the board used to check if a win state is reached.
+            Player 1 must have a connected path from upperLeft location to a lowerRight location.
+            Player 2 must have the same for upperRight, to lowerLeft
+            Example locations of a board with width 3:
+                upperLeft = [00, 10, 20]
+                upperRight = [11, 22, 33]
+                lowerLeft = [30, 40, 50]
+                lowerRight = [42, 51, 60]
+        """
 
         upperLeft = [(n, 0) for n in range(self.boardWidth - 1)]
         upperRight = [(x, x) for x in range(1, self.boardWidth)]
         lowerLeft = [(x, 0)
                      for x in range(self.boardWidth - 1, self.boardWidth*2 - 2)]
-        # lowerRight = [(x, 0) for]  # TODO
+        lowerRight = [(x, y) for x, y in zip(range(
+            self.boardWidth, self.boardWidth*2 - 1), range(self.boardWidth - 2, -1, -1))]
 
         print(upperLeft)
         print(upperRight)
         print(lowerLeft)
+        print(lowerRight)
         return upperLeft, upperRight, lowerLeft, lowerRight
 
     def depthFirstSearch(self, node, isTheRightState):
