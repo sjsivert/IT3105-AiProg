@@ -22,6 +22,8 @@ class Hex(SimWorld):
         self.state = BoardState(hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
+
+        self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
         # TODO: Add action log
 
     def generatePossibleActions(self):
@@ -34,14 +36,19 @@ class Hex(SimWorld):
                 count += 1
         return actions
 
-    def getPossibleActions(self) -> List[int]:
+    def getPossibleActions(self):
         return self.possibleActions.keys()
 
-    def isAllowedAction(self, action: int) -> bool:
-        return True if self.getPossibleActions(action) != None else False
+    def isAllowedAction(self, actionTuple: Tuple[int]) -> bool:
+        for key in self.getPossibleActions():
+            value = self.possibleActions.get(key)
+            if value == actionTuple:
+                return key
+        return False
+        # return True if action in self.possibleActions.values() else False
 
     def makeAction(self, action: int):
-        action = self.possibleActions[action]
+        action = self.possibleActions.get(action)
         self.state.setPegValue(action, self.playerTurn)  # Update boardState
         # remove action from possibleActions
         self.possibleActions[action] = None
@@ -62,7 +69,6 @@ class Hex(SimWorld):
                 lowerLeft = [30, 40, 50]
                 lowerRight = [42, 51, 60]
         """
-
         upperLeft = [(n, 0) for n in range(self.boardWidth - 1)]
         upperRight = [(x, x) for x in range(1, self.boardWidth)]
         lowerLeft = [(x, 0)
@@ -70,10 +76,6 @@ class Hex(SimWorld):
         lowerRight = [(x, y) for x, y in zip(range(
             self.boardWidth, self.boardWidth*2 - 1), range(self.boardWidth - 2, -1, -1))]
 
-        print(upperLeft)
-        print(upperRight)
-        print(lowerLeft)
-        print(lowerRight)
         return upperLeft, upperRight, lowerLeft, lowerRight
 
     def depthFirstSearch(self, node, isTheRightState):
@@ -105,11 +107,18 @@ class Hex(SimWorld):
         self.generateBoardSideCordinates()
         while (not self.isWinState()):
             self.changePlayerTurn()
+            print(self.possibleActions)
             self.visualizeBord()
-            action = input(
+            playerInput = input(
                 f"Player {self.playerTurn}, where do you place your peg? "
             )
-            self.makeAction(action)
+            actionTuple = tuple(list(map(int, playerInput.split(','))))
+            print(actionTuple)
+            actionNumber = self.isAllowedAction(actionTuple)
+            print(actionNumber)
+            if(actionNumber == False and actionNumber != 0):
+                raise Exception("Not a valid action")
+            self.makeAction(actionNumber)
 
 
 class Cordinates:
