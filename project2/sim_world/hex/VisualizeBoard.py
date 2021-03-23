@@ -72,7 +72,6 @@ def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor1='#0000ff', p
     ax.set_facecolor('deepskyblue')
     plt.axis('off')
     fig.set_facecolor('deepskyblue')
-    print("PLT SHOW")
     plt.show()
     plt.savefig('./project2/images/' + str(stepNumber) + '.png')
     plt.close()

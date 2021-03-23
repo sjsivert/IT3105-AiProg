@@ -96,8 +96,6 @@ class Hex(SimWorld):
             # Check if winState
             visitedLocationTuples = list(
                 map(lambda peg: peg.location, visited))
-            print(f"sets: {set(startLocations)}")
-            print(f"sets: {set(visitedLocationTuples)}")
             print(
                 f"Have visited startLocation? {set(visitedLocationTuples) & set(startLocations)}")
             print(
@@ -125,21 +123,22 @@ class Hex(SimWorld):
             Player 1 must have a connected path from upperLeft location to a lowerRight location.
             Player 2 must have the same for upperRight, to lowerLeft
             Example locations of a board with width 3:
-                upperLeft = [00, 10, 20]
-                upperRight = [11, 22, 33]
-                lowerLeft = [30, 40, 50]
-                lowerRight = [42, 51, 60]
+                upperLeft = [00, 10, 20, 30]
+                upperRight = [00, 11, 22, 33]
+                lowerLeft = [30, 40, 50, 60]
+                lowerRight = [33, 42, 51, 60]
         """
-        upperLeft = [(n, 0) for n in range(self.boardWidth - 1)]
-        upperRight = [(x, x) for x in range(1, self.boardWidth)]
+        upperLeft = [(n, 0) for n in range(self.boardWidth)]
+        upperRight = [(x, x) for x in range(0, self.boardWidth)]
         lowerLeft = [(x, 0)
-                     for x in range(self.boardWidth - 1, self.boardWidth*2 - 2)]
+                     for x in range(self.boardWidth - 1, self.boardWidth*2 - 1)]
         lowerRight = [(x, y) for x, y in zip(range(
-            self.boardWidth, self.boardWidth*2 - 1), range(self.boardWidth - 2, -1, -1))]
+            self.boardWidth - 1, self.boardWidth*2 - 1), range(self.boardWidth - 1, -1, -1))]
 
         return upperLeft, upperRight, lowerLeft, lowerRight
 
     def getReward(self) -> int:
+        # TODO: Implement
         pass
 
     def changePlayerTurn(self) -> int:
@@ -147,6 +146,7 @@ class Hex(SimWorld):
         return self.playerTurn
 
     def getStateHash(self) -> str:
+        # TODO: Implement
         pass
 
     def getMaxPossibleActionSpace(self) -> int:
@@ -166,10 +166,10 @@ class Hex(SimWorld):
                 f"Player {self.playerTurn}, where do you place your peg? "
             )
             actionTuple = tuple(list(map(int, playerInput.split(','))))
-            print(actionTuple)
             actionNumber = self.isAllowedAction(actionTuple)
-            print(actionNumber)
-            if(actionNumber == False and actionNumber != 0):
+            if(type(actionNumber) == bool):
+                print("Not a valid action!")
+                continue
                 raise Exception("Not a valid action")
             self.makeAction(actionNumber)
 
