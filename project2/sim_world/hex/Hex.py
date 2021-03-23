@@ -138,8 +138,7 @@ class Hex(SimWorld):
         return upperLeft, upperRight, lowerLeft, lowerRight
 
     def getReward(self) -> int:
-        # TODO: Implement
-        pass
+        return 1 if self.isWinState() else -1
 
     def changePlayerTurn(self) -> int:
         self.playerTurn = 1 if self.playerTurn == -1 else -1
