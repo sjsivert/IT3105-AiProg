@@ -25,6 +25,8 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE HERE
+        # Får in game board, vet hvem vi selv er. Generer ny state basert på det.
+        # Her har vi muligheten til å lære forrige spillers move, og mulig lære fra det?
         #
         # next_move = ???
         ##############################
@@ -45,7 +47,17 @@ class BasicClientActor(BasicClientActorAbs):
         #############################
         #
         #
-        # YOUR CODE (if you have anything else) HERE
+        # YOUR CODE (if you have anything else) HERE`
+        # Finne ut om vi skriver resultater til fil eller printer ut.
+        # Mulig en del her er nice hvis vi vil ungå å spille samme "loosing moves" flere ganger.
+        # Fin ut hvor random agentene er. Hvis den er 100% greedy kan man vel finne en vinning strat og gønne den?
+        # Lære noe underveis? Dette er det mest sentrale. Hvis ikke trenger vi egentlig ikke noe her.
+        # 
+        # Print unique_id
+        # series_id = Hvilken spiller vi spiller som
+        # Vet ikke om vi bruker player_id, kan evt printes den og
+        # Tror koden her tar seg av num games og slikt. 
+        # Sikkert smart å dobbeltsjekke board size, men håper alle har samme size.
         #
         #
         ##############################
@@ -60,6 +72,7 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE (if you have anything else) HERE
+        # Hvem starter. Sjekk opp mot series_id som er hvem vi selv er.
         #
         #
         ##############################
@@ -109,6 +122,7 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE HERE
+        # Print param score
         #
         #
         #############################
@@ -126,6 +140,7 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         # YOUR CODE HERE
+        # Print som faen. Dette burde ikke skje
         #
         #
         #############################
