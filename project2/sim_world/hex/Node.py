@@ -47,6 +47,9 @@ class Peg(Node):
     def __eq__(self, o: object) -> bool:
         return self.location == o.location
 
+    def getChildren(self):
+        return self.neighboursDic.values()
+
     def addNeighbour(self, node, location: str) -> bool:
         # if node in self.neighbours and node != self:
         if node in self.neighboursDic.values() and node != self:
@@ -66,7 +69,7 @@ class Peg(Node):
         return True
 
     def __str__(self) -> str:
-        return str(self.pegValue)
+        return str(self.location)
 
     def __repr__(self) -> str:
-        return str(self.pegValue)
+        return str(self.location)

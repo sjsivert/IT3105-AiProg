@@ -19,10 +19,8 @@ class HexBoard():
         self.defaultNodeValue = 0
         if (boardType is Boardtype.triangle):
             self.board = self.generateTriangle(width=boardWidth)
-            self.board = self.removePegs(removeLocations, self.board)
         elif (boardType is Boardtype.diamond):
             self.board = self.generateDiamond(width=boardWidth)
-            self.board = self.removePegs(removeLocations, self.board)
         else:  # boardType has to be diamond
             raise ValueError("BoardType has to be triangle or diamond")
 
@@ -36,11 +34,6 @@ class HexBoard():
         board = self.generateTriangle(width)
         for i in range(width - 1, 0, -1):
             board.append(i * [self.defaultNodeValue])
-        return board
-
-    def removePegs(self, removeLocations: List[List[int]], board: List[List[int]]) -> List[List[int]]:
-        for removeLocation in removeLocations:
-            board[removeLocation[0]][removeLocation[1]] = 0
         return board
 
     def __repr__(self):
@@ -96,6 +89,9 @@ class BoardState():
     def setPegValue(self, location: Tuple, newValue: int) -> bool:
         self.state[location[0]][location[1]].pegValue = newValue
         return True
+
+    def getPegNode(self, location: Tuple):
+        return self.state[location[0]][location[1]]
 
     def __repr__(self):
         return self.state

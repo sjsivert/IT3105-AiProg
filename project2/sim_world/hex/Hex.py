@@ -1,5 +1,6 @@
 from sim_world.sim_world import SimWorld
 from sim_world.hex.Board import Boardtype, BoardState
+from sim_world.hex.Node import Peg
 from sim_world.hex.Board import HexBoard, Boardtype
 from sim_world.hex.VisualizeBoard import VisualizePegs
 from typing import List, Tuple
@@ -18,6 +19,7 @@ class Hex(SimWorld):
     ):
         self.playerTurn = playerTurn
         self.boardWidth = boardWith
+        self.lastAction = None
         hexBoard = HexBoard(Boardtype[boardType], boardWith)
         self.state = BoardState(hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
@@ -48,15 +50,74 @@ class Hex(SimWorld):
         # return True if action in self.possibleActions.values() else False
 
     def makeAction(self, action: int):
-        action = self.possibleActions.get(action)
-        self.state.setPegValue(action, self.playerTurn)  # Update boardState
+        """
+            Makes and action, changes state.
+            And changes playerTurn.
+        """
+        print(f"Action: {action}")
+        actionTuple = self.possibleActions.get(action)
+        self.state.setPegValue(
+            actionTuple, self.playerTurn)  # Update boardState
         # remove action from possibleActions
         self.possibleActions[action] = None
+        self.lastAction = self.state.getPegNode(actionTuple)
+        print(type(self.lastAction))
         self.changePlayerTurn()
 
     def isWinState(self) -> bool:
-        k = 4 - 1
-        pass
+        if self.playerTurn == -1 and self.lastAction:
+            return self.depthFirstSearch(
+                node=self.lastAction,
+                visited=[],
+                startLocations=self.upperLeft,
+                endLocations=self.lowerRight
+            )
+        elif self.playerTurn == 1 and self.lastAction:
+            return self.depthFirstSearch(
+                node=self.lastAction,
+                visited=[],
+                startLocations=self.upperRight,
+                endLocations=self.lowerLeft
+            )
+
+    def depthFirstSearch(
+        self,
+        node: Peg,
+        visited: List,
+        startLocations: List,
+        endLocations: List
+    ):
+        print(f"node: {node.location}")
+        print(node.getChildren())
+        if node not in visited:
+            print(f"Visiting: {node.location}")
+            visited.append(node)
+
+            # Check if winState
+            visitedLocationTuples = list(
+                map(lambda peg: peg.location, visited))
+            print(f"sets: {set(startLocations)}")
+            print(f"sets: {set(visitedLocationTuples)}")
+            print(
+                f"Have visited startLocation? {set(visitedLocationTuples) & set(startLocations)}")
+            print(
+                f"Have visited endLocation: {set(endLocations) & set(visitedLocationTuples) }")
+            haveVisitedAEndLocationAndhaveVisitedAStartLocation = (
+                set(startLocations) & set(visitedLocationTuples)) and (set(endLocations) & set(visitedLocationTuples))
+            if (haveVisitedAEndLocationAndhaveVisitedAStartLocation):
+                print("Win state reached!")
+                return True
+            for child in node.getChildren():
+                if child.pegValue == node.pegValue:
+                    print(f"About to visit child: {child.location}")
+                    if(self.depthFirstSearch(
+                        node=child,
+                        visited=visited,
+                        startLocations=startLocations,
+                        endLocations=endLocations
+                    )):
+                        return True
+        return False
 
     def generateBoardSideCordinates(self):
         """
@@ -77,13 +138,6 @@ class Hex(SimWorld):
             self.boardWidth, self.boardWidth*2 - 1), range(self.boardWidth - 2, -1, -1))]
 
         return upperLeft, upperRight, lowerLeft, lowerRight
-
-    def depthFirstSearch(self, node, isTheRightState):
-        # if isTheRightState
-        #  return True
-        # for child in children:
-        # depthFirstSearch(child)
-        pass
 
     def getReward(self) -> int:
         pass
@@ -106,7 +160,6 @@ class Hex(SimWorld):
     def playGame(self):
         self.generateBoardSideCordinates()
         while (not self.isWinState()):
-            self.changePlayerTurn()
             print(self.possibleActions)
             self.visualizeBord()
             playerInput = input(
@@ -119,6 +172,11 @@ class Hex(SimWorld):
             if(actionNumber == False and actionNumber != 0):
                 raise Exception("Not a valid action")
             self.makeAction(actionNumber)
+
+        # Since changePLayer is done in makeAction(), the winner is the opposite of current player
+        print(f"Player {self.playerTurn * -1} wins the game!!")
+        # Visualise board one last time to get end result
+        self.visualizeBord()
 
 
 class Cordinates:
