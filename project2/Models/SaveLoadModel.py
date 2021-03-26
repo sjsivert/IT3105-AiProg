@@ -16,3 +16,4 @@ def LoadModel(fileName):
                 weights.append(float(row['weights']))
     except Exception as e:
         print(e)
+    return weights

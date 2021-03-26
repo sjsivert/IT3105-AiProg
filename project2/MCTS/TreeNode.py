@@ -1,14 +1,15 @@
 import math
 
 class TreeNode:
-    def __init__(self, state, possibleActions:int,parent=None):
-        self.numTimesVisited = 0,
+    def __init__(self, state, possibleActions:int, parent=None):
+        self.numTimesVisited = 1
         self.numTakenAction = [0.00001] * possibleActions
         self.totalEvaluation = 0  # Accumulated  evaluation of this node
         self.children = {}
         self.parent = parent
         self.state = state
         self.c = 1
+
     def getExpectedResult(self, action: int) -> float:
         return self.totalEvaluation / self.numTakenAction[action]
 

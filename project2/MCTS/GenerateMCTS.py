@@ -1,4 +1,5 @@
 import math
+import copy
 from MCTS.TreeNode import TreeNode
 from sim_world.sim_world import SimWorld
 
@@ -32,7 +33,7 @@ class MCTS:
             self.currentNode.addChild(
                 action=action,
                 child=TreeNode(self.simWorld.state,
-                               self.simWorld.getMaxPoscibleActionSpace)
+                               self.simWorld.getMaxPossibleActionSpace())
             )
 
     def makeAction(self, action: int):
@@ -45,37 +46,42 @@ class MCTS:
 
     def makeSearchAction(self, action: int):
         self.currentNode.addActionTaken(action)
-
         self.currentNode = self.currentNode.children.get(action)
         self.simWorld.makeAction(action)
 
         self.currentNode.numTimesVisited += 1
         return self.currentNode
 
-    def treeSearch(self, node: TreeNode, playerTurn: int) -> TreeNode:
-        self.simWorld = SimWorld(node.state, playerTurn)
+    def treeSearch(self, node: TreeNode, simWorld) -> TreeNode:
+        self.simWorld = copy.deepcopy(simWorld)
         currentNode = self.currentNode
-
-        while len(self.currentNode.numTakenAction) != 0:
+        while len(self.currentNode.children) != 0:
+            print(currentNode)
             playerTurn = self.simWorld.playerTurn
             treePolicyAction = self.treePolicyFindAction(playerTurn)
             currentNode = self.makeSearchAction(treePolicyAction)
-
         self.currentLeafNode = currentNode
         self.nodeExpansion()
 
         return currentNode
 
-    def rollout(self):
+    def rollout(self, ANET):
         while not self.simWorld.isWinState():
-            defaultPolicyAction = self.defaultPolicyFindAction()
+            defaultPolicyAction = self.defaultPolicyFindAction(ANET)
             self.simWorld.makeAction(defaultPolicyAction)
         return self.simWorld.getReward()
 
-    def defaultPolicyFindAction(self) -> int:
-        # TODO: make use default policy
-        for action in self.simWorld.getPossibleActions():
-            return action
+    def defaultPolicyFindAction(self, ANET) -> int:
+        distribution  = ANET.getDistributionForState(self.simWorld.getStateHash())
+        print(distribution)
+        bestActionValue = -math.inf
+        bestActionIndex = 0
+        for index, value in enumerate(distribution):
+            if index in self.simWorld.getPossibleActions():
+                if value > bestActionValue:
+                    bestActionValue = value
+                    bestActionIndex = index
+        return bestActionIndex
 
     def backPropogate(self, propogateValue: float):
         self.currentNode.totalEvaluation += propogateValue

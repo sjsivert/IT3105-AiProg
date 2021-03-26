@@ -1,9 +1,11 @@
-
-
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import random
+from typing import List
+import torch.optim as optim
+
 
 class NeuralNetwork(nn.Module):
     def __init__(self, input_size, output_size, hiddenLayersDimension=[]):
@@ -24,11 +26,11 @@ class NeuralNetwork(nn.Module):
         # Hidden layers
         for layer in self.layers[:-1]:
             input = F.relu(layer(input))
-
+            
         # Output layer
         # Hyperbolic tangent
         out = torch.tanh(self.layers[-1](input))
-        return 
+        return out
         
 class NeuralActor ():
     def __init__(self,
@@ -42,7 +44,7 @@ class NeuralActor ():
         self.neuralNet = NeuralNetwork(
             input_size=inputSize,
             hiddenLayersDimension=hiddenLayersDim,
-            output_size = output_size
+            output_size = outputSize
         )
         # Optimizer stochastic gradient descent
         self.optimizer = optim.SGD(
@@ -51,11 +53,11 @@ class NeuralActor ():
         self.lossFunction = nn.MSELoss()
 
 
-    def trainOnRBUF(self, RBUF, samples:int):
-        #TODO choose random samples
-        for i in range(len(RBUF)):
-            state = RBUF[i][0]
-            actionDistribution = RBUF[i][1]
+    def trainOnRBUF(self, RBUF, minibatchSize:int):
+        minibatch = random.sample(seq=RBUF, n=minibatchSize)
+        for item in minibatch:
+            state = item[0]
+            actionDistribution = item[1]
 
             # Map state to a pytorch friendly format
             input = torch.tensor(
@@ -74,3 +76,13 @@ class NeuralActor ():
 
             # Update the weights for the network using the gradients stored above
             self.optimizer.step()
+
+    def getDistributionForState(self, state: List):
+        input = torch.tensor(
+            [int(s)for s in state], dtype=torch.float32)
+        self.optimizer.zero_grad()
+        print("input", input)
+        print("nevnet", self.neuralNet)
+        output = self.neuralNet(input)
+        print("out", output)
+        return output

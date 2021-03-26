@@ -28,7 +28,7 @@ class SimWorld:
     def getPlayerTurn(self) -> int:
         pass
 
-    def getStateHash(self) -> str:
+    def getStateHash(self) -> List:
         pass
 
     def getMaxPossibleActionSpace(self) -> int:
