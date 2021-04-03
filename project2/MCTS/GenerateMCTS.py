@@ -20,21 +20,28 @@ class MCTS:
         bestAction = None
         bestValue = -math.inf
         for action in range(len(self.currentNode.numTakenAction)):
-            currentActionNodeValue = (opponentFactor * self.currentNode.getExpectedResult(
+            if action not in self.simWorld.getPossibleActions():
+                continue
+            currentActionNodeValue = (-opponentFactor * self.currentNode.getExpectedResult(
                 action)) + self.currentNode.getExplorationBias(action)
             if(currentActionNodeValue > bestValue):
                 bestValue = currentActionNodeValue
                 bestAction = action
+        
         return bestAction
 
     def nodeExpansion(self):
+
         possibleActions = self.simWorld.getPossibleActions()
         for action in possibleActions:
             self.currentNode.addChild(
                 action=action,
-                child=TreeNode(self.simWorld.state,
+                child=TreeNode(self.simWorld.getStateHash(),
                                self.simWorld.getMaxPossibleActionSpace())
             )
+        
+        playerTurn = self.simWorld.playerTurn
+        self.makeSearchAction(self.treePolicyFindAction(playerTurn))
 
     def makeAction(self, action: int):
         self.currentNode.addActionTaken(action)
@@ -56,36 +63,27 @@ class MCTS:
         self.simWorld = copy.deepcopy(simWorld)
         currentNode = self.currentNode
         while len(self.currentNode.children) != 0:
-            print(currentNode)
             playerTurn = self.simWorld.playerTurn
             treePolicyAction = self.treePolicyFindAction(playerTurn)
             currentNode = self.makeSearchAction(treePolicyAction)
         self.currentLeafNode = currentNode
-        self.nodeExpansion()
+        if not self.simWorld.isWinState():
+            self.nodeExpansion()
 
         return currentNode
 
     def rollout(self, ANET):
         while not self.simWorld.isWinState():
-            defaultPolicyAction = self.defaultPolicyFindAction(ANET)
+            defaultPolicyAction = ANET.defaultPolicyFindAction(self.simWorld.getPossibleActions(), self.simWorld.getStateHash())
             self.simWorld.makeAction(defaultPolicyAction)
         return self.simWorld.getReward()
 
-    def defaultPolicyFindAction(self, ANET) -> int:
-        distribution  = ANET.getDistributionForState(self.simWorld.getStateHash())
-        print(distribution)
-        bestActionValue = -math.inf
-        bestActionIndex = 0
-        for index, value in enumerate(distribution):
-            if index in self.simWorld.getPossibleActions():
-                if value > bestActionValue:
-                    bestActionValue = value
-                    bestActionIndex = index
-        return bestActionIndex
+    
 
     def backPropogate(self, propogateValue: float):
         self.currentNode.totalEvaluation += propogateValue
         while self.currentNode.parent != None:
+            #print("backPropogate",self.currentNode.parent)
             self.currentNode = self.currentNode.parent
 
     def reRootTree(self):

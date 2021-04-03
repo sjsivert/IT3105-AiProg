@@ -2,13 +2,13 @@
   "game_type": "nim",
   "board_size": 6,
   "board_type": "diamond",
-  "mcts_num_episodes": 100,
-  "mcts_n_of_search_games_per_move": 1,
+  "mcts_num_episodes": 1,
+  "mcts_n_of_search_games_per_move": 800,
   "anet_learning_rate": 0.999,
   "anet_activation_function": "RELU",
   "anet_optimizer": "SGD",
-  "anet_hidden_layers_and_neurons_per_layer": [15, 20, 30, 3],
+  "anet_hidden_layers_and_neurons_per_layer": [1, 30 , 30 , 10],
   "anet_n_cached_topp_preparations": 3,
-  "anet_n_of_topp_games_to_be_played": 3,
+  "anet_n_of_topp_games_to_be_played": 20,
   "save_interval": 50
 }

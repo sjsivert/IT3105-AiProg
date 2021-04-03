@@ -8,40 +8,81 @@ from Models.NeuralNet import NeuralActor
 from Models import SaveLoadModel
 from sim_world.hex.Hex import Hex
 from typing import List
+from Models.SaveLoadModel import SaveModel
+
+
+RBUF = []
+RBUFSamples = 10
+fileName = "test"
 
 def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorld: SimWorld) -> None:
     ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate)
+    print(numberOfGames)
     for i in range(numberOfGames):
+        print(i)
+        simWorld = Nim(
+            20,
+            2
+        )
         currentState = simWorld.getStateHash()
         root = TreeNode(state=currentState, parent=None, possibleActions = output_size)
         mcts = MCTS(
             root=root
         )
         while not simWorld.isWinState():
+            
             #monteCarloSimWorld = SimWorld(root)
-            for i in range(numberOfTreeGames):
+            for e in range(numberOfTreeGames):
                 mcts.treeSearch(currentState, simWorld)
-                reward = mcts.rollout(ANET)
+                reward = mcts.rollout(ANET) * mcts.rootNode.state[0]
+                #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
+            #print(mcts.currentNode.state)
             actionDistributtion = mcts.currentNode.numTakenAction
-            RBUF.append((mcts.simWorld.getStateHash(), actionDistributtion))
-
+            
+            actionSum =0
+            actionMin = 0
+            for i in actionDistributtion:
+                actionSum += i
+                actionMin = min(actionMin, i)
+            for i in range(len(actionDistributtion)):
+                actionDistributtion[i] = (actionDistributtion[i] - actionMin) / (actionSum - actionMin)
+            print(mcts.currentNode.state, actionDistributtion)
+            RBUF.append((mcts.currentNode.state, actionDistributtion))
+            
             # TODO add epsilon
             bestMove = None
             bestMoveValue = -math.inf
+            #print("state", simWorld.state)
             for move in range(len(actionDistributtion)):
                 if bestMoveValue < actionDistributtion[move]:
                     bestMoveValue = actionDistributtion[move]
                     bestMove = move
 
+            simWorld.makeAction(bestMove)
             mcts.makeAction(bestMove)
             mcts.reRootTree()
 
         ANET.trainOnRBUF(RBUF, minibatchSize = RBUFSamples)
-        if numberOfGames % saveInterval == 0:
-            saveInterval.SaveModel(ANET.neuralNet.parameters, fileName)
-            # TODO Save ANET’s current parameters for later use in tournament play
+        #print(RBUF)
+        #if numberOfGames % saveInterval == 0:
+            #weights = []
+            #for nodeIndex, weight in enumerate(ANET.neuralNet.parameters()):
+            #    weights.append(weight)
+            #SaveModel(weights, fileName)
 
+        
+            # TODO Save ANET’s current parameters for later use in tournament play
+    for i in range(0,21):
+        ANET.defaultPolicyFindAction([1,2],[-1,i])
+        ANET.defaultPolicyFindAction([1,2],[ 1,i])
+
+    
+    simWorld2 = Nim(
+            20,
+            2
+        )
+    simWorld2.playAgainst(ANET)
 def main():
     # Load parameters from file
     with open('project2/parameters.json') as f:
@@ -74,11 +115,11 @@ def main():
 
     elif gameType == "nim":
         simWorld = Nim(
-            10,
-            3
+            20,
+            2
         )
         input_size =  2
-        output_size = 3
+        output_size = 2
         #nim.playGayme()
     else:
         print("Game not specified. Quitting...")
@@ -94,7 +135,6 @@ def main():
         learningRate = learningRate,
         simWorld = simWorld
     )
-
     # clear replay buffer (RBUF)
 
     # randomly initialize parameters for ANET
@@ -112,13 +152,8 @@ def main():
     # update MTCS.simWorld with each move
 
     # use ANET
-
+    
 
 if __name__ == '__main__':
     print("Run!")
     main()
-
-RBUF = []
-RBUFSamples = 10
-
-fileName = "test"

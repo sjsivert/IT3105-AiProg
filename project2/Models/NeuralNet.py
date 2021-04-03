@@ -4,7 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 from typing import List
+from torch.autograd import Variable
+import torch.nn.functional as F
 import torch.optim as optim
+import math
 
 
 class NeuralNetwork(nn.Module):
@@ -16,7 +19,6 @@ class NeuralNetwork(nn.Module):
         current_dim = input_size
 
         for dimension in hiddenLayersDimension:
-            print(int(current_dim), dimension)
             self.layers.append(nn.Linear(int(current_dim), dimension))
             current_dim = dimension
 
@@ -54,11 +56,10 @@ class NeuralActor ():
 
 
     def trainOnRBUF(self, RBUF, minibatchSize:int):
-        minibatch = random.sample(seq=RBUF, n=minibatchSize)
+        minibatch = random.sample(RBUF, k=minibatchSize)
         for item in minibatch:
             state = item[0]
             actionDistribution = item[1]
-
             # Map state to a pytorch friendly format
             input = torch.tensor(
                 [int(s)for s in state], dtype=torch.float32)
@@ -66,10 +67,14 @@ class NeuralActor ():
             # We have to zero out gradients for each pass, or they will accumulate
             self.optimizer.zero_grad()
             output = self.neuralNet(input)
+            
+            #print(torch.tensor(actionDistribution), output)
+            input2 = Variable(torch.randn(3, 1), requires_grad=True)
+            target2 = Variable(torch.randn(3, 1))
+            print(input2, target2)
 
-            # Avoid dividing ny zero
 
-            loss = self.lossFunction(actionDistribution, output)
+            loss = self.lossFunction(output, torch.tensor(actionDistribution))
 
             # Store the gradients for the network
             loss.backward()
@@ -81,8 +86,17 @@ class NeuralActor ():
         input = torch.tensor(
             [int(s)for s in state], dtype=torch.float32)
         self.optimizer.zero_grad()
-        print("input", input)
-        print("nevnet", self.neuralNet)
         output = self.neuralNet(input)
-        print("out", output)
-        return output
+        return output.detach().numpy()
+
+    def defaultPolicyFindAction(self, possibleActions, state) -> int:
+        distribution  = self.getDistributionForState(state)
+        print(distribution, state)
+        bestActionValue = -math.inf
+        bestActionIndex = 0
+        for index, value in enumerate(distribution):
+            if index in possibleActions:
+                if value > bestActionValue:
+                    bestActionValue = value 
+                    bestActionIndex = index
+        return bestActionIndex

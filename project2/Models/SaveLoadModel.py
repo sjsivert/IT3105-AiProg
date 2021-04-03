@@ -2,9 +2,10 @@ import csv
 
 def SaveModel(weights, filename):
     with open(filename + '.csv', mode='w') as infile:
-        writer = csv.DictWriter(infile, ['stateHash', 'stateValue'])
+        writer = csv.DictWriter(infile, ['weights'])
         writer.writeheader()
         for weight in weights:
+            print(weight)
             writer.writerow({'weights': weight})
 
 def LoadModel(fileName):
