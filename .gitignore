@@ -136,3 +136,4 @@ dmypy.json
 images/*
 .zip
 *.zip
+.idea

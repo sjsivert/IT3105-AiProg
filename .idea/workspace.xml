@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b61eaf6-bc66-4f26-a083-8cc31156bfa2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/IT3105-AiProg.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project1/sim_world/HexBoard.py" beforeDir="false" afterPath="$PROJECT_DIR$/project1/sim_world/HexBoard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project1/sim_world/Node.py" beforeDir="false" afterPath="$PROJECT_DIR$/project1/sim_world/Node.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project1/sim_world/test_HexBoard.py" beforeDir="false" afterPath="$PROJECT_DIR$/project1/sim_world/test_HexBoard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project1/sim_world/test_Node.py" beforeDir="false" afterPath="$PROJECT_DIR$/project1/sim_world/test_Node.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project2/Client_side/server.crt" beforeDir="false" afterPath="$PROJECT_DIR$/project2/Client_side/server.crt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,10 +41,13 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/project2/Client_side/BasicClientActor.py" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="preferences.externalTools" />
   </component>
-  <component name="RunManager" selected="Python.test_HexBoard">
+  <component name="RunManager" selected="Python.turnament">
     <configuration name="test_Node" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -150,16 +145,15 @@
     </configuration>
     <list>
       <item itemvalue="Python.wtf" />
+      <item itemvalue="Python.turnament" />
+      <item itemvalue="Python.test_Node" />
       <item itemvalue="Python tests.pytest for test_HexBoard.HexBoardTest.testHexBoardNeighboars" />
       <item itemvalue="Python tests.pytest in sim_world" />
       <item itemvalue="Python tests.pytest for test_HexBoard.HexBoardTest.testHexBoardWithParameter4" />
-      <item itemvalue="Python.test_HexBoard" />
-      <item itemvalue="Python.test_Node" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_Node" />
-        <item itemvalue="Python.test_HexBoard" />
         <item itemvalue="Python tests.pytest for test_HexBoard.HexBoardTest.testHexBoardNeighboars" />
         <item itemvalue="Python tests.pytest in sim_world" />
         <item itemvalue="Python tests.pytest for test_HexBoard.HexBoardTest.testHexBoardWithParameter4" />
@@ -178,6 +172,7 @@
       <workItem from="1610887325982" duration="181000" />
       <workItem from="1610887716280" duration="23729000" />
       <workItem from="1611053271726" duration="3691000" />
+      <workItem from="1617971799408" duration="637000" />
     </task>
     <servers />
   </component>
