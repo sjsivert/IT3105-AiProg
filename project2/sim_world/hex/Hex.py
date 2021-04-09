@@ -29,38 +29,7 @@ class Hex(SimWorld):
         # TODO: Add action log
         self.generateTournamentActionMaps()
 
-    def generateTournamentActionMaps(self):  # {simworld action (row, column): tournament acition (row, column)}
-        self.simWorldToTournament = {}
-        for c in range(len(board)):
-            for r in range(len(board[c])):
-                col = c
-                row = r
-                if(col < boardSize):
-                    self.simWorldToTournament[(c,r)] = (col-row,row)
-                else:
-                    self.simWorldToTournament[(c,r)] = (self.boardWidth-row-1,row+col-self.boardWidth+1)
-        self.tournamentToSimworld = {}
-        for key in self.simWorldToTournament.keys():
-            self.tournamentToSimworld[self.simWorldToTournament[key]] = key
 
-    def tournamentStateToSimworldState(self, state) -> list:  # state is list [player, 0,0,1,2,0,...] -> [[0,0],[1,0],[1,1]] (player missing)
-        simWorldBoard = []
-        for i in range(1, self.boardWidth+1):
-            simWorldBoard.append(i * [0])
-        for i in range(boardWidth - 1, 0, -1):
-            simWorldBoard.append(i * [0])  # Creates empty sim worl board
-        for col in range(len(simWorldBoard)):
-            for row in range(len(simWorldBoard[col])):
-                if(col < boardSize):
-                    self.simWorldToTournament[(col,row)] = (col-row,row)
-                else:
-                    self.simWorldToTournament[(col,row)] = (self.boardWidth-row-1,row+col-self.boardWidth+1)
-        for col in range(self.boardWidth):
-            for row in range(self.boardWidth):
-                coord = self.tournamentToSimworld[(col, row)]
-                simWorldBoard[coord[0]][coord[1]] = state[col*self.boardWidth+row+1]
-        return simWorldBoard
-        
     def generatePossibleActions(self):
         board = self.state.state
         actions = {}
@@ -178,8 +147,8 @@ class Hex(SimWorld):
         return self.playerTurn
 
     def getStateHash(self) -> str:
-        # TODO: Implement
-        pass
+        print(self.state.generateTorunamentActionMaps())
+        return self.state.generateTorunamentActionMaps()
 
     def getMaxPossibleActionSpace(self) -> int:
         return self.boardWidth**2
