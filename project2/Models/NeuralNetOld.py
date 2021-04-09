@@ -8,7 +8,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import torch.optim as optim
 import math
-import random
+
 
 class NeuralNetwork(nn.Module):
     def __init__(self, input_size, output_size, hiddenLayersDimension=[]):
@@ -23,19 +23,15 @@ class NeuralNetwork(nn.Module):
             current_dim = dimension
 
         self.layers.append(nn.Linear(current_dim, output_size))
-        
-        self.softmax = nn.Softmax(dim=0)
 
     def forward(self, input):
         # Hidden layers
         for layer in self.layers[:-1]:
-            input = F.relu(layer(input))  # Se på å bruke noe sigmoid eller noe annet også kanskje?
+            input = F.relu(layer(input))
             
         # Output layer
         # Hyperbolic tangent
         out = torch.tanh(self.layers[-1](input))
-        out = self.softmax(out)
-        # print("out: ", out)
         return out
         
 class NeuralActor ():
@@ -43,8 +39,7 @@ class NeuralActor ():
                  inputSize,
                  outputSize,
                  hiddenLayersDim,
-                 learningRate=0.9,
-                 epsilon = 0
+                 learningRate=0.1
                  ):
         self.learningRate = learningRate
 
@@ -58,11 +53,9 @@ class NeuralActor ():
             self.neuralNet.parameters(), lr=self.learningRate)
 
         self.lossFunction = nn.MSELoss()
-        self.epsilon = epsilon
 
 
-    def trainOnRBUF(self, RBUF, minibatchSize:int): 
-        # print("RBUF", RBUF)
+    def trainOnRBUF(self, RBUF, minibatchSize:int):
         minibatch = random.sample(RBUF, k=minibatchSize)
         for item in minibatch:
             state = item[0]
@@ -78,11 +71,11 @@ class NeuralActor ():
             #print(torch.tensor(actionDistribution), output)
             input2 = Variable(torch.randn(3, 1), requires_grad=True)
             target2 = Variable(torch.randn(3, 1))
-            # print(input2, target2)
+            print(input2, target2)
 
 
             loss = self.lossFunction(output, torch.tensor(actionDistribution))
-            # print("loss", loss)
+            print("loss", loss)
 
             # Store the gradients for the network
             loss.backward()
@@ -95,7 +88,7 @@ class NeuralActor ():
             [int(s)for s in state], dtype=torch.float32)
         self.optimizer.zero_grad()
         output = self.neuralNet(input)
-        # print("output", output)
+        print("output", output)
         return output.detach().numpy()
 
     def defaultPolicyFindAction(self, possibleActions, state) -> int:
@@ -108,6 +101,4 @@ class NeuralActor ():
                 if value > bestActionValue:
                     bestActionValue = value 
                     bestActionIndex = index
-        if self.epsilon > random.uniform(0, 1) and len(possibleActions) != 0:
-            bestActionIndex = possibleActions[random.randint(0, len(possibleActions) -1)]
         return bestActionIndex
