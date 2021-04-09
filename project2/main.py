@@ -1,5 +1,6 @@
 import json
 import math
+import random
 from sim_world.nim.Nim import Nim
 from MCTS.TreeNode import TreeNode
 from sim_world.sim_world import SimWorld
@@ -16,9 +17,12 @@ RBUFSamples = 10
 fileName = "test"
 
 def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorld: SimWorld) -> None:
-    ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate)
+    print(input_size, output_size, hiddenLayersDimension, learningRate)
+    ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
     print(numberOfGames)
     for i in range(numberOfGames):
+        RBUF = []
+        ANET.epsilon = ANET.epsilon*0.9
         print(i)
         simWorld = Nim(
             20,
@@ -37,9 +41,8 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
                 reward = mcts.rollout(ANET) * mcts.rootNode.state[0]
                 #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
-            #print(mcts.currentNode.state)
             actionDistributtion = mcts.currentNode.numTakenAction
-            
+            # print(RBUF)
             actionSum =0
             actionMin = 0
             for i in actionDistributtion:
@@ -48,17 +51,23 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
             for i in range(len(actionDistributtion)):
                 actionDistributtion[i] = (actionDistributtion[i] - actionMin) / (actionSum - actionMin)
             print(mcts.currentNode.state, actionDistributtion)
+            # print(simWorld.playerTurn, simWorld.state)
             RBUF.append((mcts.currentNode.state, actionDistributtion))
             
             # TODO add epsilon
-            bestMove = None
-            bestMoveValue = -math.inf
-            #print("state", simWorld.state)
-            for move in range(len(actionDistributtion)):
-                if bestMoveValue < actionDistributtion[move]:
-                    bestMoveValue = actionDistributtion[move]
-                    bestMove = move
-
+            if 0.0 > random.uniform(0, 1):
+                if simWorld.state >= 2:
+                    bestMove = random.randrange(0, len(actionDistributtion))
+                else: bestMove = 0
+            else:
+                bestMove = None
+                bestMoveValue = -math.inf
+                #print("state", simWorld.state)
+                for move in range(len(actionDistributtion)):
+                    if bestMoveValue < actionDistributtion[move]:
+                        bestMoveValue = actionDistributtion[move]
+                        bestMove = move
+            # print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion)
             simWorld.makeAction(bestMove)
             mcts.makeAction(bestMove)
             mcts.reRootTree()
@@ -74,8 +83,8 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
         
             # TODO Save ANET’s current parameters for later use in tournament play
     for i in range(0,21):
-        ANET.defaultPolicyFindAction([1,2],[-1,i])
-        ANET.defaultPolicyFindAction([1,2],[ 1,i])
+        print( ANET.defaultPolicyFindAction([1,2],[-1,i]))
+        print( ANET.defaultPolicyFindAction([1,2],[ 1,i]))
 
     
     simWorld2 = Nim(

@@ -39,12 +39,15 @@ class Nim(SimWorld):
             raise Exception("Illegal action, not enough stones in pile")
         self.state = self.state - self.actions[action]
         self.changePlayerTurn()
+    
+    def peekAction(self, action: int):
+        return [-self.playerTurn, self.state - self.actions[action]]
 
     def getReward(self) -> int:
         # TODO: Make reward system parameterTunable
         if self.isWinState():
-            #print("reward", 10 * self.playerTurn)
-            return 10 * self.playerTurn
+            # print("reward", 10 * self.playerTurn)
+            return 1 * -self.playerTurn
 
     def getPlayerTurn(self) -> int:
         return self.playerTurn

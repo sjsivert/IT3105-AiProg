@@ -22,12 +22,12 @@ class MCTS:
         for action in range(len(self.currentNode.numTakenAction)):
             if action not in self.simWorld.getPossibleActions():
                 continue
-            currentActionNodeValue = (-opponentFactor * self.currentNode.getExpectedResult(
+            currentActionNodeValue = (opponentFactor * self.currentNode.getExpectedResult(
                 action)) + self.currentNode.getExplorationBias(action)
+            #print(currentActionNodeValue, self.currentNode.getExplorationBias(action), self.currentNode.numTakenAction[action])
             if(currentActionNodeValue > bestValue):
                 bestValue = currentActionNodeValue
                 bestAction = action
-        
         return bestAction
 
     def nodeExpansion(self):
@@ -36,7 +36,7 @@ class MCTS:
         for action in possibleActions:
             self.currentNode.addChild(
                 action=action,
-                child=TreeNode(self.simWorld.getStateHash(),
+                child=TreeNode(self.simWorld.peekAction(action),
                                self.simWorld.getMaxPossibleActionSpace())
             )
         
@@ -44,10 +44,9 @@ class MCTS:
         self.makeSearchAction(self.treePolicyFindAction(playerTurn))
 
     def makeAction(self, action: int):
-        self.currentNode.addActionTaken(action)
-
-        self.currentNode = self.currentNode.children.get(action)
         self.simWorld.makeAction(action)
+        self.currentNode.addActionTaken(action)       
+        self.currentNode = self.currentNode.children.get(action)
 
         return self.currentNode
 
@@ -69,7 +68,6 @@ class MCTS:
         self.currentLeafNode = currentNode
         if not self.simWorld.isWinState():
             self.nodeExpansion()
-
         return currentNode
 
     def rollout(self, ANET):
@@ -78,11 +76,9 @@ class MCTS:
             self.simWorld.makeAction(defaultPolicyAction)
         return self.simWorld.getReward()
 
-    
-
     def backPropogate(self, propogateValue: float):
-        self.currentNode.totalEvaluation += propogateValue
         while self.currentNode.parent != None:
+            self.currentNode.totalEvaluation += propogateValue
             #print("backPropogate",self.currentNode.parent)
             self.currentNode = self.currentNode.parent
 
