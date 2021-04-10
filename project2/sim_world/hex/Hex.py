@@ -15,19 +15,23 @@ class Hex(SimWorld):
         self,
         boardType: str,
         boardWith: int,
-        playerTurn: int
+        playerTurn: int,
+        boardState: List = None # For starting on a non clean state
     ):
-        self.playerTurn = playerTurn
-        self.boardWidth = boardWith
+        if boardState != None:
+            self.playerTurn = 1 if boardState[0] == 1 else -1
+            self.hexBoard = tournamentStateToSimworldState(boardState)
+        else:
+            self.playerTurn = playerTurn
+            self.boardWidth = boardWith
+            hexBoard = HexBoard(Boardtype[boardType], boardWith)
         self.lastAction = None
-        hexBoard = HexBoard(Boardtype[boardType], boardWith)
         self.state = BoardState(hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
 
         self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
         # TODO: Add action log
-        self.generateTournamentActionMaps()
 
 
     def generatePossibleActions(self):
@@ -147,8 +151,8 @@ class Hex(SimWorld):
         return self.playerTurn
 
     def getStateHash(self) -> str:
-        print(self.state.generateTorunamentActionMaps())
-        return self.state.generateTorunamentActionMaps()
+        print("Formated: ", self.state.generateTournamentActionMaps())
+        return self.state.generateTournamentActionMaps()
 
     def getMaxPossibleActionSpace(self) -> int:
         return self.boardWidth**2
@@ -159,6 +163,7 @@ class Hex(SimWorld):
         )
 
     def playGame(self):
+        self.getStateHash()
         self.generateBoardSideCordinates()
         while (not self.isWinState()):
             print(self.possibleActions)
@@ -184,3 +189,4 @@ class Cordinates:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+

@@ -88,6 +88,7 @@ def main():
     with open('project2/parameters.json') as f:
         parameters = json.load(f)
 
+    operationMode = parameters["operation_mode"]
     gameType = parameters['game_type']
     boardType = parameters['board_type']
     boardSize = parameters['board_size']
@@ -124,17 +125,21 @@ def main():
     else:
         print("Game not specified. Quitting...")
     # is = save interval for ANET (the actor network) parameters
-
-    doGames(
-        numberOfTreeGames = numSearchGamesPerMove,
-        numberOfGames = numEpisodes, 
-        saveInterval = saveInterval, 
-        input_size =  input_size,
-        output_size = output_size,
-        hiddenLayersDimension= hiddenLayersDim,
-        learningRate = learningRate,
-        simWorld = simWorld
-    )
+    if(operationMode == "play"):
+        simWorld.playGame()
+    elif (operationMode == "train"):
+        doGames(
+            numberOfTreeGames = numSearchGamesPerMove,
+            numberOfGames = numEpisodes,
+            saveInterval = saveInterval,
+            input_size =  input_size,
+            output_size = output_size,
+            hiddenLayersDimension= hiddenLayersDim,
+            learningRate = learningRate,
+            simWorld = simWorld
+        )
+    else:
+        raise Exception("Operation  mode not specified choose (play/train)")
     # clear replay buffer (RBUF)
 
     # randomly initialize parameters for ANET
