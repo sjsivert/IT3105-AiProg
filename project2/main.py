@@ -13,7 +13,7 @@ from Models.SaveLoadModel import SaveModel
 
 
 RBUF = []
-RBUFSamples = 10
+RBUFSamples = 2
 fileName = "test"
 
 def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorld: SimWorld) -> None:
@@ -24,10 +24,10 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
         ANET.epsilon = ANET.epsilon*0.9
         print(i)
         simWorld = Nim(
-            20,
+            5,
             2
         )
-        if(0.5 > random.uniform(0,1)):
+        if(0.5> random.uniform(0,1)):
             simWorld.playerTurn = -1
         currentState = simWorld.getStateHash()
         root = TreeNode(state=currentState, parent=None, possibleActions = output_size)
@@ -38,20 +38,25 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
             
             #monteCarloSimWorld = SimWorld(root)
             for e in range(numberOfTreeGames):
-                mcts.treeSearch(currentState, simWorld, ANET)
+                mcts.treeSearch(currentState, simWorld)
                 reward = mcts.rollout(ANET) * mcts.rootNode.state[0]
                 #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
-            actionDistributtion = mcts.currentNode.numTakenAction
+                #for i in  mcts.History:
+                #    print("h",i, e)
+                #print()
+            actionDistributtion = []
             # print(RBUF)
             actionSum =0
-            actionMin = 0
-            for i in actionDistributtion:
+            for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
+                actionDistributtion.append(i)
                 actionSum += i
-                actionMin = min(actionMin, i)
             for i in range(len(actionDistributtion)):
-                actionDistributtion[i] = (actionDistributtion[i] - actionMin) / (actionSum - actionMin)
-            print(mcts.currentNode.state, actionDistributtion)
+                actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
+            
+            #print(mcts.currentNode.state, actionDistributtion)
+            for i in mcts.HashTable.keys():
+                print("statekey:",i, "evaluation, times visisted, actionstaken:", mcts.HashTable[i])
             # print(simWorld.playerTurn, simWorld.state)
             RBUF.append((mcts.currentNode.state, actionDistributtion))
             
@@ -83,8 +88,8 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
 
         
             # TODO Save ANET’s current parameters for later use in tournament play
-    for i in range(0,21):
-        nonstaones = [0] * (20 - i)
+    for i in range(0,5 +1):
+        nonstaones = [0] * (5 - i)
         nonnonstaones = [1] * (i)
         state = [-1] + nonstaones + nonnonstaones 
         state2 = [1] + nonstaones + nonnonstaones 
@@ -93,7 +98,7 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
 
     
     simWorld2 = Nim(
-            20,
+            5,
             2
         )
     simWorld2.playAgainst(ANET)
@@ -129,10 +134,10 @@ def main():
 
     elif gameType == "nim":
         simWorld = Nim(
-            20,
+            5,
             2
         )
-        input_size =  21
+        input_size =  5 + 1
         output_size = 2
         #nim.playGayme()
     else:

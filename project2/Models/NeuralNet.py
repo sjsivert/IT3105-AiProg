@@ -38,11 +38,9 @@ class NeuralActor ():
         model = Sequential()
         
         model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation='relu'))
-        #for i in range(len(hiddenLayersDimension)):
-        #    model.add(Dense(hiddenLayersDimension[i]))
-        
-        #model.add(Activation('softmax'))
-        model.add(Dense(output_size))
+        for i in range(len(hiddenLayersDimension)):
+            model.add(Dense(hiddenLayersDimension[i]))
+        model.add(Dense(output_size, activation='softmax'))
         model.compile(loss='mae', optimizer='adam')
         return model
     
@@ -64,7 +62,7 @@ class NeuralActor ():
         for i in state:
             s[0].append(i)
         xList = np.array(s)
-        yList = self.neuralNet.predict(xList)
+        yList = self.neuralNet(xList)
         return(yList[0])
 
 
