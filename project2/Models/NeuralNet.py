@@ -49,7 +49,10 @@ class NeuralActor ():
     def trainOnRBUF(self, RBUF, minibatchSize:int):
         minibatch = random.sample(RBUF, k=minibatchSize)
         for item in minibatch:
-            state = np.array([[item[0][0],item[0][1]]])
+            s = [[]]
+            for i in item[0]:
+                s[0].append(i)
+            state = np.array(s)
             actionDistribution = np.array([[item[1][0],item[1][1]]])
             self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
 
@@ -57,7 +60,10 @@ class NeuralActor ():
         #print(state)
         #print(np.array(state))
         #print(np.array(state).transpose())
-        xList = np.array([[state[0],state[1]]])
+        s = [[]]
+        for i in state:
+            s[0].append(i)
+        xList = np.array(s)
         yList = self.neuralNet.predict(xList)
         return(yList[0])
 
@@ -67,9 +73,13 @@ class NeuralActor ():
         #print(distribution, state)
         bestActionValue = -math.inf
         bestActionIndex = 0
+        #print("dist",distribution)
+        #print("possibel, state",possibleActions, state)
         for index, value in enumerate(distribution):
+            #print("index, value", index, value)
             if index in possibleActions:
                 if value > bestActionValue:
                     bestActionValue = value 
                     bestActionIndex = index
+        #print("best", bestActionIndex, bestActionValue)
         return bestActionIndex

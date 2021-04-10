@@ -21,13 +21,14 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
     ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
     print(numberOfGames)
     for i in range(numberOfGames):
-        RBUF = []
         ANET.epsilon = ANET.epsilon*0.9
         print(i)
         simWorld = Nim(
             20,
             2
         )
+        if(0.5 > random.uniform(0,1)):
+            simWorld.playerTurn = -1
         currentState = simWorld.getStateHash()
         root = TreeNode(state=currentState, parent=None, possibleActions = output_size)
         mcts = MCTS(
@@ -37,7 +38,7 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
             
             #monteCarloSimWorld = SimWorld(root)
             for e in range(numberOfTreeGames):
-                mcts.treeSearch(currentState, simWorld)
+                mcts.treeSearch(currentState, simWorld, ANET)
                 reward = mcts.rollout(ANET) * mcts.rootNode.state[0]
                 #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
@@ -83,8 +84,12 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
         
             # TODO Save ANET’s current parameters for later use in tournament play
     for i in range(0,21):
-        print( ANET.defaultPolicyFindAction([1,2],[-1,i]))
-        print( ANET.defaultPolicyFindAction([1,2],[ 1,i]))
+        nonstaones = [0] * (20 - i)
+        nonnonstaones = [1] * (i)
+        state = [-1] + nonstaones + nonnonstaones 
+        state2 = [1] + nonstaones + nonnonstaones 
+        print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
+        print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
 
     
     simWorld2 = Nim(
@@ -127,7 +132,7 @@ def main():
             20,
             2
         )
-        input_size =  2
+        input_size =  21
         output_size = 2
         #nim.playGayme()
     else:

@@ -9,6 +9,7 @@ class Nim(SimWorld):
         numberOfStones,
         maxRemoveEachTurn
     ):
+        self.maxStones = numberOfStones
         self.playerTurn = 1
         self.state = numberOfStones
         self.maxRemoveEachTurn = maxRemoveEachTurn
@@ -41,7 +42,10 @@ class Nim(SimWorld):
         self.changePlayerTurn()
     
     def peekAction(self, action: int):
-        return [-self.playerTurn, self.state - self.actions[action]]
+        nonstaones = [0] * (self.maxStones - self.state + self.actions[action])
+        nonnonstaones = [1] * (self.state - self.actions[action])
+        state = [-self.playerTurn] + nonstaones + nonnonstaones 
+        return state
 
     def getReward(self) -> int:
         # TODO: Make reward system parameterTunable
@@ -85,7 +89,10 @@ class Nim(SimWorld):
         )
 
     def getStateHash(self) -> str:
-        return [self.playerTurn, self.state]
+        nonstaones = [0] * (self.maxStones - self.state)
+        nonnonstaones = [1] * (self.state)
+        state = [self.playerTurn] + nonstaones + nonnonstaones 
+        return state
 
 
 if __name__ == "__main__":

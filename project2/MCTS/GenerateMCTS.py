@@ -13,6 +13,7 @@ class MCTS:
         self.rootNode = root
         self.currentNode = root
         self.currentLeafNode = root
+        self.ExplorationBiasCoefficient = 1
 
     def treePolicyFindAction(self, opponentFactor: int) -> int:
         # TODO: Check if this works as expected
@@ -22,15 +23,16 @@ class MCTS:
         for action in range(len(self.currentNode.numTakenAction)):
             if action not in self.simWorld.getPossibleActions():
                 continue
+            #print(self.currentNode.getExpectedResult(action), self.currentNode.getExplorationBias(action), action, self.currentNode.state)
             currentActionNodeValue = (opponentFactor * self.currentNode.getExpectedResult(
-                action)) + self.currentNode.getExplorationBias(action)
+                action)) + self.ExplorationBiasCoefficient* self.currentNode.getExplorationBias(action)
             #print(currentActionNodeValue, self.currentNode.getExplorationBias(action), self.currentNode.numTakenAction[action])
             if(currentActionNodeValue > bestValue):
                 bestValue = currentActionNodeValue
                 bestAction = action
         return bestAction
 
-    def nodeExpansion(self):
+    def nodeExpansion(self, ANET):
 
         possibleActions = self.simWorld.getPossibleActions()
         for action in possibleActions:
@@ -41,7 +43,7 @@ class MCTS:
             )
         
         playerTurn = self.simWorld.playerTurn
-        self.makeSearchAction(self.treePolicyFindAction(playerTurn))
+        self.makeSearchAction(ANET.defaultPolicyFindAction(self.simWorld.getPossibleActions(), self.simWorld.getStateHash()))
 
     def makeAction(self, action: int):
         self.simWorld.makeAction(action)
@@ -58,16 +60,17 @@ class MCTS:
         self.currentNode.numTimesVisited += 1
         return self.currentNode
 
-    def treeSearch(self, node: TreeNode, simWorld) -> TreeNode:
+    def treeSearch(self, node: TreeNode, simWorld, ANET) -> TreeNode:
         self.simWorld = copy.deepcopy(simWorld)
         currentNode = self.currentNode
+        currentNode.numTimesVisited += 1
         while len(self.currentNode.children) != 0:
             playerTurn = self.simWorld.playerTurn
             treePolicyAction = self.treePolicyFindAction(playerTurn)
             currentNode = self.makeSearchAction(treePolicyAction)
         self.currentLeafNode = currentNode
         if not self.simWorld.isWinState():
-            self.nodeExpansion()
+            self.nodeExpansion(ANET)
         return currentNode
 
     def rollout(self, ANET):
