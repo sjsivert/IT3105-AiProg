@@ -15,7 +15,11 @@ class Boardtype(Enum):
 
 
 class HexBoard():
-    def __init__(self, boardType: Boardtype, boardWidth: int, removeLocations: List[(int)] = []) -> None:
+    def __init__(self,
+                 boardType: Boardtype,
+                 boardWidth: int,
+                 removeLocations: List[(int)] = [],
+                 ) -> None:
         self.defaultNodeValue = 0
         self.boardWidth = boardWidth
         if (boardType is Boardtype.triangle):
@@ -48,9 +52,20 @@ class HexBoard():
 
 
 class BoardState():
-    def __init__(self, hexBoard: HexBoard) -> None:
+    def __init__(self,
+                 hexBoard: HexBoard,
+                 formatHexBoard: bool = False, # TODO: Remove?
+                 loadedHexBoardState: List[int] = None,
+                 boardWidth = None
+                 ) -> None:
         self.state = self._boardToNodes(hexBoard=hexBoard)
         self.hexBoard = hexBoard
+
+        if formatHexBoard:
+            self.boardWidth = boardWidth
+            self.generateTournamentActionMaps()
+            print(self.tournamentStateToSimworldState(loadedHexBoardState, boardWidth=boardWidth))
+
 
     def getStateList(self) -> List[Peg]:
         return self.state
@@ -100,33 +115,33 @@ class BoardState():
             for r in range(len(self.state[c])):
                 col = c
                 row = r
-                if(col < self.hexBoard.boardWidth): #Riktig?
+                if(col < self.boardWidth): #Riktig?
                     self.simWorldToTournament[(c,r)] = (col-row,row)
                 else:
-                    self.simWorldToTournament[(c,r)] = (self.hexBoard.boardWidth-row-1,row+col-self.hexBoard.boardWidth+1)
+                    self.simWorldToTournament[(c,r)] = (self.boardWidth-row-1,row+col-self.boardWidth+1)
         self.tournamentToSimworld = {}
         for key in self.simWorldToTournament.keys():
             self.tournamentToSimworld[self.simWorldToTournament[key]] = key
         return self.simWorldToTournament
 
-    def tournamentStateToSimworldState(self, state: List) -> list:  # state is list [player, 0,0,1,2,0,...] -> [[0,0],[1,0],[1,1]] (player missing)
+    def tournamentStateToSimworldState(self, state: List, boardWidth: int) -> list:  # state is list [player, 0,0,1,2,0,...] -> [[0,0],[1,0],[1,1]] (player missing)
         simWorldBoard = []
         playerTurn = 1 if state[0] == 1 else -1
 
-        for i in range(1, self.hexBoard.boardWidth+1):
+        for i in range(1, boardWidth+1):
             simWorldBoard.append(i * [0])
-        for i in range(self.hexBoard.boardWidth- 1, 0, -1):
+        for i in range(boardWidth- 1, 0, -1):
             simWorldBoard.append(i * [0])  # Creates empty sim worl board
         for col in range(len(simWorldBoard)):
             for row in range(len(simWorldBoard[col])):
-                if(col < self.hexBoard.boardWidth):
+                if(col < boardWidth):
                     self.simWorldToTournament[(col,row)] = (col-row,row)
                 else:
-                    self.simWorldToTournament[(col,row)] = (self.hexBoard.boardWidth-row-1,row+col-self.hexBoard.boardWidth+1)
-        for col in range(self.hexBoard.boardWidth):
-            for row in range(self.hexBoard.boardWidth):
+                    self.simWorldToTournament[(col,row)] = (boardWidth-row-1,row+col-boardWidth+1)
+        for col in range(boardWidth):
+            for row in range(boardWidth):
                 coord = self.tournamentToSimworld[(col, row)]
-                simWorldBoard[coord[0]][coord[1]] = state[col*self.hexBoard.boardWidth+row+1]
+                simWorldBoard[coord[0]][coord[1]] = state[col*boardWidth+row+1]
         return simWorldBoard
 
     def __repr__(self):

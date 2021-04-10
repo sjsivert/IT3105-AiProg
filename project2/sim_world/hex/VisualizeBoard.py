@@ -12,7 +12,7 @@ import numpy as np
 
 videoFps = 2
 
-# TODO add to class
+# TODO addjto class
 
 
 def plotTree(node: Peg, G, drawnList: list) -> None:
@@ -72,7 +72,7 @@ def VisualizePegs(pegList, stepNumber=0, lastAction=None, pegColor1='#0000ff', p
     ax.set_facecolor('deepskyblue')
     plt.axis('off')
     fig.set_facecolor('deepskyblue')
-    plt.show()
+    # lt.show()
     plt.savefig('./project2/images/' + str(stepNumber) + '.png')
     plt.close()
 

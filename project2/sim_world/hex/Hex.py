@@ -14,19 +14,27 @@ class Hex(SimWorld):
     def __init__(
         self,
         boardType: str,
-        boardWith: int,
+        boardWidth: int,
         playerTurn: int,
-        boardState: List = None # For starting on a non clean state
+        loadedHexBoardState: List = None # For starting on a non clean state
     ):
-        if boardState != None:
-            self.playerTurn = 1 if boardState[0] == 1 else -1
-            self.hexBoard = tournamentStateToSimworldState(boardState)
+        self.boardWidth = boardWidth
+        hexBoard = HexBoard(Boardtype[boardType], boardWidth)
+
+        if loadedHexBoardState!= None:
+            self.playerTurn = 1 if loadedHexBoardState[0] == 1 else -1
+            # convert to expected list format
+            self.state = BoardState(
+                hexBoard = hexBoard,
+                formatHexBoard = True,
+                loadedHexBoardState = loadedHexBoardState,
+                boardWidth = boardWidth
+            )
         else:
             self.playerTurn = playerTurn
-            self.boardWidth = boardWith
-            hexBoard = HexBoard(Boardtype[boardType], boardWith)
+            # Create a new board from scratch
+            self.state = BoardState(hexBoard)
         self.lastAction = None
-        self.state = BoardState(hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
 
