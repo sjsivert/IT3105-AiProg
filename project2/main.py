@@ -10,23 +10,21 @@ from Models import SaveLoadModel
 from sim_world.hex.Hex import Hex
 from typing import List
 from Models.SaveLoadModel import SaveModel
+import copy
 
 
 RBUF = []
-RBUFSamples = 2
+RBUFSamples = 3
 fileName = "test"
 
-def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorld: SimWorld) -> None:
+def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorldTemplate: SimWorld) -> None:
     print(input_size, output_size, hiddenLayersDimension, learningRate)
     ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
     print(numberOfGames)
     for i in range(numberOfGames):
         ANET.epsilon = ANET.epsilon*0.9
         print(i)
-        simWorld = Nim(
-            5,
-            2
-        )
+        simWorld = copy.deepcopy(simWorldTemplate)
         if(0.5> random.uniform(0,1)):
             simWorld.playerTurn = -1
         currentState = simWorld.getStateHash()
@@ -34,18 +32,24 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
         mcts = MCTS(
             root=root
         )
+        RBUF = []
+        #print()
         while not simWorld.isWinState():
             
             #monteCarloSimWorld = SimWorld(root)
             for e in range(numberOfTreeGames):
                 mcts.treeSearch(currentState, simWorld)
-                reward = mcts.rollout(ANET) * mcts.rootNode.state[0]
+                reward = mcts.rollout(ANET)
                 #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
                 #for i in  mcts.History:
                 #    print("h",i, e)
                 #print()
             actionDistributtion = []
+            
+            #for i in mcts.HashTable.keys():
+                #print("statekey:",i, "evaluation, times visisted, actionstaken:", mcts.HashTable[i])
+            #print()
             # print(RBUF)
             actionSum =0
             for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
@@ -55,16 +59,17 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
                 actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
             
             #print(mcts.currentNode.state, actionDistributtion)
-            for i in mcts.HashTable.keys():
-                print("statekey:",i, "evaluation, times visisted, actionstaken:", mcts.HashTable[i])
+            
             # print(simWorld.playerTurn, simWorld.state)
             RBUF.append((mcts.currentNode.state, actionDistributtion))
             
+            #print(mcts.currentNode.state, actionDistributtion)
+            bestMove = 0
             # TODO add epsilon
-            if 0.0 > random.uniform(0, 1):
-                if simWorld.state >= 2:
-                    bestMove = random.randrange(0, len(actionDistributtion))
-                else: bestMove = 0
+            if 0.0 > random.uniform(0, 1) and (not simWorld.isWinState()):
+                if len(simWorld.getPossibleActions()) > 1:
+                    bestMove = simWorld.getPossibleActions()[random.randint(0, len(simWorld.getPossibleActions()) - 1)]
+                    print(bestMove)
             else:
                 bestMove = None
                 bestMoveValue = -math.inf
@@ -74,8 +79,8 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
                         bestMoveValue = actionDistributtion[move]
                         bestMove = move
             # print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion)
-            simWorld.makeAction(bestMove)
             mcts.makeAction(bestMove)
+            simWorld.makeAction(bestMove)
             mcts.reRootTree()
 
         ANET.trainOnRBUF(RBUF, minibatchSize = RBUFSamples)
@@ -88,8 +93,8 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
 
         
             # TODO Save ANET’s current parameters for later use in tournament play
-    for i in range(0,5 +1):
-        nonstaones = [0] * (5 - i)
+    for i in range(1,11 +1):
+        nonstaones = [0] * (11 - i)
         nonnonstaones = [1] * (i)
         state = [-1] + nonstaones + nonnonstaones 
         state2 = [1] + nonstaones + nonnonstaones 
@@ -98,7 +103,7 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
 
     
     simWorld2 = Nim(
-            5,
+            11,
             2
         )
     simWorld2.playAgainst(ANET)
@@ -134,10 +139,10 @@ def main():
 
     elif gameType == "nim":
         simWorld = Nim(
-            5,
+            11,
             2
         )
-        input_size =  5 + 1
+        input_size =  11 + 1
         output_size = 2
         #nim.playGayme()
     else:
@@ -152,7 +157,7 @@ def main():
         output_size = output_size,
         hiddenLayersDimension= hiddenLayersDim,
         learningRate = learningRate,
-        simWorld = simWorld
+        simWorldTemplate = simWorld
     )
     # clear replay buffer (RBUF)
 

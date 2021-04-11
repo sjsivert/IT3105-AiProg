@@ -13,7 +13,7 @@ class MCTS:
         self.rootNode = root
         self.currentNode = root
         self.currentLeafNode = root
-        self.ExplorationBiasCoefficient = 0
+        self.ExplorationBiasCoefficient = 0.5
         self.HashTable = {}
         self.History = []
 
@@ -29,10 +29,13 @@ class MCTS:
             #currentActionNodeValue = (opponentFactor * self.currentNode.getExpectedResult(
             #    action)) + self.ExplorationBiasCoefficient* self.currentNode.getExplorationBias(action)
             currentActionNodeValue = (self.simWorld.playerTurn * self.getExpectedResult(action)) + self.ExplorationBiasCoefficient* self.getExplorationBias(action)
-            #print(currentActionNodeValue, self.currentNode.getExplorationBias(action), self.currentNode.numTakenAction[action])
+            #print(currentActionNodeValue)
             if(currentActionNodeValue > bestValue):
                 bestValue = currentActionNodeValue
                 bestAction = action
+        #if str(self.simWorld.getStateHash()) in self.HashTable.keys():
+        #    print("value:",bestValue, "state:", self.simWorld.getStateHash(), "hashtable:",self.HashTable[str(self.simWorld.getStateHash())], "Player:",self.simWorld.playerTurn, "ExpectedResult:",self.getExpectedResult(bestAction))
+        #print("action:", bestAction)
         return bestAction
 
     def nodeExpansion(self, action):
@@ -41,15 +44,20 @@ class MCTS:
             child=TreeNode(self.simWorld.peekAction(action),
                            self.simWorld.getMaxPossibleActionSpace())
         )
-
+        if not self.simWorld.isWinState():
+            self.makeSearchAction(action)
     def makeAction(self, action: int):
         self.simWorld.makeAction(action)
         self.currentNode.addActionTaken(action)       
+        
+        if self.currentNode.children.get(action) == None:
+            print(345443)
         self.currentNode = self.currentNode.children.get(action)
-
         return self.currentNode
 
     def makeSearchAction(self, action: int):
+        if self.simWorld.isWinState():
+            return self.currentNode
         self.History.append([self.currentNode.state, action])
         self.currentNode.addActionTaken(action)
         self.currentNode = self.currentNode.children.get(action)
@@ -60,18 +68,22 @@ class MCTS:
 
     def treeSearch(self, node: TreeNode, simWorld) -> TreeNode:
         self.simWorld = copy.deepcopy(simWorld)
-        currentNode = self.currentNode
-        currentNode.numTimesVisited += 1
+        self.currentPlayer = self.simWorld.playerTurn
+        
+        self.currentNode.numTimesVisited += 1
         self.History = []
         nextAction = self.treePolicyFindAction()
-        while nextAction in self.currentNode.children.keys():
-            treePolicyAction = nextAction
-            currentNode = self.makeSearchAction(treePolicyAction)
+        #print(nextAction,"a1")
+
+        while nextAction in self.currentNode.children.keys() and not self.simWorld.isWinState():
+            #print(nextAction, "a2")
+            self.currentNode = self.makeSearchAction(nextAction)
             nextAction = self.treePolicyFindAction()
-        self.currentLeafNode = currentNode
+        self.currentLeafNode = self.currentNode
         if not self.simWorld.isWinState():
+            #print(nextAction, "a3")
             self.nodeExpansion(nextAction)
-        return currentNode
+        return self.currentNode
 
     def rollout(self, ANET):
         defaultPolicyAction = 0
@@ -81,6 +93,7 @@ class MCTS:
             self.History.append([str(self.simWorld.getStateHash()), defaultPolicyAction])
             self.simWorld.makeAction(defaultPolicyAction)
         self.addToTable(self.simWorld.getStateHash(), self.simWorld.getReward(), defaultPolicyAction, self.simWorld.getMaxPossibleActionSpace())
+        self.History.reverse()
         return self.simWorld.getReward()
 
     def backPropogate(self, propogateValue: float):
@@ -91,9 +104,12 @@ class MCTS:
         
             #print("backPropogate",self.currentNode.parent)
             self.currentNode = self.currentNode.parent
+        #for i in self.HashTable.keys():
+            #print("statekey:",i, "evaluation, times visisted, actionstaken:", self.HashTable[i])
 
     def reRootTree(self):
-        self.currentNode.parent = None
+        if self.currentNode != None:
+            self.currentNode.parent = None
 
     def addToTable(self, stateHash, reward, action, totalActions):
         if str(stateHash) in self.HashTable.keys():
@@ -107,10 +123,14 @@ class MCTS:
         
     def getExpectedResult(self, action: int) -> float:
         #print(self.children[action].totalEvaluation, self.numTakenAction[action])
+        if action not in self.simWorld.getPossibleActions():
+            return self.simWorld.playerTurn * -math.inf
         peekAction = str(self.simWorld.peekAction(action))
         if peekAction not in self.HashTable.keys() or str(self.simWorld.getStateHash()) not in self.HashTable.keys():
             return 0
-        return self.HashTable[peekAction][1] / (self.HashTable[str(self.simWorld.getStateHash())][2][action] + 1)
+        #print("ev:",self.HashTable[peekAction][0] / self.HashTable[peekAction][1])
+        #print("actionValue, timesActionTaken",self.HashTable[peekAction][0], self.HashTable[peekAction][1])
+        return self.HashTable[peekAction][0] / self.HashTable[peekAction][1]
         
     def getExplorationBias(self, action: int) -> float:
         

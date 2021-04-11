@@ -62,7 +62,7 @@ class NeuralActor ():
         for i in state:
             s[0].append(i)
         xList = np.array(s)
-        yList = self.neuralNet(xList)
+        yList = self.neuralNet.predict(xList)
         return(yList[0])
 
 
