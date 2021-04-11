@@ -17,7 +17,7 @@ RBUF = []
 RBUFSamples = 3
 fileName = "test"
 
-def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, simWorldTemplate: SimWorld) -> None:
+def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, explorationBias:float, epsilon :float, simWorldTemplate: SimWorld) -> None:
     print(input_size, output_size, hiddenLayersDimension, learningRate)
     ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
     print(numberOfGames)
@@ -30,55 +30,38 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
         currentState = simWorld.getStateHash()
         root = TreeNode(state=currentState, parent=None, possibleActions = output_size)
         mcts = MCTS(
-            root=root
+            root=root, 
+            ExplorationBias = explorationBias
         )
-        RBUF = []
-        #print()
         while not simWorld.isWinState():
-            
-            #monteCarloSimWorld = SimWorld(root)
             for e in range(numberOfTreeGames):
                 mcts.treeSearch(currentState, simWorld)
                 reward = mcts.rollout(ANET)
-                #print("\n\n\n\n\n\n reward", reward, "\n\n\n\n\n\n")
                 mcts.backPropogate(reward)
-                #for i in  mcts.History:
-                #    print("h",i, e)
-                #print()
             actionDistributtion = []
-            
-            #for i in mcts.HashTable.keys():
-                #print("statekey:",i, "evaluation, times visisted, actionstaken:", mcts.HashTable[i])
-            #print()
-            # print(RBUF)
             actionSum =0
             for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
                 actionDistributtion.append(i)
                 actionSum += i
             for i in range(len(actionDistributtion)):
                 actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
-            
-            #print(mcts.currentNode.state, actionDistributtion)
-            
-            # print(simWorld.playerTurn, simWorld.state)
             RBUF.append((mcts.currentNode.state, actionDistributtion))
-            
-            #print(mcts.currentNode.state, actionDistributtion)
             bestMove = 0
             # TODO add epsilon
-            if 0.0 > random.uniform(0, 1) and (not simWorld.isWinState()):
+            if epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
                 if len(simWorld.getPossibleActions()) > 1:
                     bestMove = simWorld.getPossibleActions()[random.randint(0, len(simWorld.getPossibleActions()) - 1)]
-                    print(bestMove)
+
             else:
                 bestMove = None
                 bestMoveValue = -math.inf
                 #print("state", simWorld.state)
                 for move in range(len(actionDistributtion)):
-                    if bestMoveValue < actionDistributtion[move]:
+                    if bestMoveValue < actionDistributtion[move] and move in simWorld.getPossibleActions():
                         bestMoveValue = actionDistributtion[move]
                         bestMove = move
             # print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion)
+            mcts.simWorld = copy.deepcopy(simWorld)
             mcts.makeAction(bestMove)
             simWorld.makeAction(bestMove)
             mcts.reRootTree()
@@ -93,19 +76,16 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
 
         
             # TODO Save ANET’s current parameters for later use in tournament play
-    for i in range(1,11 +1):
-        nonstaones = [0] * (11 - i)
-        nonnonstaones = [1] * (i)
-        state = [-1] + nonstaones + nonnonstaones 
-        state2 = [1] + nonstaones + nonnonstaones 
-        print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
-        print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
+    #for i in range(1,11 +1):
+    #    nonstaones = [0] * (11 - i)
+    #    nonnonstaones = [1] * (i)
+    #    state = [-1] + nonstaones + nonnonstaones 
+    #    state2 = [1] + nonstaones + nonnonstaones 
+    #    print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
+    #    print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
 
     
-    simWorld2 = Nim(
-            11,
-            2
-        )
+    simWorld2 = copy.deepcopy(simWorldTemplate)
     simWorld2.playAgainst(ANET)
 def main():
     # Load parameters from file
@@ -114,7 +94,6 @@ def main():
 
     gameType = parameters['game_type']
     boardType = parameters['board_type']
-    boardSize = parameters['board_size']
     boardSize = parameters['board_size']
     numEpisodes = parameters['mcts_num_episodes']
     numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
@@ -125,6 +104,8 @@ def main():
     hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
+    explorationBias = parameters['explorationBias']
+    epsilon = parameters['epsilon']
     if gameType == "hex":
         simWorld = Hex(
             boardType=boardType,
@@ -139,10 +120,10 @@ def main():
 
     elif gameType == "nim":
         simWorld = Nim(
-            11,
+            boardSize,
             2
         )
-        input_size =  11 + 1
+        input_size =  boardSize + 1
         output_size = 2
         #nim.playGayme()
     else:
@@ -157,6 +138,8 @@ def main():
         output_size = output_size,
         hiddenLayersDimension= hiddenLayersDim,
         learningRate = learningRate,
+        explorationBias = explorationBias,
+        epsilon = epsilon,
         simWorldTemplate = simWorld
     )
     # clear replay buffer (RBUF)

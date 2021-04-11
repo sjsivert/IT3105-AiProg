@@ -20,10 +20,12 @@ class Hex(SimWorld):
         self.playerTurn = playerTurn
         self.boardWidth = boardWith
         self.lastAction = None
-        hexBoard = HexBoard(Boardtype[boardType], boardWith)
-        self.state = BoardState(hexBoard)
+        self.hexBoard = HexBoard(Boardtype[boardType], boardWith)
+        self.state = BoardState(self.hexBoard)
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
+        self.actionSpace = self.generatePossibleActions()
+        print(self.possibleActions)
 
         self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
         # TODO: Add action log
@@ -54,14 +56,16 @@ class Hex(SimWorld):
             Makes and action, changes state.
             And changes playerTurn.
         """
-        print(f"Action: {action}")
-        actionTuple = self.possibleActions.get(action)
+        #print(f"Action: {action}")
+        actionTuple = self.possibleActions[action]
+        #print("aaaaaaction", action)
+        #print("tuuuuuuuuuuple", actionTuple)
         self.state.setPegValue(
             actionTuple, self.playerTurn)  # Update boardState
         # remove action from possibleActions
-        self.possibleActions[action] = None
+        self.possibleActions.pop(action)
         self.lastAction = self.state.getPegNode(actionTuple)
-        print(type(self.lastAction))
+        #print(type(self.lastAction))
         self.changePlayerTurn()
 
     def isWinState(self) -> bool:
@@ -87,27 +91,27 @@ class Hex(SimWorld):
         startLocations: List,
         endLocations: List
     ):
-        print(f"node: {node.location}")
-        print(node.getChildren())
+        #print(f"node: {node.location}")
+        #print(node.getChildren())
         if node not in visited:
-            print(f"Visiting: {node.location}")
+            #print(f"Visiting: {node.location}")
             visited.append(node)
 
             # Check if winState
             visitedLocationTuples = list(
                 map(lambda peg: peg.location, visited))
-            print(
-                f"Have visited startLocation? {set(visitedLocationTuples) & set(startLocations)}")
-            print(
-                f"Have visited endLocation: {set(endLocations) & set(visitedLocationTuples) }")
+            #print(
+            #    f"Have visited startLocation? {set(visitedLocationTuples) & set(startLocations)}")
+            #print(
+            #    f"Have visited endLocation: {set(endLocations) & set(visitedLocationTuples) }")
             haveVisitedAEndLocationAndhaveVisitedAStartLocation = (
                 set(startLocations) & set(visitedLocationTuples)) and (set(endLocations) & set(visitedLocationTuples))
             if (haveVisitedAEndLocationAndhaveVisitedAStartLocation):
-                print("Win state reached!")
+            #    print("Win state reached!")
                 return True
             for child in node.getChildren():
                 if child.pegValue == node.pegValue:
-                    print(f"About to visit child: {child.location}")
+            #        print(f"About to visit child: {child.location}")
                     if(self.depthFirstSearch(
                         node=child,
                         visited=visited,
@@ -145,8 +149,24 @@ class Hex(SimWorld):
         return self.playerTurn
 
     def getStateHash(self) -> str:
-        # TODO: Implement
-        pass
+        stateHash = [self.playerTurn]
+        for row in range(len(self.hexBoard.board)):
+            for pin in range(len(self.hexBoard.board[row])):
+                stateHash.append(self.state.getPegNode((row, pin)).pegValue)
+        return stateHash
+    def peekAction(self, action:int):
+
+        stateHash = [-self.playerTurn]
+        for row in range(len(self.hexBoard.board)):
+            for pin in range(len(self.hexBoard.board[row])):
+                if self.actionSpace[action] != (row, pin):
+                    stateHash.append(self.state.getPegNode((row, pin)).pegValue )
+                elif self.state.getPegNode((row, pin)).pegValue  != 0:
+                    return None
+                else:
+                    stateHash.append(self.playerTurn)
+
+        return stateHash
 
     def getMaxPossibleActionSpace(self) -> int:
         return self.boardWidth**2

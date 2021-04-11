@@ -7,13 +7,14 @@ from sim_world.sim_world import SimWorld
 class MCTS:
     def __init__(
         self,
-        root: TreeNode
+        root: TreeNode,
+        ExplorationBias: float
     ):
        # self.simWorld = SimWorld(root.state)
         self.rootNode = root
         self.currentNode = root
         self.currentLeafNode = root
-        self.ExplorationBiasCoefficient = 0.5
+        self.ExplorationBiasCoefficient = ExplorationBias
         self.HashTable = {}
         self.History = []
 
@@ -47,17 +48,10 @@ class MCTS:
         if not self.simWorld.isWinState():
             self.makeSearchAction(action)
     def makeAction(self, action: int):
-        self.simWorld.makeAction(action)
-        self.currentNode.addActionTaken(action)       
-        
-        if self.currentNode.children.get(action) == None:
-            print(345443)
         self.currentNode = self.currentNode.children.get(action)
         return self.currentNode
 
     def makeSearchAction(self, action: int):
-        if self.simWorld.isWinState():
-            return self.currentNode
         self.History.append([self.currentNode.state, action])
         self.currentNode.addActionTaken(action)
         self.currentNode = self.currentNode.children.get(action)
@@ -76,12 +70,10 @@ class MCTS:
         #print(nextAction,"a1")
 
         while nextAction in self.currentNode.children.keys() and not self.simWorld.isWinState():
-            #print(nextAction, "a2")
             self.currentNode = self.makeSearchAction(nextAction)
             nextAction = self.treePolicyFindAction()
         self.currentLeafNode = self.currentNode
         if not self.simWorld.isWinState():
-            #print(nextAction, "a3")
             self.nodeExpansion(nextAction)
         return self.currentNode
 
@@ -126,6 +118,8 @@ class MCTS:
         if action not in self.simWorld.getPossibleActions():
             return self.simWorld.playerTurn * -math.inf
         peekAction = str(self.simWorld.peekAction(action))
+        if peekAction == "None":
+            return -self.simWorld.getPlayerTurn() * math.inf
         if peekAction not in self.HashTable.keys() or str(self.simWorld.getStateHash()) not in self.HashTable.keys():
             return 0
         #print("ev:",self.HashTable[peekAction][0] / self.HashTable[peekAction][1])
