@@ -25,7 +25,6 @@ class Hex(SimWorld):
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
         self.actionSpace = self.generatePossibleActions()
-        print(self.possibleActions)
 
         self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
         # TODO: Add action log
@@ -195,6 +194,32 @@ class Hex(SimWorld):
         # Since changePLayer is done in makeAction(), the winner is the opposite of current player
         print(f"Player {self.playerTurn * -1} wins the game!!")
         # Visualise board one last time to get end result
+        self.visualizeBord()
+    def playAgainst(self, ANET):
+
+
+        
+        self.generateBoardSideCordinates()
+        while(not self.isWinState()):
+            action = 0
+            if self.playerTurn == -1:
+                print(self.possibleActions)
+                self.visualizeBord()
+                playerInput = input(
+                    f"Player {self.playerTurn}, where do you place your peg? "
+                )
+                actionTuple = self.possibleActions[int(playerInput)]
+                actionNumber = self.isAllowedAction(actionTuple)
+                if(type(actionNumber) == bool):
+                    print("Not a valid action!")
+                    continue
+                    raise Exception("Not a valid action")
+                self.makeAction(actionNumber)                       
+            else:
+                action = ANET.defaultPolicyFindAction(self.getPossibleActions(), self.getStateHash())
+                self.makeAction(action)
+
+        print(f"Player {-self.playerTurn} wins!")
         self.visualizeBord()
 
 

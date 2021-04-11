@@ -43,17 +43,21 @@ class NeuralActor ():
         for i in range(len(hiddenLayersDimension)):
             model.add(Dense(hiddenLayersDimension[i]))
         model.add(Dense(output_size, activation='softmax'))
-        model.compile(loss='mae', optimizer='adam')
+        model.compile(loss='mse', optimizer='adam')
         return model
     
     def trainOnRBUF(self, RBUF, minibatchSize:int):
-        minibatch = random.sample(RBUF, k=minibatchSize)
+        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
         for item in minibatch:
             s = [[]]
+            a = [[]]
             for i in item[0]:
                 s[0].append(i)
+            for i in item[1]:
+                a[0].append(i)
+
             state = np.array(s)
-            actionDistribution = np.array([[item[1][0],item[1][1]]])
+            actionDistribution = np.array(a)
             self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
 
     def getDistributionForState(self, state: List):

@@ -14,10 +14,9 @@ import copy
 
 
 RBUF = []
-RBUFSamples = 3
 fileName = "test"
 
-def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, explorationBias:float, epsilon :float, simWorldTemplate: SimWorld) -> None:
+def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, explorationBias:float, epsilon :float, RBUFsamples:int, simWorldTemplate: SimWorld) -> None:
     print(input_size, output_size, hiddenLayersDimension, learningRate)
     ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
     print(numberOfGames)
@@ -65,14 +64,9 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
             mcts.makeAction(bestMove)
             simWorld.makeAction(bestMove)
             mcts.reRootTree()
-
-        ANET.trainOnRBUF(RBUF, minibatchSize = RBUFSamples)
-        #print(RBUF)
-        #if numberOfGames % saveInterval == 0:
-            #weights = []
-            #for nodeIndex, weight in enumerate(ANET.neuralNet.parameters()):
-            #    weights.append(weight)
-            #SaveModel(weights, fileName)
+        ANET.trainOnRBUF(RBUF, minibatchSize = RBUFsamples)
+        if numberOfGames % saveInterval == 0:
+            SaveModel(ANET.neuralNet, fileName)
 
         
             # TODO Save ANET’s current parameters for later use in tournament play
@@ -106,6 +100,7 @@ def main():
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
     explorationBias = parameters['explorationBias']
     epsilon = parameters['epsilon']
+    RBUFsamples = parameters['RBUFsamples']
     if gameType == "hex":
         simWorld = Hex(
             boardType=boardType,
@@ -140,6 +135,7 @@ def main():
         learningRate = learningRate,
         explorationBias = explorationBias,
         epsilon = epsilon,
+        RBUFsamples = RBUFsamples,
         simWorldTemplate = simWorld
     )
     # clear replay buffer (RBUF)
