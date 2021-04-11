@@ -19,8 +19,7 @@ def animate(i):
     line.set_ydata(F[i, :])
 
 
-anim = FuncAnimation(
-    fig, animate, interval=100, frames=len(t) - 1)
+anim = FuncAnimation(fig, animate, interval=100, frames=len(t) - 1)
 
 plt.draw()
 plt.show()
