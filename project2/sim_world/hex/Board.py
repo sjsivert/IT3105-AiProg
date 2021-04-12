@@ -133,10 +133,10 @@ class BoardState():
 
 
 if __name__ == "__main__":
-    print(HexBoard(Boardtype["triangle"], 4))
+    #print(HexBoard(Boardtype["triangle"], 4))
     board = HexBoard(Boardtype["diamond"], 4)
     state = BoardState(board)
-    print(state)
+    #print(state)
     # print(GenerateDiamond(4))
     # b = GenerateTriangle(4)
     # print(removePegs([(0, 0), (1, 0)], b))

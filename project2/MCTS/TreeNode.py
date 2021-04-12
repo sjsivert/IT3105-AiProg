@@ -8,7 +8,6 @@ class TreeNode:
         self.children = {}
         self.parent = parent
         self.state = state
-        self.c = 1
 
     def getExpectedResult(self, action: int) -> float:
         #print(self.children[action].totalEvaluation, self.numTakenAction[action])
@@ -22,8 +21,7 @@ class TreeNode:
         return child
         
     def getExplorationBias(self, action: int) -> float:
-        
-        return self.c * math.sqrt(math.log(self.numTimesVisited) / self.numTakenAction[action])
+        return  math.sqrt(math.log(self.numTimesVisited) / (self.numTakenAction[action] + 1))
 
     def addActionTaken(self, action: int):
         self.numTakenAction[action] += 1

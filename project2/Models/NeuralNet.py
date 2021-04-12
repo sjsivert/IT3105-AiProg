@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,106 +10,124 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import torch.optim as optim
 import math
-import random
+from numpy import mean
+from numpy import std
+from sklearn.datasets import make_regression
+from sklearn.model_selection import RepeatedKFold
+from keras.models import Sequential
+from keras.layers import Dense
+from tensorflow import keras
+from tensorflow.keras import layers
 
-class NeuralNetwork(nn.Module):
-    def __init__(self, input_size, output_size, hiddenLayersDimension=[]):
-        super(NeuralNetwork, self).__init__()
-
-        self.layers = nn.ModuleList()
-
-        current_dim = input_size
-
-        for dimension in hiddenLayersDimension:
-            self.layers.append(nn.Linear(int(current_dim), dimension))
-            current_dim = dimension
-
-        self.layers.append(nn.Linear(current_dim, output_size))
-        
-        self.softmax = nn.Softmax(dim=0)
-
-    def forward(self, input):
-        # Hidden layers
-        for layer in self.layers[:-1]:
-            input = F.relu(layer(input))  # Se på å bruke noe sigmoid eller noe annet også kanskje?
-            
-        # Output layer
-        # Hyperbolic tangent
-        out = torch.tanh(self.layers[-1](input))
-        out = self.softmax(out)
-        # print("out: ", out)
-        return out
-        
 class NeuralActor ():
+    
     def __init__(self,
-                 inputSize,
-                 outputSize,
-                 hiddenLayersDim,
-                 learningRate=0.9,
-                 epsilon = 0
-                 ):
+                input_size,
+                output_size,
+                hiddenLayersDim,
+                learningRate:float,
+                lossFunction:str,
+                optimizer:str,
+                activation:str,
+                outputActivation:str):
         self.learningRate = learningRate
 
-        self.neuralNet = NeuralNetwork(
-            input_size=inputSize,
+        self.neuralNet = self.getModel(
+            input_size=input_size,
+            output_size = output_size,
             hiddenLayersDimension=hiddenLayersDim,
-            output_size = outputSize
+            learningRate = learningRate,
+            lossFunction = lossFunction,
+            optimizer = optimizer,
+            activation = activation,
+            outputActivation = outputActivation
         )
-        # Optimizer stochastic gradient descent
-        self.optimizer = optim.SGD(
-            self.neuralNet.parameters(), lr=self.learningRate)
 
-        self.lossFunction = nn.MSELoss()
-        self.epsilon = epsilon
+    def getModel(self, 
+                input_size, 
+                output_size, 
+                hiddenLayersDimension,
+                learningRate:float,
+                lossFunction:str,
+                optimizer:str,
+                activation:str,
+                outputActivation:str):
 
+        model = Sequential()
+        
+        model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation=activation.lower()))
+        for i in range(len(hiddenLayersDimension)):
+            model.add(Dense(hiddenLayersDimension[i]))
+        model.add(Dense(output_size, activation=outputActivation.lower()))
 
-    def trainOnRBUF(self, RBUF, minibatchSize:int): 
-        # print("RBUF", RBUF)
-        minibatch = random.sample(RBUF, k=minibatchSize)
+        op = None
+        if optimizer.lower() == "adam":
+            op = keras.optimizers.Adam(learning_rate=learningRate)
+
+        elif optimizer.lower() == "sgd":
+            op = keras.optimizers.SGD(learning_rate=learningRate)
+        
+        model.compile(loss=lossFunction, optimizer =op)
+        return model
+    
+    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor:float):
+        minibatch = []#random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        indices = list(range(0,len(RBUF)))
+        for i in range(0, min(minibatchSize, len(RBUF)-1)):
+            rand1 = random.uniform(0, 1)
+            rand2 = random.uniform(0, 1)
+            randomNumber = rand1 * (rand2 ** exponentialDistributionFactor) 
+            sample = int(round(randomNumber * (len(indices) - 1)))
+            minibatch.append(RBUF[indices[sample]])
+            del indices[sample]
+
         for item in minibatch:
-            state = item[0]
-            actionDistribution = item[1]
-            # Map state to a pytorch friendly format
-            input = torch.tensor(
-                [int(s)for s in state], dtype=torch.float32)
+            s = [[]]
+            a = [[]]
+            for i in item[0]:
+                s[0].append(i)
+            for i in item[1]:
+                a[0].append(i)
 
-            # We have to zero out gradients for each pass, or they will accumulate
-            self.optimizer.zero_grad()
-            output = self.neuralNet(input)
-            
-            #print(torch.tensor(actionDistribution), output)
-            input2 = Variable(torch.randn(3, 1), requires_grad=True)
-            target2 = Variable(torch.randn(3, 1))
-            # print(input2, target2)
-
-
-            loss = self.lossFunction(output, torch.tensor(actionDistribution))
-            # print("loss", loss)
-
-            # Store the gradients for the network
-            loss.backward()
-
-            # Update the weights for the network using the gradients stored above
-            self.optimizer.step()
+            state = np.array(s)
+            actionDistribution = np.array(a)
+            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
 
     def getDistributionForState(self, state: List):
-        input = torch.tensor(
-            [int(s)for s in state], dtype=torch.float32)
-        self.optimizer.zero_grad()
-        output = self.neuralNet(input)
-        # print("output", output)
-        return output.detach().numpy()
+        #print(state)
+        #print(np.array(state))
+        #print(np.array(state).transpose())
+        s = [[]]
+        for i in state:
+            s[0].append(i)
+        xList = np.array(s)
+        yList = self.neuralNet.predict(xList)
+        return(yList[0])
 
-    def defaultPolicyFindAction(self, possibleActions, state) -> int:
-        distribution  = self.getDistributionForState(state)
-        print("distrubution, state", distribution, state)
+    def doDeterministicChoice(self, distribution, possibleActions):
         bestActionValue = -math.inf
         bestActionIndex = 0
-        for index, value in enumerate(distribution):
-            if index in possibleActions:
-                if value > bestActionValue:
-                    bestActionValue = value 
-                    bestActionIndex = index
-        if self.epsilon > random.uniform(0, 1) and len(possibleActions) != 0:
-            bestActionIndex = possibleActions[random.randint(0, len(possibleActions) -1)]
+        for index in possibleActions:
+            if distribution[index] > bestActionValue:
+                bestActionValue = distribution[index] 
+                bestActionIndex = index
+        return bestActionIndex
+
+    def doStocasticChoice(self, distribution, possibleActions):
+        sum = 0
+        for index in possibleActions:
+            sum += distribution[index]
+        rand = random.uniform(0, 1) * sum
+        sum = 0
+        for index in possibleActions:
+            sum += distribution[index]
+            if sum >= rand:
+                return index
+        return None
+    
+    def defaultPolicyFindAction(self, possibleActions, state) -> int:
+        distribution  = self.getDistributionForState(state)
+
+        #bestActionIndex = self.doDeterministicChoice(distribution, possibleActions)
+        bestActionIndex = self.doStocasticChoice(distribution, possibleActions)
         return bestActionIndex

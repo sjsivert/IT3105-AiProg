@@ -19,6 +19,9 @@ class SimWorld:
     def makeAction(self, action: str):
         pass
 
+    def peekAction(self, action: str):
+        pass
+
     def isWinState(self) -> bool:
         pass
 
