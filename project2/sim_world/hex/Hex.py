@@ -28,6 +28,8 @@ class Hex(SimWorld):
 
         self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
         # TODO: Add action log
+        self.generateTournamentActionMaps()
+
 
     def generatePossibleActions(self):
         board = self.state.state

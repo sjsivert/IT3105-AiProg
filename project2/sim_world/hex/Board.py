@@ -93,6 +93,38 @@ class BoardState():
     def getPegNode(self, location: Tuple):
         return self.state[location[0]][location[1]]
 
+    def generateTournamentActionMaps(self):  # {simworld action (row, column): tournament acition (row, column)}
+        self.simWorldToTournament = {}
+        for c in range(len(self.state)):
+            for r in range(len(self.state[c])):
+                col = c
+                row = r
+                if(col < self.boardWidth): #Riktig?
+                    self.simWorldToTournament[(c,r)] = (col-row,row)
+                else:
+                    self.simWorldToTournament[(c,r)] = (self.boardWidth-row-1,row+col-self.boardWidth+1)
+        self.tournamentToSimworld = {}
+        for key in self.simWorldToTournament.keys():
+            self.tournamentToSimworld[self.simWorldToTournament[key]] = key
+
+    def tournamentStateToSimworldState(self, state) -> list:  # state is list [player, 0,0,1,2,0,...] -> [[0,0],[1,0],[1,1]] (player missing)
+        simWorldBoard = []
+        for i in range(1, self.boardWidth+1):
+            simWorldBoard.append(i * [0])
+        for i in range(self.boardWidth- 1, 0, -1):
+            simWorldBoard.append(i * [0])  # Creates empty sim worl board
+        for col in range(len(simWorldBoard)):
+            for row in range(len(simWorldBoard[col])):
+                if(col < self.boardWidth):
+                    self.simWorldToTournament[(col,row)] = (col-row,row)
+                else:
+                    self.simWorldToTournament[(col,row)] = (self.boardWidth-row-1,row+col-self.boardWidth+1)
+        for col in range(self.boardWidth):
+            for row in range(self.boardWidth):
+                coord = self.tournamentToSimworld[(col, row)]
+                simWorldBoard[coord[0]][coord[1]] = state[col*self.boardWidth+row+1]
+        return simWorldBoard
+
     def __repr__(self):
         return self.state
 
