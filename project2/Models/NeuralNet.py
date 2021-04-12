@@ -16,38 +16,68 @@ from sklearn.datasets import make_regression
 from sklearn.model_selection import RepeatedKFold
 from keras.models import Sequential
 from keras.layers import Dense
+from tensorflow import keras
+from tensorflow.keras import layers
 
 class NeuralActor ():
     
     def __init__(self,
-                 inputSize,
-                 outputSize,
-                 hiddenLayersDim,
-                 learningRate=0.1,
-                 epsilon=0.0
-                 ):
+                input_size,
+                output_size,
+                hiddenLayersDim,
+                learningRate:float,
+                lossFunction:str,
+                optimizer:str,
+                activation:str):
         self.learningRate = learningRate
 
-        self.epsilon = epsilon
-
         self.neuralNet = self.getModel(
-            input_size=inputSize,
+            input_size=input_size,
+            output_size = output_size,
             hiddenLayersDimension=hiddenLayersDim,
-            output_size = outputSize
+            learningRate = learningRate,
+            lossFunction = lossFunction,
+            optimizer = optimizer,
+            activation = activation
         )
 
-    def getModel(self, input_size, output_size, hiddenLayersDimension=[]):
+    def getModel(self, 
+                input_size, 
+                output_size, 
+                hiddenLayersDimension,
+                learningRate:float,
+                lossFunction:str,
+                optimizer:str,
+                activation:str):
+
         model = Sequential()
         
-        model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation='relu'))
+        model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation=activation.lower()))
         for i in range(len(hiddenLayersDimension)):
             model.add(Dense(hiddenLayersDimension[i]))
         model.add(Dense(output_size, activation='softmax'))
-        model.compile(loss='mse', optimizer='adam')
+
+        op = None
+        if optimizer.lower() == "adam":
+            op = keras.optimizers.Adam(learning_rate=learningRate)
+
+        elif optimizer.lower() == "sgd":
+            op = keras.optimizers.SGD(learning_rate=learningRate)
+        
+        model.compile(loss=lossFunction, optimizer =op)
         return model
     
-    def trainOnRBUF(self, RBUF, minibatchSize:int):
-        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor:float):
+        minibatch = []#random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        indices = list(range(0,len(RBUF)))
+        for i in range(0, min(minibatchSize, len(RBUF)-1)):
+            rand1 = random.uniform(0, 1)
+            rand2 = random.uniform(0, 1)
+            randomNumber = rand1 * (rand2 ** exponentialDistributionFactor) 
+            sample = int(round(randomNumber * (len(indices) - 1)))
+            minibatch.append(RBUF[indices[sample]])
+            del indices[sample]
+
         for item in minibatch:
             s = [[]]
             a = [[]]

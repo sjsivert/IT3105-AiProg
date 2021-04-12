@@ -16,18 +16,26 @@ import copy
 RBUF = []
 fileName = "test"
 
-def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size: int, output_size: int, hiddenLayersDimension: List, learningRate: int, explorationBias:float, epsilon :float, RBUFsamples:int, simWorldTemplate: SimWorld) -> None:
-    print(input_size, output_size, hiddenLayersDimension, learningRate)
-    ANET = NeuralActor(input_size, output_size, hiddenLayersDimension, learningRate, 0.1)
+def doGames(
+    numberOfTreeGames: int,
+    numberOfGames: int, 
+    saveInterval:int, 
+    ANET:NeuralActor,
+    explorationBias:float, 
+    epsilon :float, 
+    RBUFsamples:int, 
+    exponentialDistributionFactor:float,
+    simWorldTemplate: SimWorld) -> None:
+
+    
     print(numberOfGames)
-    for i in range(numberOfGames):
-        ANET.epsilon = ANET.epsilon*0.9
-        print(i)
+    for game in range(numberOfGames):
+        print(game)
         simWorld = copy.deepcopy(simWorldTemplate)
         if(0.5> random.uniform(0,1)):
             simWorld.playerTurn = -1
         currentState = simWorld.getStateHash()
-        root = TreeNode(state=currentState, parent=None, possibleActions = output_size)
+        root = TreeNode(state=currentState, parent=None, possibleActions = simWorld.getMaxPossibleActionSpace())
         mcts = MCTS(
             root=root, 
             ExplorationBias = explorationBias
@@ -46,39 +54,24 @@ def doGames(numberOfTreeGames: int, numberOfGames: int, saveInterval, input_size
                 actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
             RBUF.append((mcts.currentNode.state, actionDistributtion))
             bestMove = 0
-            # TODO add epsilon
             if epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
                 if len(simWorld.getPossibleActions()) > 1:
                     bestMove = simWorld.getPossibleActions()[random.randint(0, len(simWorld.getPossibleActions()) - 1)]
-
             else:
                 bestMove = None
                 bestMoveValue = -math.inf
-                #print("state", simWorld.state)
                 for move in range(len(actionDistributtion)):
                     if bestMoveValue < actionDistributtion[move] and move in simWorld.getPossibleActions():
                         bestMoveValue = actionDistributtion[move]
                         bestMove = move
-            # print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion)
             mcts.simWorld = copy.deepcopy(simWorld)
             mcts.makeAction(bestMove)
             simWorld.makeAction(bestMove)
             mcts.reRootTree()
-        ANET.trainOnRBUF(RBUF, minibatchSize = RBUFsamples)
-        if numberOfGames % saveInterval == 0:
-            SaveModel(ANET.neuralNet, fileName)
-
-        
-            # TODO Save ANET’s current parameters for later use in tournament play
-    #for i in range(1,11 +1):
-    #    nonstaones = [0] * (11 - i)
-    #    nonnonstaones = [1] * (i)
-    #    state = [-1] + nonstaones + nonnonstaones 
-    #    state2 = [1] + nonstaones + nonnonstaones 
-    #    print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
-    #    print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
-
-    
+        ANET.trainOnRBUF(RBUF = RBUF, minibatchSize = RBUFsamples, exponentialDistributionFactor = exponentialDistributionFactor)
+        if game % saveInterval == 0:
+            SaveModel(ANET.neuralNet, fileName + str(game))
+    #TODO remove play against when done with code
     simWorld2 = copy.deepcopy(simWorldTemplate)
     simWorld2.playAgainst(ANET)
 def main():
@@ -89,18 +82,25 @@ def main():
     gameType = parameters['game_type']
     boardType = parameters['board_type']
     boardSize = parameters['board_size']
-    numEpisodes = parameters['mcts_num_episodes']
-    numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
-    saveInterval = parameters['save_interval']
+
     learningRate = parameters['anet_learning_rate']
     activationFunction = parameters['anet_activation_function']
     optimizer = parameters['anet_optimizer']
     hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
-    numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
-    numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
+    lossFunction = parameters['loss_function']
+
     explorationBias = parameters['explorationBias']
     epsilon = parameters['epsilon']
     RBUFsamples = parameters['RBUFsamples']
+    exponentialDistributionFactor = parameters['exponentialDistributionFactor']
+
+    numEpisodes = parameters['mcts_num_episodes']
+    numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
+    saveInterval = parameters['save_interval']
+
+    numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
+    numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
+
     if gameType == "hex":
         simWorld = Hex(
             boardType=boardType,
@@ -125,17 +125,25 @@ def main():
         print("Game not specified. Quitting...")
     # is = save interval for ANET (the actor network) parameters
 
+    print(input_size, output_size, hiddenLayersDim, learningRate)
+    ANET = NeuralActor(
+        input_size = input_size,
+        output_size = output_size,
+        hiddenLayersDim = hiddenLayersDim, 
+        learningRate = learningRate,
+        lossFunction = lossFunction,
+        optimizer = optimizer,
+        activation = activationFunction
+        )
     doGames(
         numberOfTreeGames = numSearchGamesPerMove,
         numberOfGames = numEpisodes, 
-        saveInterval = saveInterval, 
-        input_size =  input_size,
-        output_size = output_size,
-        hiddenLayersDimension= hiddenLayersDim,
-        learningRate = learningRate,
+        saveInterval = saveInterval,
+        ANET = ANET,
         explorationBias = explorationBias,
         epsilon = epsilon,
         RBUFsamples = RBUFsamples,
+        exponentialDistributionFactor = exponentialDistributionFactor,
         simWorldTemplate = simWorld
     )
     # clear replay buffer (RBUF)

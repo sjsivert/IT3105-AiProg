@@ -1,11 +1,11 @@
-
-#import tflow.kdtflowclasses as KDTFC
+from tensorflow import keras
 
 def SaveModel(model, filename):
-    #KDTFC.save_keras_model(model,fname=filename)
-    pass
+    model.save(filename)
+    print("saved model", filename)
 
 
 def LoadModel(fileName):
-    #return KDTFC.load_keras_model(fileName)
-    pass
+    model = keras.models.load_model(fileName)
+    print("loaded model", fileName)
+    return model
