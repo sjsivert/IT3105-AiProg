@@ -54,7 +54,7 @@ class ReinforcementLearningSystem:
         numberOfTreeGames = 200
         for gameNr in range(self.numberOfTreeGames):
             mcts.treeSearch(state,simWorld)
-            reward = mcts.rollout(self.anet)
+            reward = mcts.rollout(self.ANET)
             mcts.backPropogate(reward)
 
         actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
@@ -142,8 +142,6 @@ class ReinforcementLearningSystem:
                     bestMoveValue = actionDistribution[move]
                     bestMove = move
         return bestMove
-    def mctsSearch(self):
-        pass
 
     def saveModel(self):
         pass

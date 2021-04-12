@@ -122,7 +122,7 @@ class MCTS:
             return self.simWorld.playerTurn * -math.inf
         peekAction = self.simWorld.peekAction(action)
         if peekAction == None:
-            return -self.simWorld.getPlayerTurn() * math.inf
+            return -self.simWorld.playerTurn * math.inf
         if str(peekAction) not in self.HashTable.keys() or str(self.simWorld.getStateHash()) not in self.HashTable.keys():
             return 0
         return self.HashTable[str(peekAction)][0] / self.HashTable[str(peekAction)][1]
