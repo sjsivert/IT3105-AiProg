@@ -13,6 +13,7 @@ import random
 from typing import List
 from project2.Models.SaveLoadModel import SaveModel
 import copy
+from project2.RLS import ReinforcementLearningSystem
 
 
 RBUF = []
@@ -69,23 +70,40 @@ def main():
         #nim.playGayme()
     else:
         print("Game not specified. Quitting...")
+
+    # Initiate Neural Net
+    ANET = NeuralActor(
+        input_size = input_size,
+        output_size = output_size,
+        hiddenLayersDim = hiddenLayersDim,
+        learningRate = learningRate,
+        lossFunction = lossFunction,
+        optimizer = optimizer,
+        activation = activationFunction,
+        outputActivation = outputActivationFunction
+    )
+    # Initiate ReinforcementLearningSystem
+    RLS = ReinforcementLearningSystem(
+            numberOfTreeGames = numSearchGamesPerMove,
+            numberOfGames = numEpisodes,
+            saveInterval = saveInterval,
+            ANET = ANET,
+            explorationBias = explorationBias,
+            epsilon = epsilon,
+            RBUFsamples = RBUFsamples,
+            exponentialDistributionFactor = exponentialDistributionFactor,
+            simWorldTemplate = simWorld
+    )
     # is = save interval for ANET (the actor network) parameters
     if(operationMode == "play"):
+        print("Operation mode: Play")
         simWorld.playGame()
 
     elif (operationMode == "train"):
-
+        print("Operation mode: train")
         print(input_size, output_size, hiddenLayersDim, learningRate)
-        ANET = NeuralActor(
-            input_size = input_size,
-            output_size = output_size,
-            hiddenLayersDim = hiddenLayersDim,
-            learningRate = learningRate,
-            lossFunction = lossFunction,
-            optimizer = optimizer,
-            activation = activationFunction,
-            outputActivation = outputActivationFunction
-        )
+        RLS.trainNeuralNet(numberOfGames=numEpisodes)
+        """
         doGames(
             numberOfTreeGames = numSearchGamesPerMove,
             numberOfGames = numEpisodes,
@@ -97,8 +115,13 @@ def main():
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld
 )
+        """
     elif operationMode == "tournament":
-        bsa = BasicClientActor(verbose=True)
+        print("Operation mode: Tournament")
+        bsa = BasicClientActor(
+            verbose=True,
+            RLS = RLS
+        )
         bsa.connect_to_server()
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
@@ -121,6 +144,7 @@ def doGames(
         simWorld = copy.deepcopy(simWorldTemplate)
         if(0.5> random.uniform(0,1)):
             simWorld.playerTurn = -1
+
         currentState = simWorld.getStateHash()
         root = TreeNode(state=currentState, parent=None, possibleActions = simWorld.getMaxPossibleActionSpace())
         mcts = MCTS(
@@ -132,14 +156,11 @@ def doGames(
                 mcts.treeSearch(currentState, simWorld)
                 reward = mcts.rollout(ANET)
                 mcts.backPropogate(reward)
-            actionDistributtion = []
-            actionSum =0
-            for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
-                actionDistributtion.append(i)
-                actionSum += i
-            for i in range(len(actionDistributtion)):
-                actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
+
+            actionDistributtion =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+
             RBUF.append((mcts.currentNode.state, actionDistributtion))
+
             bestMove = 0
             if epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
                 if len(simWorld.getPossibleActions()) > 1:
@@ -151,6 +172,7 @@ def doGames(
                     if bestMoveValue < actionDistributtion[move] and move in simWorld.getPossibleActions():
                         bestMoveValue = actionDistributtion[move]
                         bestMove = move
+            #
             mcts.simWorld = copy.deepcopy(simWorld)
             mcts.makeAction(bestMove)
             simWorld.makeAction(bestMove)
@@ -165,3 +187,8 @@ def doGames(
 if __name__ == '__main__':
     print("Run!")
     main()
+
+class Actor:
+    def __init__(self):
+        pass
+
