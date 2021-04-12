@@ -103,6 +103,8 @@ def main():
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 
+#def testTournament(self):
+    #agent1 = 
 
 def doGames(
         numberOfTreeGames: int,
@@ -117,6 +119,7 @@ def doGames(
 
     print(numberOfGames)
     for game in range(numberOfGames):
+        RBUF = []
         print(game)
         simWorld = copy.deepcopy(simWorldTemplate)
         if(0.5> random.uniform(0,1)):
@@ -151,6 +154,7 @@ def doGames(
                     if bestMoveValue < actionDistributtion[move] and move in simWorld.getPossibleActions():
                         bestMoveValue = actionDistributtion[move]
                         bestMove = move
+            print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion, simWorld.getPlayerTurn())
             mcts.simWorld = copy.deepcopy(simWorld)
             mcts.makeAction(bestMove)
             simWorld.makeAction(bestMove)
@@ -159,6 +163,13 @@ def doGames(
         if (game + 1) % saveInterval == 0:
             SaveModel(ANET.neuralNet, fileName + str(game))
     #TODO remove play against when done with code
+    for i in range(1, 7 +1):
+        nonstaones = [0] * (7 - i)
+        nonnonstaones = [1] * (i)
+        state = [-1] + nonstaones + nonnonstaones 
+        state2 = [1] + nonstaones + nonnonstaones 
+        print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
+        print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
     simWorld2 = copy.deepcopy(simWorldTemplate)
     simWorld2.playAgainst(ANET)
 

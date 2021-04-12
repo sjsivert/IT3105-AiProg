@@ -71,7 +71,8 @@ class NeuralActor ():
         return model
     
     def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor:float):
-        minibatch = []#random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        '''
+        minibatch = []
         indices = list(range(0,len(RBUF)))
         for i in range(0, min(minibatchSize, len(RBUF)-1)):
             rand1 = random.uniform(0, 1)
@@ -79,8 +80,8 @@ class NeuralActor ():
             randomNumber = rand1 * (rand2 ** exponentialDistributionFactor) 
             sample = int(round(randomNumber * (len(indices) - 1)))
             minibatch.append(RBUF[indices[sample]])
-            del indices[sample]
-
+            del indices[sample]'''
+        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
         for item in minibatch:
             s = [[]]
             a = [[]]
@@ -101,7 +102,7 @@ class NeuralActor ():
         for i in state:
             s[0].append(i)
         xList = np.array(s)
-        yList = self.neuralNet.predict(xList)
+        yList = self.neuralNet(xList)
         return(yList[0])
 
     def doDeterministicChoice(self, distribution, possibleActions):
