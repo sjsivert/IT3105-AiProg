@@ -28,7 +28,8 @@ class NeuralActor ():
                 learningRate:float,
                 lossFunction:str,
                 optimizer:str,
-                activation:str):
+                activation:str,
+                outputActivation:str):
         self.learningRate = learningRate
 
         self.neuralNet = self.getModel(
@@ -38,7 +39,8 @@ class NeuralActor ():
             learningRate = learningRate,
             lossFunction = lossFunction,
             optimizer = optimizer,
-            activation = activation
+            activation = activation,
+            outputActivation = outputActivation
         )
 
     def getModel(self, 
@@ -48,14 +50,15 @@ class NeuralActor ():
                 learningRate:float,
                 lossFunction:str,
                 optimizer:str,
-                activation:str):
+                activation:str,
+                outputActivation:str):
 
         model = Sequential()
         
         model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation=activation.lower()))
         for i in range(len(hiddenLayersDimension)):
             model.add(Dense(hiddenLayersDimension[i]))
-        model.add(Dense(output_size, activation='softmax'))
+        model.add(Dense(output_size, activation=outputActivation.lower()))
 
         op = None
         if optimizer.lower() == "adam":

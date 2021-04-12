@@ -85,6 +85,7 @@ def main():
 
     learningRate = parameters['anet_learning_rate']
     activationFunction = parameters['anet_activation_function']
+    outputActivationFunction = parameters['output_activation_function']
     optimizer = parameters['anet_optimizer']
     hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
     lossFunction = parameters['loss_function']
@@ -133,7 +134,8 @@ def main():
         learningRate = learningRate,
         lossFunction = lossFunction,
         optimizer = optimizer,
-        activation = activationFunction
+        activation = activationFunction,
+        outputActivation = outputActivationFunction
         )
     doGames(
         numberOfTreeGames = numSearchGamesPerMove,
