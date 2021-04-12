@@ -18,7 +18,7 @@ class BasicClientActor(BasicClientActorAbs):
         then you will see a 2 here throughout the entire series, whereas player 1 will see a 1.
         :return: Your actor's selected action as a tuple (row, column)
         """
-        playerTurn = state.get(0)
+        playerTurn = state[0]
         sim_world = Hex(
            boardType = "diamond" ,
             boardWidth = 6,

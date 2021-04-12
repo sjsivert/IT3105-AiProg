@@ -8,6 +8,7 @@ from project2.Models.NeuralNet import NeuralActor
 from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
 from typing import List
+from project2.Client_side.BasicClientActor import BasicClientActor
 from project2.Models.SaveLoadModel import SaveModel
 
 
@@ -71,6 +72,9 @@ def main():
             learningRate = learningRate,
             simWorld = simWorld
         )
+    elif operationMode == "tournament":
+        bsa = BasicClientActor(verbose=True)
+        bsa.connect_to_server()
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
     # clear replay buffer (RBUF)
