@@ -29,30 +29,24 @@ class BasicClientActor(BasicClientActorAbs):
         then you will see a 2 here throughout the entire series, whereas player 1 will see a 1.
         :return: Your actor's selected action as a tuple (row, column)
         """
+        # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
+       # next_move = tuple(self.pick_random_free_cell(
+        #    state, size=int(math.sqrt(len(state)-1))))
+
         playerTurn = state[0]
-        sim_world = Hex(
+        simWorld = Hex(
            boardType = "diamond" ,
             boardWidth = 6,
             playerTurn = playerTurn,
             loadedHexBoardState = state
         )
-        self.RLS.mctSearch(simworld=sim_world)
+        actionNumber = self.RLS.mctSearch(simworld=simWorld)
 
+        coordinates = simWorld.state.getActionCoordinates(actionNumber)
+        actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
+        print(actionCordinatesConverted)
+        return actionCordinatesConverted
 
-
-
-
-        # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
-        next_move = tuple(self.pick_random_free_cell(
-            state, size=int(math.sqrt(len(state)-1))))
-        #############################
-        #
-        #
-        # YOUR CODE HERE
-        #
-        # next_move = ???
-        ##############################
-        return next_move
 
     def handle_series_start(self, unique_id, series_id, player_map, num_games, game_params):
         """
