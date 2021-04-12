@@ -19,6 +19,7 @@
   "mcts_n_of_search_games_per_move": 1000,
   "mcts_num_episodes": 100,
   "save_interval": 25,
+  "file_name": "gen",
 
   "anet_n_of_topp_games_to_be_played":2,
   "anet_n_cached_topp_preparations": 2

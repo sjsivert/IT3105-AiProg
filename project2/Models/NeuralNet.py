@@ -31,7 +31,7 @@ class NeuralActor ():
                 activation:str = "",
                 outputActivation:str = "",
                 model = None):
-        if model != None:
+        if model == None:
             self.neuralNet = self.getModel(
                 input_size=input_size,
                 output_size = output_size,
