@@ -1,13 +1,13 @@
 {
   "operation_mode": "train",
   "game_type": "nim",
-  "board_size": 7,
+  "board_size": 12,
   "board_type": "diamond",
 
   "anet_learning_rate": 0.001,
   "anet_activation_function": "relu",
   "output_activation_function": "softmax",
-  "anet_optimizer": "adam",
+  "anet_optimizer": "sgd",
   "loss_function": "mae",
   "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
 
@@ -17,8 +17,8 @@
   "exponentialDistributionFactor": 0,
 
   "mcts_n_of_search_games_per_move": 1000,
-  "mcts_num_episodes": 20,
-  "save_interval": 30,
+  "mcts_num_episodes": 100,
+  "save_interval": 25,
 
   "anet_n_of_topp_games_to_be_played":2,
   "anet_n_cached_topp_preparations": 2

@@ -5,8 +5,10 @@ from project2.MCTS.TreeNode import TreeNode
 from project2.sim_world.sim_world import SimWorld
 from project2.MCTS.GenerateMCTS import MCTS
 from project2.Models.NeuralNet import NeuralActor
+from project2.Models.RandomAgent import RandomAgent
 from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
+from project2.Tournament.LocalTournament import LocalTournament
 from typing import List
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
@@ -103,8 +105,12 @@ def main():
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 
-#def testTournament(self):
-    #agent1 = 
+def testTournament():
+    agent1 = RandomAgent()
+    agent2 = RandomAgent()
+    simWorld = Nim(12, 2)
+    testTournament = LocalTournament([agent1, agent2], numberOfFourGames = 5, roundRobin =  False, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2"})
+    testTournament.runTournament()
 
 def doGames(
         numberOfTreeGames: int,
@@ -163,8 +169,8 @@ def doGames(
         if (game + 1) % saveInterval == 0:
             SaveModel(ANET.neuralNet, fileName + str(game))
     #TODO remove play against when done with code
-    for i in range(1, 7 +1):
-        nonstaones = [0] * (7 - i)
+    for i in range(1, 12 +1):
+        nonstaones = [0] * (12 - i)
         nonnonstaones = [1] * (i)
         state = [-1] + nonstaones + nonnonstaones 
         state2 = [1] + nonstaones + nonnonstaones 
@@ -175,4 +181,5 @@ def doGames(
 
 if __name__ == '__main__':
     print("Run!")
-    main()
+    testTournament()
+    #main()

@@ -92,7 +92,7 @@ class NeuralActor ():
 
             state = np.array(s)
             actionDistribution = np.array(a)
-            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
+            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=200)
 
     def getDistributionForState(self, state: List):
         #print(state)
