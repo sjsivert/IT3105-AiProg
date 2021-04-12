@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import plotly.basedatatypes as base
 from typing import List, Tuple
 import plotly.graph_objects as go
-from sim_world.Node import Peg
+from project1.sim_world.Node import Peg
 from enum import Enum
 
 

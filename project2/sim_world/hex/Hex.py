@@ -10,7 +10,6 @@ class Hex(SimWorld):
     """
         Hex board game
     """
-
     def __init__(
         self,
         boardType: str,
@@ -77,6 +76,12 @@ class Hex(SimWorld):
         self.lastAction = self.state.getPegNode(actionTuple)
         print(type(self.lastAction))
         self.changePlayerTurn()
+
+    def convertActionToTournament(self, action: int) -> tuple:
+        print(self.possibleActions.get(action))
+        return self.state.simWorldToTournament[
+           self.possibleActions.get(action)
+        ]
 
     def isWinState(self) -> bool:
         if self.playerTurn == -1 and self.lastAction:
@@ -159,7 +164,6 @@ class Hex(SimWorld):
         return self.playerTurn
 
     def getStateHash(self) -> str:
-        print("Formated: ", self.state.generateTournamentActionMaps())
         return self.state.generateTournamentActionMaps()
 
     def getMaxPossibleActionSpace(self) -> int:
@@ -171,10 +175,10 @@ class Hex(SimWorld):
         )
 
     def playGame(self):
-        self.getStateHash()
-        self.generateBoardSideCordinates()
         while (not self.isWinState()):
+            print(self.getStateHash())
             print(self.possibleActions)
+            print("State: ", self.state)
             self.visualizeBord()
             playerInput = input(
                 f"Player {self.playerTurn}, where do you place your peg? "

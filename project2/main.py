@@ -40,7 +40,7 @@ def main():
             boardType=boardType,
             boardWidth=boardSize,
             playerTurn=1,
-            loadedHexBoardState=[-1, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           # loadedHexBoardState=[-1, 0, 0, 0, 1, -1, 0, 0, 0, 0],
         )
         input_size =  (boardSize * boardSize) + 1
         output_size = boardSize * boardSize

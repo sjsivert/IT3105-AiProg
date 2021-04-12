@@ -69,7 +69,7 @@ class Peg(Node):
         return True
 
     def __str__(self) -> str:
-        return str(self.location)
+        return str(self.pegValue)
 
     def __repr__(self) -> str:
-        return str(self.location)
+        return str(self.pegValue)

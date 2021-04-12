@@ -19,10 +19,13 @@ class HexBoard():
                  boardType: Boardtype,
                  boardWidth: int,
                  removeLocations: List[(int)] = [],
+                 loadedHexBoardState: List[List[int]] = None
                  ) -> None:
         self.defaultNodeValue = 0
         self.boardWidth = boardWidth
-        if (boardType is Boardtype.triangle):
+        if(loadedHexBoardState):
+            self.board = loadedHexBoardState
+        elif (boardType is Boardtype.triangle):
             self.board = self.generateTriangle(width=boardWidth)
         elif (boardType is Boardtype.diamond):
             self.board = self.generateDiamond(width=boardWidth)
@@ -61,10 +64,17 @@ class BoardState():
         self.state = self._boardToNodes(hexBoard=hexBoard)
         self.hexBoard = hexBoard
 
+        # If loading from a tournament state
         if formatHexBoard:
             self.boardWidth = boardWidth
             self.generateTournamentActionMaps()
-            print(self.tournamentStateToSimworldState(loadedHexBoardState, boardWidth=boardWidth))
+            formatedBoard = self.tournamentStateToSimworldState(loadedHexBoardState, boardWidth=boardWidth)
+            hexboard = HexBoard(
+                boardType=Boardtype["diamond"],
+                boardWidth= boardWidth,
+                loadedHexBoardState=formatedBoard
+            )
+            self.state = self._boardToNodes(hexboard)
 
 
     def getStateList(self) -> List[Peg]:
@@ -138,10 +148,12 @@ class BoardState():
                     self.simWorldToTournament[(col,row)] = (col-row,row)
                 else:
                     self.simWorldToTournament[(col,row)] = (boardWidth-row-1,row+col-boardWidth+1)
+        index = 1
         for col in range(boardWidth):
             for row in range(boardWidth):
                 coord = self.tournamentToSimworld[(col, row)]
-                simWorldBoard[coord[0]][coord[1]] = state[col*boardWidth+row+1]
+                simWorldBoard[coord[0]][coord[1]] = state[index]
+                index += 1
         return simWorldBoard
 
     def __repr__(self):
@@ -156,34 +168,3 @@ if __name__ == "__main__":
     board = HexBoard(Boardtype["diamond"], 4)
     state = BoardState(board)
     print(state)
-    # print(GenerateDiamond(4))
-    # b = GenerateTriangle(4)
-    # print(removePegs([(0, 0), (1, 0)], b))
-    # pegList = BoardToNodes(b)
-
-    """def plotTree(node: Peg, G, drawnList: list) -> None:
-        print(node.location)
-        if node not in drawnList:
-            G.add_node(node.location)
-            drawnList.append(node)
-            for child in node.neighboursDic.values():
-                G.add_edge(node.location, child.location)
-                plotTree(child, G, drawnList)
-        return G
-
-    def draw_figure(rootNode: Peg):
-        G = nx.Graph()
-        G = plotTree(rootNode, G, [])
-
-        plt.subplot(121)
-        nx.draw(
-            G,
-            with_labels=True,
-            # node_color={"blue", "red"},
-            font_weight='bold')
-        plt.show()
-        plt.savefig("grid.png")
-
-    draw_figure(
-        pegList[3][0]
-    )"""
