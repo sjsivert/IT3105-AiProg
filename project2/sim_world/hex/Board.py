@@ -164,7 +164,7 @@ class BoardState():
 
 
 if __name__ == "__main__":
-    print(HexBoard(Boardtype["triangle"], 4))
+    #print(HexBoard(Boardtype["triangle"], 4))
     board = HexBoard(Boardtype["diamond"], 4)
     state = BoardState(board)
     print(state)

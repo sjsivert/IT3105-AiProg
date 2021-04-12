@@ -1,5 +1,5 @@
 import math
-from BasicClientActorAbs import BasicClientActorAbs
+from project2.Client_side.BasicClientActorAbs import BasicClientActorAbs
 from project2.sim_world.hex.Hex import Hex
 
 class BasicClientActor(BasicClientActorAbs):

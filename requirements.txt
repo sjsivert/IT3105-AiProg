@@ -7,3 +7,5 @@ matplotlib
 pylint
 opencv_python
 torch
+sklearn
+tensorflow
