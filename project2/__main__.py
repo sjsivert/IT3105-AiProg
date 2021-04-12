@@ -108,8 +108,9 @@ def main():
 def testTournament():
     agent1 = RandomAgent()
     agent2 = RandomAgent()
+    agent3 = RandomAgent()
     simWorld = Nim(12, 2)
-    testTournament = LocalTournament([agent1, agent2], numberOfFourGames = 5, roundRobin =  False, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2"})
+    testTournament = LocalTournament([agent1, agent2, agent3], numberOfFourGames = 5, roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2", agent3: "agent3"})
     testTournament.runTournament()
 
 def doGames(

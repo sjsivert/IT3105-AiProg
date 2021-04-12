@@ -20,7 +20,7 @@ class LocalTournament:
                 for agent in self.agents:
                     totalWins[agent] = 0
                 for i in range(len(self.agents)-1):
-                    for j in range(i, len(self.agents)):
+                    for j in range(i+1, len(self.agents)):
                         for numGames in range(self.numberOfGames):
                             results = self.playFourGames(self.agents[i], self.agents[j])
                             for agent in results.keys():

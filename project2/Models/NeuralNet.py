@@ -22,26 +22,28 @@ from tensorflow.keras import layers
 class NeuralActor ():
     
     def __init__(self,
-                input_size,
-                output_size,
-                hiddenLayersDim,
-                learningRate:float,
-                lossFunction:str,
-                optimizer:str,
-                activation:str,
-                outputActivation:str):
-        self.learningRate = learningRate
-
-        self.neuralNet = self.getModel(
-            input_size=input_size,
-            output_size = output_size,
-            hiddenLayersDimension=hiddenLayersDim,
-            learningRate = learningRate,
-            lossFunction = lossFunction,
-            optimizer = optimizer,
-            activation = activation,
-            outputActivation = outputActivation
-        )
+                input_size = 0,
+                output_size = 0,
+                hiddenLayersDim = 0,
+                learningRate:float = 0,
+                lossFunction:str = "",
+                optimizer:str = "",
+                activation:str = "",
+                outputActivation:str = "",
+                model = None):
+        if model != None:
+            self.neuralNet = self.getModel(
+                input_size=input_size,
+                output_size = output_size,
+                hiddenLayersDimension=hiddenLayersDim,
+                learningRate = learningRate,
+                lossFunction = lossFunction,
+                optimizer = optimizer,
+                activation = activation,
+                outputActivation = outputActivation
+            )
+        else:
+            self.neuralNet = model
 
     def getModel(self, 
                 input_size, 
