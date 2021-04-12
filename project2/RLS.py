@@ -98,6 +98,7 @@ class ReinforcementLearningSystem:
                     actionDistribution=actionDistribution,
                     simWorld=simWorld,
                 )
+                print("SW, BM", simWorld.state, (bestMove+1), actionDistribution, simWorld.getPlayerTurn())
 
                 # Sync both sim worlds to be equal
                 mcts.simWorld = copy.deepcopy(simWorld)
@@ -105,6 +106,16 @@ class ReinforcementLearningSystem:
                 simWorld.makeAction(bestMove)
                 mcts.reRootTree()
 
+            # Print ANET Values for debugging
+            """
+            for i in range(1, 12 +1):
+                nonstaones = [0] * (12 - i)
+                nonnonstaones = [1] * (i)
+                state = [-1] + nonstaones + nonnonstaones
+                state2 = [1] + nonstaones + nonnonstaones
+                print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
+                print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
+            """
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game + 1) % self.saveInterval == 0:

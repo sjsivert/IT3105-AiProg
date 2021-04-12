@@ -22,26 +22,28 @@ from tensorflow.keras import layers
 class NeuralActor ():
     
     def __init__(self,
-                input_size,
-                output_size,
-                hiddenLayersDim,
-                learningRate:float,
-                lossFunction:str,
-                optimizer:str,
-                activation:str,
-                outputActivation:str):
-        self.learningRate = learningRate
-
-        self.neuralNet = self.getModel(
-            input_size=input_size,
-            output_size = output_size,
-            hiddenLayersDimension=hiddenLayersDim,
-            learningRate = learningRate,
-            lossFunction = lossFunction,
-            optimizer = optimizer,
-            activation = activation,
-            outputActivation = outputActivation
-        )
+                input_size = 0,
+                output_size = 0,
+                hiddenLayersDim = 0,
+                learningRate:float = 0,
+                lossFunction:str = "",
+                optimizer:str = "",
+                activation:str = "",
+                outputActivation:str = "",
+                model = None):
+        if model == None:
+            self.neuralNet = self.getModel(
+                input_size=input_size,
+                output_size = output_size,
+                hiddenLayersDimension=hiddenLayersDim,
+                learningRate = learningRate,
+                lossFunction = lossFunction,
+                optimizer = optimizer,
+                activation = activation,
+                outputActivation = outputActivation
+            )
+        else:
+            self.neuralNet = model
 
     def getModel(self, 
                 input_size, 
@@ -71,7 +73,8 @@ class NeuralActor ():
         return model
     
     def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor:float):
-        minibatch = []#random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        '''
+        minibatch = []
         indices = list(range(0,len(RBUF)))
         for i in range(0, min(minibatchSize, len(RBUF)-1)):
             rand1 = random.uniform(0, 1)
@@ -79,8 +82,8 @@ class NeuralActor ():
             randomNumber = rand1 * (rand2 ** exponentialDistributionFactor) 
             sample = int(round(randomNumber * (len(indices) - 1)))
             minibatch.append(RBUF[indices[sample]])
-            del indices[sample]
-
+            del indices[sample]'''
+        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
         for item in minibatch:
             s = [[]]
             a = [[]]
@@ -91,7 +94,7 @@ class NeuralActor ():
 
             state = np.array(s)
             actionDistribution = np.array(a)
-            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
+            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=200)
 
     def getDistributionForState(self, state: List):
         #print(state)
@@ -101,7 +104,7 @@ class NeuralActor ():
         for i in state:
             s[0].append(i)
         xList = np.array(s)
-        yList = self.neuralNet.predict(xList)
+        yList = self.neuralNet(xList)
         return(yList[0])
 
     def doDeterministicChoice(self, distribution, possibleActions):

@@ -1,24 +1,24 @@
 {
   "operation_mode": "train",
-  "game_type": "hex",
-  "board_size": 3,
+  "game_type": "nim",
+  "board_size": 12,
   "board_type": "diamond",
 
-  "anet_learning_rate": 0.1,
-  "anet_activation_function": "RELU",
+  "anet_learning_rate": 0.001,
+  "anet_activation_function": "relu",
   "output_activation_function": "softmax",
-  "anet_optimizer": "Adam",
-  "loss_function": "MSE",
-  "anet_hidden_layers_and_neurons_per_layer": [30, 50, 10],
+  "anet_optimizer": "sgd",
+  "loss_function": "mae",
+  "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
 
-  "explorationBias": 0.5,
+  "explorationBias": 4,
   "epsilon": 0.0,
-  "RBUFsamples": 20,
-  "exponentialDistributionFactor": 1.0,
+  "RBUFsamples": 7,
+  "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 50,
-  "mcts_num_episodes": 2,
-  "save_interval": 30,
+  "mcts_n_of_search_games_per_move": 1000,
+  "mcts_num_episodes": 100,
+  "save_interval": 25,
 
   "anet_n_of_topp_games_to_be_played":2,
   "anet_n_cached_topp_preparations": 2

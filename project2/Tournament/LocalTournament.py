@@ -1,5 +1,5 @@
 from typing import List, Dict
-from TournamentPlotter import TournamentPlotter
+from project2.Tournament.TournamentPlotter import TournamentPlotter
 import copy
 
 class LocalTournament:
@@ -14,13 +14,13 @@ class LocalTournament:
 
     def runTournament(self):
         print("Tournament start")
-        if(len(self.agents >= 2)):
+        if(len(self.agents) >= 2):
             if self.roundRobin:
                 totalWins = {}
                 for agent in self.agents:
                     totalWins[agent] = 0
                 for i in range(len(self.agents)-1):
-                    for j in range(i, len(self.agents)):
+                    for j in range(i+1, len(self.agents)):
                         for numGames in range(self.numberOfGames):
                             results = self.playFourGames(self.agents[i], self.agents[j])
                             for agent in results.keys():
@@ -36,7 +36,7 @@ class LocalTournament:
                             results = self.playFourGames(self.agents[i], self.agents[i+1])
                             for agent in results.keys():
                                 pairWins[agent] += results[agent]
-                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i+1]], "wins, ", 
+                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
                                 self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
                 self.printTotalWins(pairWins)
                 self.TournamentPlotter.plottWins(pairWins)
@@ -61,6 +61,6 @@ class LocalTournament:
         simWorld = copy.deepcopy(self.simWorldTemplate)
         simWorld.playerTurn = startingPlayer
         while not simWorld.isWinState():  # Noen vinner altid? Mulig vi trenger en til sjekk. Random krasjer hvis possible = 0
-            action = playerDict[simWorld.playerTurn].defaultPolicyFindAction(possibleActions = simWorld.getPossibleActions, state = simWorld.getStateHash)
+            action = playerDict[simWorld.playerTurn].defaultPolicyFindAction(possibleActions = simWorld.getPossibleActions(), state = simWorld.getStateHash)
             simWorld.makeAction(action)
         return playerDict[-simWorld.playerTurn]
