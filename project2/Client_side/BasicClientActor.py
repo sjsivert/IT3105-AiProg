@@ -42,9 +42,9 @@ class BasicClientActor(BasicClientActorAbs):
         )
         actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
 
-        coordinates = simWorld.state.getActionCoordinates(actionNumber)
+        coordinates = simWorld.getActionCoordinates(actionNumber)
         actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
-        print(actionCordinatesConverted)
+        print("Action coordinate chosen: ", actionCordinatesConverted)
         return actionCordinatesConverted
 
 

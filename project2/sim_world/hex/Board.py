@@ -80,6 +80,7 @@ class BoardState():
     def getStateList(self) -> List[Peg]:
         return self.state
 
+
     def _boardToNodes(self, hexBoard: HexBoard) -> List[List[Peg]]:
         board = hexBoard.board
         pegList = []

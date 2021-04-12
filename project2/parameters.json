@@ -1,7 +1,7 @@
 {
-  "operation_mode": "train",
+  "operation_mode": "tournament",
   "game_type": "hex",
-  "board_size": 4,
+  "board_size": 6,
   "board_type": "diamond",
 
   "anet_learning_rate": 0.001,
@@ -16,7 +16,7 @@
   "RBUFsamples": 7,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 1000,
+  "mcts_n_of_search_games_per_move": 5,
   "mcts_num_episodes": 100,
   "save_interval": 25,
   "file_name": "gen",

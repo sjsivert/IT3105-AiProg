@@ -63,7 +63,7 @@ class Hex(SimWorld):
         return False
         # return True if action in self.possibleActions.values() else False
 
-    def getActionCoordinates(self, action: int) -> Tuple[int]:
+    def getActionCoordinates(self, action: int) -> Tuple[int, int]:
         return self.possibleActions[action]
 
     def makeAction(self, action: int):

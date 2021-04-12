@@ -40,7 +40,7 @@ class ReinforcementLearningSystem:
         self.simWorldTemplate = simWorldTemplate
         self.fileName = fileName
 
-    def mctsSearch(self, simWorld) -> Tuple:
+    def mctsSearch(self, simWorld) -> int:
         state =simWorld.getStateHash()
         mcts = MCTS(
             root= TreeNode(
@@ -50,14 +50,13 @@ class ReinforcementLearningSystem:
             ),
             ExplorationBias=1
         )
-        # TODO: Parameterize numberOfSearchGames
-        numberOfTreeGames = 200
         for gameNr in range(self.numberOfTreeGames):
             mcts.treeSearch(state,simWorld)
             reward = mcts.rollout(self.ANET)
             mcts.backPropogate(reward)
 
         actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+        print("Action dist", actionDistributtion)
 
         # TODO: Use different action policy for tournament?
         bestAction = self.chooseActionPolicy(
