@@ -15,6 +15,7 @@ import random
 from typing import List
 from project2.Models.SaveLoadModel import SaveModel
 import copy
+from project2.RLS import ReinforcementLearningSystem
 
 
 RBUF = []
@@ -71,24 +72,20 @@ def main():
         #nim.playGayme()
     else:
         print("Game not specified. Quitting...")
-    # is = save interval for ANET (the actor network) parameters
-    if(operationMode == "play"):
-        simWorld.playGame()
 
-    elif (operationMode == "train"):
-
-        print(input_size, output_size, hiddenLayersDim, learningRate)
-        ANET = NeuralActor(
-            input_size = input_size,
-            output_size = output_size,
-            hiddenLayersDim = hiddenLayersDim,
-            learningRate = learningRate,
-            lossFunction = lossFunction,
-            optimizer = optimizer,
-            activation = activationFunction,
-            outputActivation = outputActivationFunction
-        )
-        doGames(
+    # Initiate Neural Net
+    ANET = NeuralActor(
+        input_size = input_size,
+        output_size = output_size,
+        hiddenLayersDim = hiddenLayersDim,
+        learningRate = learningRate,
+        lossFunction = lossFunction,
+        optimizer = optimizer,
+        activation = activationFunction,
+        outputActivation = outputActivationFunction
+    )
+    # Initiate ReinforcementLearningSystem
+    RLS = ReinforcementLearningSystem(
             numberOfTreeGames = numSearchGamesPerMove,
             numberOfGames = numEpisodes,
             saveInterval = saveInterval,
@@ -98,9 +95,22 @@ def main():
             RBUFsamples = RBUFsamples,
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld
-)
+    )
+    # is = save interval for ANET (the actor network) parameters
+    if(operationMode == "play"):
+        print("Operation mode: Play")
+        simWorld.playGame()
+
+    elif (operationMode == "train"):
+        print("Operation mode: train")
+        print(input_size, output_size, hiddenLayersDim, learningRate)
+        RLS.trainNeuralNet(numberOfGames=numEpisodes)
     elif operationMode == "tournament":
-        bsa = BasicClientActor(verbose=True)
+        print("Operation mode: Tournament")
+        bsa = BasicClientActor(
+            verbose=True,
+            RLS = RLS
+        )
         bsa.connect_to_server()
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
@@ -113,74 +123,7 @@ def testTournament():
     testTournament = LocalTournament([agent1, agent2, agent3], numberOfFourGames = 5, roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2", agent3: "agent3"})
     testTournament.runTournament()
 
-def doGames(
-        numberOfTreeGames: int,
-        numberOfGames: int,
-        saveInterval:int,
-        ANET:NeuralActor,
-        explorationBias:float,
-        epsilon :float,
-        RBUFsamples:int,
-        exponentialDistributionFactor:float,
-        simWorldTemplate: SimWorld) -> None:
-
-    print(numberOfGames)
-    for game in range(numberOfGames):
-        RBUF = []
-        print(game)
-        simWorld = copy.deepcopy(simWorldTemplate)
-        if(0.5> random.uniform(0,1)):
-            simWorld.playerTurn = -1
-        currentState = simWorld.getStateHash()
-        root = TreeNode(state=currentState, parent=None, possibleActions = simWorld.getMaxPossibleActionSpace())
-        mcts = MCTS(
-            root=root,
-            ExplorationBias = explorationBias
-        )
-        while not simWorld.isWinState():
-            for e in range(numberOfTreeGames):
-                mcts.treeSearch(currentState, simWorld)
-                reward = mcts.rollout(ANET)
-                mcts.backPropogate(reward)
-            actionDistributtion = []
-            actionSum =0
-            for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
-                actionDistributtion.append(i)
-                actionSum += i
-            for i in range(len(actionDistributtion)):
-                actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
-            RBUF.append((mcts.currentNode.state, actionDistributtion))
-            bestMove = 0
-            if epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
-                if len(simWorld.getPossibleActions()) > 1:
-                    bestMove = simWorld.getPossibleActions()[random.randint(0, len(simWorld.getPossibleActions()) - 1)]
-            else:
-                bestMove = None
-                bestMoveValue = -math.inf
-                for move in range(len(actionDistributtion)):
-                    if bestMoveValue < actionDistributtion[move] and move in simWorld.getPossibleActions():
-                        bestMoveValue = actionDistributtion[move]
-                        bestMove = move
-            print("SW, BM", simWorld.state, (bestMove+1), actionDistributtion, simWorld.getPlayerTurn())
-            mcts.simWorld = copy.deepcopy(simWorld)
-            mcts.makeAction(bestMove)
-            simWorld.makeAction(bestMove)
-            mcts.reRootTree()
-        ANET.trainOnRBUF(RBUF = RBUF, minibatchSize = RBUFsamples, exponentialDistributionFactor = exponentialDistributionFactor)
-        if (game + 1) % saveInterval == 0:
-            SaveModel(ANET.neuralNet, fileName + str(game))
-    #TODO remove play against when done with code
-    for i in range(1, 12 +1):
-        nonstaones = [0] * (12 - i)
-        nonnonstaones = [1] * (i)
-        state = [-1] + nonstaones + nonnonstaones 
-        state2 = [1] + nonstaones + nonnonstaones 
-        print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
-        print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
-    simWorld2 = copy.deepcopy(simWorldTemplate)
-    simWorld2.playAgainst(ANET)
 
 if __name__ == '__main__':
     print("Run!")
-    testTournament()
-    #main()
+    main()

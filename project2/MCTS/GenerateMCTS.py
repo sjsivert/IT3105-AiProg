@@ -1,5 +1,7 @@
 import math
 import copy
+from typing import List
+
 from project2.MCTS.TreeNode import TreeNode
 from project2.sim_world.sim_world import SimWorld
 
@@ -92,6 +94,19 @@ class MCTS:
     def reRootTree(self):
         if self.currentNode != None:
             self.currentNode.parent = None
+
+    def normaliseActionDistribution(self, stateHash) -> List:
+        actionDistributtion = []
+        actionSum =0
+        for i in self.HashTable[stateHash][2]:
+            actionDistributtion.append(i)
+            actionSum += i
+
+        # Normalise action distribution
+        for i in range(len(actionDistributtion)):
+            actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
+
+        return actionDistributtion
 
     def addToTable(self, stateHash, reward, action, totalActions):
         if str(stateHash) in self.HashTable.keys():

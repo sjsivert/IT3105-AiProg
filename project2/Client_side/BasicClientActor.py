@@ -1,10 +1,21 @@
 import math
 from project2.Client_side.BasicClientActorAbs import BasicClientActorAbs
 from project2.sim_world.hex.Hex import Hex
+from project2.sim_world.nim.Nim import Nim
+from project2.MCTS.TreeNode import TreeNode
+from project2.sim_world.sim_world import SimWorld
+from project2.MCTS.GenerateMCTS import MCTS
+from project2.Models.NeuralNet import NeuralActor
 
 class BasicClientActor(BasicClientActorAbs):
 
-    def __init__(self, IP_address=None, verbose=True):
+    def __init__(
+            self,
+            RLS,
+            IP_address=None,
+            verbose=True,
+    ):
+
         self.series_id = -1
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
@@ -25,6 +36,11 @@ class BasicClientActor(BasicClientActorAbs):
             playerTurn = playerTurn,
             loadedHexBoardState = state
         )
+        self.RLS.mctSearch(simworld=sim_world)
+
+
+
+
 
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
         next_move = tuple(self.pick_random_free_cell(
