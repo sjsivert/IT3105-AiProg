@@ -1,5 +1,6 @@
 import math
 from BasicClientActorAbs import BasicClientActorAbs
+from project2.sim_world.hex.Hex import Hex
 
 class BasicClientActor(BasicClientActorAbs):
 
@@ -17,6 +18,13 @@ class BasicClientActor(BasicClientActorAbs):
         then you will see a 2 here throughout the entire series, whereas player 1 will see a 1.
         :return: Your actor's selected action as a tuple (row, column)
         """
+        playerTurn = state.get(0)
+        sim_world = Hex(
+           boardType = "diamond" ,
+            boardWidth = 6,
+            playerTurn = playerTurn,
+            loadedHexBoardState = state
+        )
 
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
         next_move = tuple(self.pick_random_free_cell(

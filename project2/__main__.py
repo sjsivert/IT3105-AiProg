@@ -1,14 +1,14 @@
 import json
 import math
-from sim_world.nim.Nim import Nim
-from MCTS.TreeNode import TreeNode
-from sim_world.sim_world import SimWorld
-from MCTS.GenerateMCTS import MCTS
-from Models.NeuralNet import NeuralActor
-from Models import SaveLoadModel
-from sim_world.hex.Hex import Hex
+from project2.sim_world.nim.Nim import Nim
+from project2.MCTS.TreeNode import TreeNode
+from project2.sim_world.sim_world import SimWorld
+from project2.MCTS.GenerateMCTS import MCTS
+from project2.Models.NeuralNet import NeuralActor
+from project2.Models import SaveLoadModel
+from project2.sim_world.hex.Hex import Hex
 from typing import List
-from Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel
 
 
 RBUF = []
@@ -40,7 +40,7 @@ def main():
             boardType=boardType,
             boardWidth=boardSize,
             playerTurn=1,
-           # loadedHexBoardState=[-1, 0, 0, 0, 1, -1, 0, 0, 0, 0],
+            # loadedHexBoardState=[-1, 0, 0, 0, 1, -1, 0, 0, 0, 0],
         )
         input_size =  (boardSize * boardSize) + 1
         output_size = boardSize * boardSize

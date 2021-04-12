@@ -1,8 +1,8 @@
-from sim_world.sim_world import SimWorld
-from sim_world.hex.Board import Boardtype, BoardState
-from sim_world.hex.Node import Peg
-from sim_world.hex.Board import HexBoard, Boardtype
-from sim_world.hex.VisualizeBoard import VisualizePegs
+from project2.sim_world.sim_world import SimWorld
+from project2.sim_world.hex.Board import Boardtype, BoardState
+from project2.sim_world.hex.Node import Peg
+from project2.sim_world.hex.Board import HexBoard, Boardtype
+from project2.sim_world.hex.VisualizeBoard import VisualizePegs
 from typing import List, Tuple
 
 
@@ -176,7 +176,6 @@ class Hex(SimWorld):
 
     def playGame(self):
         while (not self.isWinState()):
-            print(self.getStateHash())
             print(self.possibleActions)
             print("State: ", self.state)
             self.visualizeBord()

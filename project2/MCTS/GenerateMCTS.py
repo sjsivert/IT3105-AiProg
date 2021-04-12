@@ -1,7 +1,7 @@
 import math
 import copy
-from MCTS.TreeNode import TreeNode
-from sim_world.sim_world import SimWorld
+from project2.MCTS.TreeNode import TreeNode
+from project2.sim_world.sim_world import SimWorld
 
 
 class MCTS:

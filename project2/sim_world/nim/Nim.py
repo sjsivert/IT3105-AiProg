@@ -1,4 +1,4 @@
-from sim_world.sim_world import SimWorld
+from project2.sim_world.sim_world import SimWorld
 from typing import List
 import math
 

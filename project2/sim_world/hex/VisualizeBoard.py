@@ -1,5 +1,5 @@
 import json
-from sim_world.hex.Node import Peg
+from project2.sim_world.hex.Node import Peg
 import networkx as nx
 
 import matplotlib.pyplot as plt
