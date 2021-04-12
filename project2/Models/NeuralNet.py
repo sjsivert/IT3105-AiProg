@@ -104,19 +104,30 @@ class NeuralActor ():
         yList = self.neuralNet.predict(xList)
         return(yList[0])
 
-
-    def defaultPolicyFindAction(self, possibleActions, state) -> int:
-        distribution  = self.getDistributionForState(state)
-        #print(distribution, state)
+    def doDeterministicChoice(self, distribution, possibleActions):
         bestActionValue = -math.inf
         bestActionIndex = 0
-        #print("dist",distribution)
-        #print("possibel, state",possibleActions, state)
-        for index, value in enumerate(distribution):
-            #print("index, value", index, value)
-            if index in possibleActions:
-                if value > bestActionValue:
-                    bestActionValue = value 
-                    bestActionIndex = index
-        #print("best", bestActionIndex, bestActionValue)
+        for index in possibleActions:
+            if distribution[index] > bestActionValue:
+                bestActionValue = distribution[index] 
+                bestActionIndex = index
+        return bestActionIndex
+
+    def doStocasticChoice(self, distribution, possibleActions):
+        sum = 0
+        for index in possibleActions:
+            sum += distribution[index]
+        rand = random.uniform(0, 1) * sum
+        sum = 0
+        for index in possibleActions:
+            sum += distribution[index]
+            if sum >= rand:
+                return index
+        return None
+    
+    def defaultPolicyFindAction(self, possibleActions, state) -> int:
+        distribution  = self.getDistributionForState(state)
+
+        #bestActionIndex = self.doDeterministicChoice(distribution, possibleActions)
+        bestActionIndex = self.doStocasticChoice(distribution, possibleActions)
         return bestActionIndex

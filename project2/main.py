@@ -69,7 +69,7 @@ def doGames(
             simWorld.makeAction(bestMove)
             mcts.reRootTree()
         ANET.trainOnRBUF(RBUF = RBUF, minibatchSize = RBUFsamples, exponentialDistributionFactor = exponentialDistributionFactor)
-        if game % saveInterval == 0:
+        if (game + 1) % saveInterval == 0:
             SaveModel(ANET.neuralNet, fileName + str(game))
     #TODO remove play against when done with code
     simWorld2 = copy.deepcopy(simWorldTemplate)

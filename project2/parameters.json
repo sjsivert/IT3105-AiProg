@@ -6,13 +6,13 @@
   "anet_learning_rate": 0.1,
   "anet_activation_function": "RELU",
   "output_activation_function": "softmax",
-  "anet_optimizer": "SGD",
+  "anet_optimizer": "Adam",
   "loss_function": "MSE",
   "anet_hidden_layers_and_neurons_per_layer": [30, 50, 10],
 
   "explorationBias": 0.5,
   "epsilon": 0.0,
-  "RBUFsamples": 20000000,
+  "RBUFsamples": 20,
   "exponentialDistributionFactor": 1.0,
 
   "mcts_n_of_search_games_per_move": 50,
