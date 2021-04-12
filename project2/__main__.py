@@ -46,6 +46,7 @@ def main():
     numEpisodes = parameters['mcts_num_episodes']
     numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
     saveInterval = parameters['save_interval']
+    fileNamePrefix = parameters['file_name']
 
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
@@ -94,7 +95,8 @@ def main():
             epsilon = epsilon,
             RBUFsamples = RBUFsamples,
             exponentialDistributionFactor = exponentialDistributionFactor,
-            simWorldTemplate = simWorld
+            simWorldTemplate = simWorld,
+            fileName = gameType + str(boardSize) + fileNamePrefix
     )
     # is = save interval for ANET (the actor network) parameters
     if(operationMode == "play"):

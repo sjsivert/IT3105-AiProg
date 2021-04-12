@@ -1,13 +1,13 @@
 {
   "operation_mode": "train",
-  "game_type": "nim",
-  "board_size": 12,
+  "game_type": "hex",
+  "board_size": 4,
   "board_type": "diamond",
 
   "anet_learning_rate": 0.001,
   "anet_activation_function": "relu",
   "output_activation_function": "softmax",
-  "anet_optimizer": "sgd",
+  "anet_optimizer": "adam",
   "loss_function": "mae",
   "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
 

@@ -25,7 +25,8 @@ class ReinforcementLearningSystem:
             epsilon :float,
             RBUFsamples:int,
             exponentialDistributionFactor:float,
-            simWorldTemplate: SimWorld
+            simWorldTemplate: SimWorld,
+            fileName: str
     ):
         self.RBuffer = []
         self.numberOfTreeGames = numberOfTreeGames
@@ -37,6 +38,7 @@ class ReinforcementLearningSystem:
         self.RBUFsamples = RBUFsamples
         self.exponentialDistributionFactor = exponentialDistributionFactor
         self.simWorldTemplate = simWorldTemplate
+        self.fileName = fileName
 
     def mctsSearch(self, simWorld) -> Tuple:
         # TODO FInish this
@@ -70,6 +72,7 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames):
         print("Training neuralnet")
+        SaveModel(self.ANET.neuralNet, self.fileName + "0")
         for game in range(numberOfGames):
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
@@ -98,7 +101,7 @@ class ReinforcementLearningSystem:
                     actionDistribution=actionDistribution,
                     simWorld=simWorld,
                 )
-                print("SW, BM", simWorld.state, (bestMove+1), actionDistribution, simWorld.getPlayerTurn())
+                #print("SW, BM", simWorld.state, (bestMove+1), actionDistribution)
 
                 # Sync both sim worlds to be equal
                 mcts.simWorld = copy.deepcopy(simWorld)
@@ -118,8 +121,8 @@ class ReinforcementLearningSystem:
             """
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
-            if (game + 1) % self.saveInterval == 0:
-                SaveModel(self.ANET.neuralNet, "test" + str(game))
+            if (game) % self.saveInterval == 0 and game != 0:
+                SaveModel(self.ANET.neuralNet,self.fileName + str(game + 1))
 
         self.playAgainstAnet()
 

@@ -102,6 +102,9 @@ class Hex(SimWorld):
                 endLocations=self.lowerLeft
             )
 
+    def getPlayerTurn(self):
+        return self.playerTurn
+    
     def depthFirstSearch(
         self,
         node: Peg,
