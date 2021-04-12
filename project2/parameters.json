@@ -1,5 +1,5 @@
 {
-  "operation_mode": "train",
+  "operation_mode": "tournament",
   "game_type": "nim",
   "board_size": 12,
   "board_type": "diamond",

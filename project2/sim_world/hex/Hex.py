@@ -63,15 +63,16 @@ class Hex(SimWorld):
         return False
         # return True if action in self.possibleActions.values() else False
 
+    def getActionCoordinates(self, action: int) -> Tuple[int]:
+        return self.possibleActions[action]
+
     def makeAction(self, action: int):
         """
             Makes and action, changes state.
             And changes playerTurn.
         """
-        #print(f"Action: {action}")
         actionTuple = self.possibleActions[action]
-        #print("aaaaaaction", action)
-        #print("tuuuuuuuuuuple", actionTuple)
+
         self.state.setPegValue(
             actionTuple, self.playerTurn)  # Update boardState
         # remove action from possibleActions

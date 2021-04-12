@@ -39,7 +39,6 @@ class ReinforcementLearningSystem:
         self.simWorldTemplate = simWorldTemplate
 
     def mctsSearch(self, simWorld) -> Tuple:
-        # TODO FInish this
         state =simWorld.getStateHash()
         mcts = MCTS(
             root= TreeNode(
@@ -56,17 +55,16 @@ class ReinforcementLearningSystem:
             reward = mcts.rollout(self.anet)
             mcts.backPropogate(reward)
 
-            actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(sim_world.getStateHash()))
+        actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
 
-            actionSum =0
-            for i in mcts.HashTable[str(simWorld.getStateHash())][2]:
-                actionDistributtion.append(i)
-                actionSum += i
+        # TODO: Use different action policy for tournament?
+        bestAction = self.chooseActionPolicy(
+            actionDistribution=actionDistributtion,
+            simWorld=simWorld
+        )
+        return bestAction
 
-            # Normalise action distribution
-            for i in range(len(actionDistributtion)):
-                actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
-        pass
+
 
     def trainNeuralNet(self, numberOfGames):
         print("Training neuralnet")
@@ -128,7 +126,7 @@ class ReinforcementLearningSystem:
         simWorld = copy.deepcopy(self.simWorldTemplate)
         simWorld.playAgainst(self.ANET)
 
-    def chooseActionPolicy(self, actionDistribution, simWorld):
+    def chooseActionPolicy(self, actionDistribution, simWorld) -> int:
         bestMove = 0
         if self.epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
             if len(simWorld.getPossibleActions()) > 1:
