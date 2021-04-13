@@ -12,7 +12,7 @@ from typing import List, Tuple
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, SaveTorchModel
 import copy
 import time
 
@@ -28,7 +28,7 @@ class ReinforcementLearningSystem:
             RBUFsamples:int,
             exponentialDistributionFactor:float,
             simWorldTemplate: SimWorld,
-            fileName: str
+            fileName: str,
     ):
         self.RBuffer = []
         self.numberOfTreeGames = numberOfTreeGames
@@ -71,8 +71,7 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        #SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
-        torch.save(self.ANET.neuralNet,  self.fileName + str( anetGenerationNumber) + "torch")
+        SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
@@ -130,7 +129,8 @@ class ReinforcementLearningSystem:
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
                 #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
-                torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch") 
+                SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
+                #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
         self.playAgainstAnet()
 
 

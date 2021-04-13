@@ -48,6 +48,7 @@ def main():
     numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
     saveInterval = parameters['save_interval']
     fileNamePrefix = parameters['file_name']
+    modelSaveLocation = parameters["model_save_location"]
 
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
@@ -106,7 +107,7 @@ def main():
             RBUFsamples = RBUFsamples,
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld,
-            fileName = gameType + str(boardSize) + fileNamePrefix
+            fileName = gameType + str(boardSize) + fileNamePrefix,
     )
     # is = save interval for ANET (the actor network) parameters
     if(operationMode == "play"):
@@ -133,18 +134,10 @@ def main():
 
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
-        LoadTorchModel(fileName="hex3bra0torch"),
-        LoadTorchModel(fileName="hex3bra25torch"),
-        LoadTorchModel(fileName="hex3bra50torch"),
-        LoadTorchModel(fileName="hex3bra150torch"),
-        LoadTorchModel(fileName="hex3bra200torch"),
+
     ]
     agentNames = {
-        agents[0]: "gen0",
-        agents[1]: "gen25",
-        agents[2]: "gen100",
-        agents[3]: "gen150",
-        agents[4]: "gen200",
+
     }
     testTournament = LocalTournament(agents=agents, roundRobin = True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
