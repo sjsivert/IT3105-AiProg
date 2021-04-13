@@ -13,6 +13,7 @@ import random
 from typing import List
 from project2.Models.SaveLoadModel import SaveModel
 import copy
+import time
 
 class ReinforcementLearningSystem:
     def __init__(
@@ -40,8 +41,9 @@ class ReinforcementLearningSystem:
         self.simWorldTemplate = simWorldTemplate
         self.fileName = fileName
 
-    def mctsSearch(self, simWorld) -> Tuple:
-        state = simWorld.getStateHash()
+
+    def mctsSearch(self, simWorld) -> int:
+        state =simWorld.getStateHash()
         mcts = MCTS(
             root= TreeNode(
                 state = state,
@@ -50,14 +52,13 @@ class ReinforcementLearningSystem:
             ),
             ExplorationBias=1
         )
-        # TODO: Parameterize numberOfSearchGames
-        numberOfTreeGames = 200
         for gameNr in range(self.numberOfTreeGames):
             mcts.treeSearch(state,simWorld)
-            reward = mcts.rollout(self.anet)
+            reward = mcts.rollout(self.ANET)
             mcts.backPropogate(reward)
 
         actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+        print("Action dist", actionDistributtion)
 
         # TODO: Use different action policy for tournament?
         bestAction = self.chooseActionPolicy(
@@ -86,8 +87,14 @@ class ReinforcementLearningSystem:
             )
             while not simWorld.isWinState():
                 for e in range(self.numberOfTreeGames):
+                    startTime = time.time()
                     mcts.treeSearch(currentState, simWorld)
+                    endTime = time.time()
+                    print(f"Time ctrs.treeSearch {endTime - startTime}")
+                    startTime = time.time()
                     reward = mcts.rollout(self.ANET)
+                    endTime = time.time()
+                    print(f"Time rollout: {endTime - startTime}")
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
@@ -142,9 +149,12 @@ class ReinforcementLearningSystem:
                     bestMoveValue = actionDistribution[move]
                     bestMove = move
         return bestMove
+<<<<<<< HEAD
         
     def mctsSearch(self):
         pass
+=======
+>>>>>>> b693e9f4169f17427097aad1dbc8ce3318e77e96
 
     def saveModel(self):
         pass

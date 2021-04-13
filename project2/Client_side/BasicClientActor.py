@@ -15,7 +15,7 @@ class BasicClientActor(BasicClientActorAbs):
             IP_address=None,
             verbose=True,
     ):
-
+        self.RLS = RLS
         self.series_id = -1
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
@@ -40,11 +40,11 @@ class BasicClientActor(BasicClientActorAbs):
             playerTurn = playerTurn,
             loadedHexBoardState = state
         )
-        actionNumber = self.RLS.mctSearch(simworld=simWorld)
+        actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
 
-        coordinates = simWorld.state.getActionCoordinates(actionNumber)
+        coordinates = simWorld.getActionCoordinates(actionNumber)
         actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
-        print(actionCordinatesConverted)
+        print("Action coordinate chosen: ", actionCordinatesConverted)
         return actionCordinatesConverted
 
 
