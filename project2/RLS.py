@@ -126,6 +126,7 @@ class ReinforcementLearningSystem:
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game) % self.saveInterval == 0 and game != 0:
+                print(f"--------------SAVING MODEL: {game}--------------")
                 SaveModel(self.ANET.neuralNet,self.fileName + str(game + 1))
 
         self.playAgainstAnet()

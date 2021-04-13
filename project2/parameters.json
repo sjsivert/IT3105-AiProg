@@ -4,15 +4,15 @@
   "board_size": 4,
   "board_type": "diamond",
 
-  "anet_learning_rate": 0.001,
+  "anet_learning_rate": 0.1,
   "anet_activation_function": "relu",
   "output_activation_function": "softmax",
   "anet_optimizer": "adam",
   "loss_function": "mae",
   "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
-  "anet_model_to_load": "",
+  "anet_model_to_load": "26",
 
-  "explorationBias": 1,
+  "explorationBias": 2,
   "epsilon": 0.0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
@@ -22,6 +22,6 @@
   "save_interval": 25,
   "file_name": "gen",
 
-  "anet_n_of_topp_games_to_be_played":20,
+  "anet_n_of_topp_games_to_be_played":200,
   "anet_n_cached_topp_preparations": 2
 }
