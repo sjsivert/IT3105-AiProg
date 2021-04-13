@@ -1,5 +1,6 @@
 import json
 import math
+import torch
 from project2.sim_world.nim.Nim import Nim
 from project2.MCTS.TreeNode import TreeNode
 from project2.sim_world.sim_world import SimWorld
@@ -57,7 +58,7 @@ class ReinforcementLearningSystem:
             mcts.backPropogate(reward)
 
         actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-        print("Action dist", actionDistributtion)
+        #print("Action dist", actionDistributtion)
 
         # TODO: Use different action policy for tournament?
         bestAction = self.chooseActionPolicy(
@@ -70,7 +71,8 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
+        #SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
+        torch.save(self.ANET.neuralNet,  self.fileName + str( anetGenerationNumber) + "torch")
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
@@ -97,7 +99,7 @@ class ReinforcementLearningSystem:
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-                print(f"Added to RBUFFER. player: {simWorld.playerTurn} simWorld: {simWorld.getStateHash()}, actionDistribution: {actionDistribution}")
+                #print(f"Added to RBUFFER. player: {simWorld.playerTurn} simWorld: {simWorld.getStateHash()}, actionDistribution: {actionDistribution}")
 
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
@@ -126,9 +128,9 @@ class ReinforcementLearningSystem:
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game) % self.saveInterval == 0 and game != 0:
-                print(f"--------------SAVING MODEL: {game}--------------")
-                SaveModel(self.ANET.neuralNet,self.fileName + str(game))
-
+                print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
+                #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
+                torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch") 
         self.playAgainstAnet()
 
 

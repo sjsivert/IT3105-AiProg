@@ -4,7 +4,7 @@ from project2.sim_world.nim.Nim import Nim
 from project2.MCTS.TreeNode import TreeNode
 from project2.sim_world.sim_world import SimWorld
 from project2.MCTS.GenerateMCTS import MCTS
-from project2.Models.NeuralNet import NeuralActor
+from project2.Models.NeuralNetDom import NeuralActor
 from project2.Models.RandomAgent import RandomAgent
 from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
@@ -13,7 +13,7 @@ from typing import List
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel, LoadModel
+from project2.Models.SaveLoadModel import SaveModel, LoadModel, LoadTorchModel
 import copy
 from project2.RLS import ReinforcementLearningSystem
 
@@ -133,18 +133,20 @@ def main():
 
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
-        LoadModel(fileName="hex4gen0"),
-        LoadModel(fileName="hex4gen5"),
-        LoadModel(fileName="hex4gen40"),
-        LoadModel(fileName="hex4gen50"),
+        LoadTorchModel(fileName="hex3bra0torch"),
+        LoadTorchModel(fileName="hex3bra25torch"),
+        LoadTorchModel(fileName="hex3bra50torch"),
+        LoadTorchModel(fileName="hex3bra150torch"),
+        LoadTorchModel(fileName="hex3bra200torch"),
     ]
     agentNames = {
         agents[0]: "gen0",
-        agents[1]: "gen5",
-        agents[2]: "gen40",
-        agents[3]: "gen50",
+        agents[1]: "gen25",
+        agents[2]: "gen100",
+        agents[3]: "gen150",
+        agents[4]: "gen200",
     }
-    testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
+    testTournament = LocalTournament(agents=agents, roundRobin = True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 
 
