@@ -10,9 +10,10 @@ from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
 from typing import List, Tuple
 from project2.Client_side.BasicClientActor import BasicClientActor
+from project2.visualization.boardAnimator import BoardAnimator
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, SaveTorchModel
 import copy
 import time
 
@@ -28,7 +29,8 @@ class ReinforcementLearningSystem:
             RBUFsamples:int,
             exponentialDistributionFactor:float,
             simWorldTemplate: SimWorld,
-            fileName: str
+            fileName: str,
+            visualize: bool
     ):
         self.RBuffer = []
         self.numberOfTreeGames = numberOfTreeGames
@@ -41,6 +43,7 @@ class ReinforcementLearningSystem:
         self.exponentialDistributionFactor = exponentialDistributionFactor
         self.simWorldTemplate = simWorldTemplate
         self.fileName = fileName
+        self.visualize = visualize
 
     def mctsSearch(self, simWorld) -> int:
         state =simWorld.getStateHash()
@@ -71,9 +74,9 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        #SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
-        torch.save(self.ANET.neuralNet,  self.fileName + str( anetGenerationNumber) + "torch")
+        SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
+            BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
@@ -114,7 +117,11 @@ class ReinforcementLearningSystem:
                 mcts.makeAction(bestMove)
                 simWorld.makeAction(bestMove)
                 mcts.reRootTree()
-
+                if (game) % self.saveInterval == 0 and self.visualize:
+                    BoardVisualizer.addAnimationState(simWorld.getStateHash())
+            if (game) % self.saveInterval == 0 and self.visualize:
+                print("BAOII")
+                BoardVisualizer.animateEpisode()
             # Print ANET Values for debugging
             """
             for i in range(1, 12 +1):
@@ -130,7 +137,8 @@ class ReinforcementLearningSystem:
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
                 #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
-                torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch") 
+                SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
+                #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
         self.playAgainstAnet()
 
 
