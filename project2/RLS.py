@@ -13,6 +13,7 @@ import random
 from typing import List
 from project2.Models.SaveLoadModel import SaveModel
 import copy
+import time
 
 class ReinforcementLearningSystem:
     def __init__(
@@ -85,8 +86,14 @@ class ReinforcementLearningSystem:
             )
             while not simWorld.isWinState():
                 for e in range(self.numberOfTreeGames):
+                    startTime = time.time()
                     mcts.treeSearch(currentState, simWorld)
+                    endTime = time.time()
+                    print(f"Time ctrs.treeSearch {endTime - startTime}")
+                    startTime = time.time()
                     reward = mcts.rollout(self.ANET)
+                    endTime = time.time()
+                    print(f"Time rollout: {endTime - startTime}")
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
