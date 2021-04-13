@@ -105,6 +105,7 @@ class NeuralActor:
 
     def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor = None): 
         minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        print(f"Training ANET on minibatch size of: {len(minibatch)}")
         for item in minibatch:
             state = self.structureInput(item[0])
             actionDistribution = item[1]

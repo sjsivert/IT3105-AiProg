@@ -87,8 +87,10 @@ class NeuralActor ():
         # Train on the last 50 games
         if (len(RBUF) > minibatchSize):
             minibatch = random.sample(RBUF[-minibatchSize:], k=min(minibatchSize, len(RBUF) - 1))
+            print("Training ANET on batch of size: ", str(len(minibatch)))
         else:
             minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF) - 1))
+            print("Training ANET on batch of size: ", str(len(minibatch)))
         for item in minibatch:
             s = [[]]
             a = [[]]

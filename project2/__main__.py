@@ -93,7 +93,7 @@ def main():
     else:
         # Load from a previoussly trained model
         print(f"Loading anet: {gameType + str(boardSize )+fileNamePrefix + anetGenerationModelToLoad}")
-        ANET = LoadModel(fileName=gameType+ str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
+        ANET = LoadTorchModel(fileName=gameType+ str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
         anetGenerationNumber = int(anetGenerationModelToLoad)
 
     # Initiate ReinforcementLearningSystem

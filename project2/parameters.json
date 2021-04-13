@@ -1,5 +1,5 @@
 {
-  "operation_mode": "topp",
+  "operation_mode": "train",
   "game_type": "hex",
   "board_size": 3,
   "board_type": "diamond",
@@ -10,19 +10,19 @@
   "anet_optimizer": "adam",
   "loss_function": "mae",
   "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50],
-  "anet_model_to_load": "",
+  "anet_model_to_load": "300",
 
   "explorationBias": 2,
   "epsilon": 0.0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 100,
+  "mcts_n_of_search_games_per_move": 501,
   "mcts_num_episodes": 10000000000,
   "save_interval": 25,
   "file_name": "sindre",
   "model_save_location": "./saved_models/",
 
   "anet_n_of_topp_games_to_be_played":20,
-  "anet_n_cached_topp_preparations": 4
+  "anet_n_cached_topp_preparations":12
 }

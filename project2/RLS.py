@@ -124,6 +124,7 @@ class ReinforcementLearningSystem:
                 print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
                 print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
             """
+            print(f"RBUFfer size: {len(self.RBuffer)}")
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game) % self.saveInterval == 0 and game != 0:
