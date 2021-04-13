@@ -133,12 +133,16 @@ def main():
 
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
-        LoadModel(fileName="hex3gen0"),
-        LoadModel(fileName="hex3gen26"),
+        LoadModel(fileName="hex4gen0"),
+        LoadModel(fileName="hex4gen5"),
+        LoadModel(fileName="hex4gen40"),
+        LoadModel(fileName="hex4gen50"),
     ]
     agentNames = {
         agents[0]: "gen0",
-        agents[1]: "gen26",
+        agents[1]: "gen5",
+        agents[2]: "gen40",
+        agents[3]: "gen50",
     }
     testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()

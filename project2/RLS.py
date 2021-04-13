@@ -127,7 +127,7 @@ class ReinforcementLearningSystem:
 
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {game}--------------")
-                SaveModel(self.ANET.neuralNet,self.fileName + str(game + 1))
+                SaveModel(self.ANET.neuralNet,self.fileName + str(game))
 
         self.playAgainstAnet()
 
