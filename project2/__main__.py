@@ -13,7 +13,7 @@ from typing import List
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, LoadModel
 import copy
 from project2.RLS import ReinforcementLearningSystem
 
@@ -114,15 +114,22 @@ def main():
             RLS = RLS
         )
         bsa.connect_to_server()
+    elif operationMode == "topp":
+        print("Operation mode: TOPP (Local tournament)")
+        testTournament(simWorldTemplate=simWorld)
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 
-def testTournament():
-    agent1 = RandomAgent()
-    agent2 = RandomAgent()
-    agent3 = RandomAgent()
-    simWorld = Nim(12, 2)
-    testTournament = LocalTournament([agent1, agent2, agent3], numberOfFourGames = 5, roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2", agent3: "agent3"})
+def testTournament(simWorldTemplate: SimWorld):
+    agents = [
+         LoadModel(fileName="hex6gen0"),
+        LoadModel(fileName="hex6gen351"),
+    ]
+    agentNames = {
+        agents[0]: "gen0",
+        agents[1]: "gen351",
+    }
+    testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 
 
