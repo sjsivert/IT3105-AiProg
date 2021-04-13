@@ -10,6 +10,7 @@ from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
 from typing import List, Tuple
 from project2.Client_side.BasicClientActor import BasicClientActor
+from project2.visualization.boardAnimator import BoardAnimator
 import random
 from typing import List
 from project2.Models.SaveLoadModel import SaveModel, SaveTorchModel
@@ -29,6 +30,7 @@ class ReinforcementLearningSystem:
             exponentialDistributionFactor:float,
             simWorldTemplate: SimWorld,
             fileName: str,
+            visualize: bool
     ):
         self.RBuffer = []
         self.numberOfTreeGames = numberOfTreeGames
@@ -41,6 +43,7 @@ class ReinforcementLearningSystem:
         self.exponentialDistributionFactor = exponentialDistributionFactor
         self.simWorldTemplate = simWorldTemplate
         self.fileName = fileName
+        self.visualize = visualize
 
     def mctsSearch(self, simWorld) -> int:
         state =simWorld.getStateHash()
@@ -73,6 +76,7 @@ class ReinforcementLearningSystem:
         print("Training neuralnet")
         SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
+            BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
@@ -113,7 +117,11 @@ class ReinforcementLearningSystem:
                 mcts.makeAction(bestMove)
                 simWorld.makeAction(bestMove)
                 mcts.reRootTree()
-
+                if (game) % self.saveInterval == 0 and self.visualize:
+                    BoardVisualizer.addAnimationState(simWorld.getStateHash())
+            if (game) % self.saveInterval == 0 and self.visualize:
+                print("BAOII")
+                BoardVisualizer.animateEpisode()
             # Print ANET Values for debugging
             """
             for i in range(1, 12 +1):
@@ -124,7 +132,6 @@ class ReinforcementLearningSystem:
                 print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
                 print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
             """
-            print(f"RBUFfer size: {len(self.RBuffer)}")
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game) % self.saveInterval == 0 and game != 0:

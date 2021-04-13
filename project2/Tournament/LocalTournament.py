@@ -38,20 +38,23 @@ class LocalTournament:
                 versusGames = {}
                 for agent in self.agents:
                     totalWins[agent] = 0
-                    versusGames[agent] = [0]*len(self.agents)
+                    versusGames[self.agentNames[agent]] = [0]*len(self.agents)
                 for i in range(len(self.agents)-1):
                     for j in range(i+1, len(self.agents)):
                         for numGames in range(self.numberOfGames):
                             results = self.playFourGames(self.agents[i], self.agents[j])
-                            versusGames[self.agents[i]][j] += results[self.agents[i]]
-                            versusGames[self.agents[j]][i] += results[self.agents[j]]
+                            versusGames[self.agentNames[self.agents[i]]][j] += results[self.agents[i]]
+                            versusGames[self.agentNames[self.agents[j]]][i] += results[self.agents[j]]
                             for agent in results.keys():
                                 totalWins[agent] += results[agent]
                                 #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
                                 #self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
                 self.printTotalWins(totalWins)
                 self.TournamentPlotter.plottWins(totalWins)
-                print(versusGames)
+                print("----------\nAgent stats:")
+                for agentName in versusGames.keys():
+                    print("-------\n   ",agentName)
+                    print([x / (self.numberOfGames*4) for x in versusGames[agentName]])
             else:
                 for i in range(len(self.agents)-1):
                     pairWins = {self.agents[i]: 0, self.agents[i+1]: 0}
