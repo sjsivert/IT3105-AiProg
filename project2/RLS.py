@@ -70,7 +70,7 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        #SaveModel(self.ANET.neuralNet, self.fileName + "0")
+        SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
@@ -97,7 +97,7 @@ class ReinforcementLearningSystem:
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-                print(actionDistribution)
+                print(f"Added to RBUFFER. player: {simWorld.playerTurn} simWorld: {simWorld.getStateHash()}, actionDistribution: {actionDistribution}")
 
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 

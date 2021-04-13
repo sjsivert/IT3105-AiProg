@@ -133,8 +133,8 @@ def main():
 
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
-         LoadModel(fileName="hex4gen0"),
-        LoadModel(fileName="hex4gen26"),
+        LoadModel(fileName="hex3gen0"),
+        LoadModel(fileName="hex3gen26"),
     ]
     agentNames = {
         agents[0]: "gen0",
