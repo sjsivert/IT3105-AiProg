@@ -146,6 +146,7 @@ def testTournament(simWorldTemplate: SimWorld):
     """
     agents = []
     agentNames = {}
+
     testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 

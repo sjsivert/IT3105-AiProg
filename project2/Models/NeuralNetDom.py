@@ -10,31 +10,80 @@ import torch.optim as optim
 import math
 import random
 
+netStructure = [{
+    "type": "conv2d",
+    "channels_in": 2,
+    "channels_out": 16,
+    "kernel": 3,
+    "padding": 1,
+    "activation": "relu"
+},
+{
+    "type": "conv2d",
+    "channels_in": 16,
+    "channels_out": 32,
+    "kernel": 3,
+    "padding": 1,
+    "activation": "relu"
+},
+{
+    "type": "conv2d",
+    "channels_in": 32,
+    "channels_out": 64,
+    "kernel": 3,
+    "activation": "relu"
+},
+{
+    "type": "flatten",
+    "size": 256
+},
+{
+    "type": "dense",
+    "size": 128,
+    "activation": "relu"
+},
+{
+    "type": "dense",
+    "size": 16,
+    "activation": "softmax"
+}]
+
 class NeuralNetwork(nn.Module):
     def __init__(self, input_size, output_size, hiddenLayersDimension=[]):
         super(NeuralNetwork, self).__init__()
-
         self.layers = nn.ModuleList()
-
         current_dim = input_size
+        outputSize = 256
+        for layer in netStructure:
+            if(layer["type"] == "conv2d"):
+                self.layers.append(nn.Conv2d(in_channels = layer["channels_in"], out_channels = layer["channels_out"], kernel_size = layer["kernel"], padding = layer["padding"]))
+            elif(layer["type"] == "flatten"):
+                outputSize = layer["size"]
+                self.layers.append(nn.Flatten(start_dim=outputSize, end_dim=outputSize))  # Dobbelsjekk
+            elif(layer["type"] == "dense"):
+                self.layers.append(nn.Linear(in_features = outputSize, out_features= layer["size"]))  # Dobbelsjekk
+                outputSize = layer["size"]
+        self.layers.append(nn.Softmax(dim=1))
 
-        for dimension in hiddenLayersDimension:
-            self.layers.append(nn.Linear(int(current_dim), dimension))
-            current_dim = dimension
-
-        self.layers.append(nn.Linear(current_dim, output_size))
         
 
     def forward(self, input):
         # Hidden layers
-        for layer in self.layers[:-1]:
-            input = F.relu(layer(input))  # Se på å bruke noe sigmoid eller noe annet også kanskje?
-            
-        # Output layer
-        # Hyperbolic tangent
-        out = torch.tanh(self.layers[-1](input))
-        # print("out: ", out)
-        return out
+        for index, layer in enumerate(self.layers):
+            if netStructure[index]["type"] == "flatten":
+                input = layer(input)
+            elif netStructure[index]["activation"] == "relu":
+                input = F.relu(layer(input))
+            elif netStructure[index]["activation"] == "softmax":
+                input = F.softmax(layer(input))
+        return input
+
+class CCLoss(nn.module):
+    def init(self):
+        super(CCLoss,self).init()
+
+    def forward(self, x, y):
+        return -(y * torch.log(x)).sum(dim=1).mean()
         
 class NeuralActor ():
     def __init__(self,

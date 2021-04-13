@@ -17,7 +17,7 @@
   "RBUFsamples": 200,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 100,
+  "mcts_n_of_search_games_per_move": 500,
   "mcts_num_episodes": 10000000000,
   "save_interval": 25,
   "file_name": "generation",
