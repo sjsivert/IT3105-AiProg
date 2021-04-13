@@ -1,5 +1,5 @@
 {
-  "operation_mode": "train",
+  "operation_mode": "topp",
   "game_type": "hex",
   "board_size": 4,
   "board_type": "diamond",
@@ -30,5 +30,5 @@
   "model_save_location": "./saved_models/",
 
   "anet_n_of_topp_games_to_be_played":20,
-  "anet_n_cached_topp_preparations":2
+  "anet_n_cached_topp_preparations":4
 }
