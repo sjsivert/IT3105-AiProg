@@ -10,72 +10,42 @@ import torch.optim as optim
 import math
 import random
 
-netStructure = [{
-    "type": "conv2d",
-    "channels_in": 2,
-    "channels_out": 16,
-    "kernel": 3,
-    "padding": 1,
-    "activation": "relu"
-},
-{
-    "type": "conv2d",
-    "channels_in": 16,
-    "channels_out": 32,
-    "kernel": 3,
-    "padding": 1,
-    "activation": "relu"
-},
-{
-    "type": "conv2d",
-    "channels_in": 32,
-    "channels_out": 64,
-    "kernel": 3,
-    "padding": 1,
-    "activation": "relu"
-},
-{
-    "type": "flatten",
-    "size": 576
-},
-{
-    "type": "dense",
-    "size": 128,
-    "activation": "relu"
-},
-{
-    "type": "dense",
-    "size": 9,
-    "activation": "softmax"
-}]
-
 class NeuralNetwork(nn.Module):
 
-    def __init__(self):
+    def __init__(self,
+            inputSize,
+            outputSize,
+            convLayersDim = [],
+            denseLayersDim = []):
+        self.convLayers = len(convLayersDim)
+        self.totalLayers = len(convLayersDim) + len(denseLayersDim) + 1
+
         super(NeuralNetwork, self).__init__()
         self.layers = nn.ModuleList()
-        outputSize = 256
-        for layer in netStructure:
-            if(layer["type"] == "conv2d"):
-                self.layers.append(nn.Conv2d(in_channels = layer["channels_in"], out_channels = layer["channels_out"], kernel_size = layer["kernel"], padding = layer["padding"]))
-            elif(layer["type"] == "flatten"):
-                outputSize = layer["size"]
-                self.layers.append(nn.Flatten())  # Dobbelsjekk
-            elif(layer["type"] == "dense"):
-                self.layers.append(nn.Linear(in_features = outputSize, out_features= layer["size"]))  # Dobbelsjekk
-                outputSize = layer["size"]
+        for convLayer in convLayersDim:
+            self.layers.append(nn.Conv2d(
+            in_channels = convLayer["in"], 
+            out_channels = convLayer["out"], 
+            kernel_size = convLayer["kernel"], 
+            padding = convLayer["padding"]))
+
+        self.layers.append(nn.Flatten())
+        denseInput = convLayersDim[-1]["out"] * (inputSize - 1)
+        
+        for numberOfNodes in denseLayersDim:
+            self.layers.append(nn.Linear(in_features = denseInput, out_features= numberOfNodes))
+            denseInput = numberOfNodes
+        
+        self.layers.append(nn.Linear(in_features = denseInput, out_features= outputSize))
 
     def forward(self, input):
-        # Hidden layers
         for index, layer in enumerate(self.layers):
-            # print(layer)
-            if netStructure[index]["type"] == "flatten":
-                input = layer(input)
-            elif netStructure[index]["activation"] == "relu":
-                input = F.relu(layer(input))
-            elif netStructure[index]["activation"] == "softmax":
+            if index == self.totalLayers:
                 input = F.softmax(layer(input))
-        #print(input)
+            elif index == self.convLayers:
+                input = layer(input)
+            else:
+                input = F.relu(layer(input))
         return input
 
 class CCLoss(nn.Module):
@@ -89,7 +59,8 @@ class NeuralActor:
     def __init__(self,
             input_size = None,
             output_size = None,
-            hiddenLayersDim = None,
+            convLayersDim = None,
+            denseLayersDim = None,
             learningRate = None,
             lossFunction = None,
             optimizer = None,
@@ -97,10 +68,24 @@ class NeuralActor:
             outputActivation = None,
             model = None):
         if model == None:
-            self.neuralNet = NeuralNetwork()
+            self.neuralNet = NeuralNetwork(
+                inputSize= input_size,
+                outputSize= output_size,
+                convLayersDim= convLayersDim, 
+                denseLayersDim = denseLayersDim)
         else:
             self.neuralNet = model
-        self.optimizer = optim.SGD(self.neuralNet.parameters(), lr = 0.01)
+        if optimizer.lower() == "sgd":
+            self.optimizer = optim.SGD(self.neuralNet.parameters(), lr = learningRate)
+        elif optimizer.lower() == "adam":
+            self.optimizer = optim.Adam(self.neuralNet.parameters(), lr = learningRate)
+        elif optimizer.lower() == "rmsprop":
+            self.optimizer = optim.RMSprop(self.neuralNet.parameters(), lr = learningRate)
+        elif optimizer.lower() == "adagrad":
+            self.optimizer = optim.adagrad(self.neuralNet.parameters(), lr = learningRate)
+        else:
+            self.optimizer = None
+        
         self.lossFunction = CCLoss()
 
     def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor = None): 

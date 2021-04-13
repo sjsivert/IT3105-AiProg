@@ -35,7 +35,8 @@ def main():
     activationFunction = parameters['anet_activation_function']
     outputActivationFunction = parameters['output_activation_function']
     optimizer = parameters['anet_optimizer']
-    hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
+    convLayersDim = parameters['anet_conv_layers_and_neurons_per_layer']
+    denseLayersDim = parameters['anet_dense_layers_and_neurons_per_layer']
     lossFunction = parameters['loss_function']
     anetGenerationModelToLoad = parameters["anet_model_to_load"]
 
@@ -81,7 +82,8 @@ def main():
         ANET = NeuralActor(
             input_size = input_size,
             output_size = output_size,
-            hiddenLayersDim = hiddenLayersDim,
+            denseLayersDim = denseLayersDim,
+            convLayersDim = convLayersDim,
             learningRate = learningRate,
             lossFunction = lossFunction,
             optimizer = optimizer,
@@ -115,7 +117,7 @@ def main():
 
     elif (operationMode == "train"):
         print("Operation mode: train")
-        print(input_size, output_size, hiddenLayersDim, learningRate)
+        print(input_size, output_size, convLayersDim, denseLayersDim, learningRate)
         RLS.trainNeuralNet(numberOfGames=numEpisodes, anetGenerationNumber = anetGenerationNumber)
 
     elif operationMode == "tournament":
