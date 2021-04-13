@@ -132,18 +132,20 @@ def main():
         raise Exception("Operation  mode not specified choose (play/train)")
 
 def testTournament(simWorldTemplate: SimWorld):
+    """
     agents = [
         LoadModel(fileName="hex4gen0"),
-        LoadModel(fileName="hex4gen5"),
-        LoadModel(fileName="hex4gen40"),
         LoadModel(fileName="hex4gen50"),
+        LoadModel(fileName="hex4gen104"),
     ]
     agentNames = {
         agents[0]: "gen0",
-        agents[1]: "gen5",
-        agents[2]: "gen40",
-        agents[3]: "gen50",
+        agents[1]: "gen50",
+        agents[2]: "gen104",
     }
+    """
+    agents = []
+    agentNames = {}
     testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 

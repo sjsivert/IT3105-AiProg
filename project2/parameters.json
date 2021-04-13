@@ -9,18 +9,18 @@
   "output_activation_function": "softmax",
   "anet_optimizer": "adam",
   "loss_function": "mae",
-  "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
-  "anet_model_to_load": "50",
+  "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50],
+  "anet_model_to_load": "",
 
   "explorationBias": 2,
   "epsilon": 0.0,
-  "RBUFsamples": 100,
+  "RBUFsamples": 200,
   "exponentialDistributionFactor": 0,
 
   "mcts_n_of_search_games_per_move": 100,
   "mcts_num_episodes": 10000000000,
-  "save_interval": 5,
-  "file_name": "gen",
+  "save_interval": 25,
+  "file_name": "generation",
 
   "anet_n_of_topp_games_to_be_played":200,
   "anet_n_cached_topp_preparations": 2
