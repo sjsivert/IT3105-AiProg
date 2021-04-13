@@ -68,10 +68,10 @@ class ReinforcementLearningSystem:
 
 
 
-    def trainNeuralNet(self, numberOfGames):
+    def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        SaveModel(self.ANET.neuralNet, self.fileName + "0")
-        for game in range(numberOfGames):
+        #SaveModel(self.ANET.neuralNet, self.fileName + "0")
+        for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
@@ -86,14 +86,14 @@ class ReinforcementLearningSystem:
             )
             while not simWorld.isWinState():
                 for e in range(self.numberOfTreeGames):
-                    startTime = time.time()
+                    #startTime = time.time()
                     mcts.treeSearch(currentState, simWorld)
-                    endTime = time.time()
-                    print(f"Time ctrs.treeSearch {endTime - startTime}")
-                    startTime = time.time()
+                    #endTime = time.time()
+                    #print(f"Time ctrs.treeSearch {endTime - startTime}")
+                    #startTime = time.time()
                     reward = mcts.rollout(self.ANET)
-                    endTime = time.time()
-                    print(f"Time rollout: {endTime - startTime}")
+                    #endTime = time.time()
+                    #print(f"Time rollout: {endTime - startTime}")
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))

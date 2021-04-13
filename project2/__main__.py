@@ -37,6 +37,7 @@ def main():
     optimizer = parameters['anet_optimizer']
     hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
     lossFunction = parameters['loss_function']
+    anetGenerationModelToLoad = parameters["anet_model_to_load"]
 
     explorationBias = parameters['explorationBias']
     epsilon = parameters['epsilon']
@@ -75,16 +76,25 @@ def main():
         print("Game not specified. Quitting...")
 
     # Initiate Neural Net
-    ANET = NeuralActor(
-        input_size = input_size,
-        output_size = output_size,
-        hiddenLayersDim = hiddenLayersDim,
-        learningRate = learningRate,
-        lossFunction = lossFunction,
-        optimizer = optimizer,
-        activation = activationFunction,
-        outputActivation = outputActivationFunction
-    )
+    if len(anetGenerationModelToLoad) == 0:
+        print("Creating a new Neural Network")
+        ANET = NeuralActor(
+            input_size = input_size,
+            output_size = output_size,
+            hiddenLayersDim = hiddenLayersDim,
+            learningRate = learningRate,
+            lossFunction = lossFunction,
+            optimizer = optimizer,
+            activation = activationFunction,
+            outputActivation = outputActivationFunction
+        )
+        anetGenerationNumber = 0
+    else:
+        # Load from a previoussly trained model
+        print(f"Loading anet: {gameType + str(boardSize )+fileNamePrefix + anetGenerationModelToLoad}")
+        ANET = LoadModel(fileName=gameType+ str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
+        anetGenerationNumber = int(anetGenerationModelToLoad)
+
     # Initiate ReinforcementLearningSystem
     RLS = ReinforcementLearningSystem(
             numberOfTreeGames = numSearchGamesPerMove,
@@ -106,7 +116,8 @@ def main():
     elif (operationMode == "train"):
         print("Operation mode: train")
         print(input_size, output_size, hiddenLayersDim, learningRate)
-        RLS.trainNeuralNet(numberOfGames=numEpisodes)
+        RLS.trainNeuralNet(numberOfGames=numEpisodes, anetGenerationNumber = anetGenerationNumber)
+
     elif operationMode == "tournament":
         print("Operation mode: Tournament")
         bsa = BasicClientActor(
@@ -123,11 +134,17 @@ def main():
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
          LoadModel(fileName="hex6gen0"),
+        LoadModel(fileName="hex6gen26"),
+        LoadModel(fileName="hex6gen101"),
+        LoadModel(fileName="hex6gen201"),
         LoadModel(fileName="hex6gen351"),
     ]
     agentNames = {
         agents[0]: "gen0",
-        agents[1]: "gen351",
+        agents[1]: "gen26",
+        agents[2]: "gen101",
+        agents[3]: "gen201",
+        agents[4]: "gen351",
     }
     testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
