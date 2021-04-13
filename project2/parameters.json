@@ -9,18 +9,18 @@
   "output_activation_function": "softmax",
   "anet_optimizer": "adam",
   "loss_function": "mae",
-  "anet_hidden_layers_and_neurons_per_layer": [30, 75, 50, 10],
+  "anet_hidden_layers_and_neurons_per_layer": [64, 24],
 
   "explorationBias": 4,
   "epsilon": 0.0,
-  "RBUFsamples": 7,
+  "RBUFsamples": 15,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 1000,
-  "mcts_num_episodes": 100,
+  "mcts_n_of_search_games_per_move": 500,
+  "mcts_num_episodes": 201,
   "save_interval": 25,
   "file_name": "gen",
 
-  "anet_n_of_topp_games_to_be_played":2,
+  "anet_n_of_topp_games_to_be_played":20,
   "anet_n_cached_topp_preparations": 2
 }

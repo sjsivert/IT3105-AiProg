@@ -22,11 +22,12 @@ class LocalTournament:
         self.simWorldTemplate = simWorldTemplate
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
-        for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
-            modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
-            NeuralActor = LoadModel(fileNamePrefix+str(i))
-            agentNames[NeuralActor] = fileNamePrefix+str(i)
-            self.agents.append(NeuralActor)
+        if False:
+            for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
+                modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
+                NeuralActor = LoadModel(modelName)
+                agentNames[NeuralActor] = fileNamePrefix+str(i)
+                self.agents.append(NeuralActor)
         
 
 
@@ -79,6 +80,6 @@ class LocalTournament:
         simWorld = copy.deepcopy(self.simWorldTemplate)
         simWorld.playerTurn = startingPlayer
         while not simWorld.isWinState():  # Noen vinner altid? Mulig vi trenger en til sjekk. Random krasjer hvis possible = 0
-            action = playerDict[simWorld.playerTurn].defaultPolicyFindAction(possibleActions = simWorld.getPossibleActions(), state = simWorld.getStateHash)
+            action = playerDict[simWorld.playerTurn].defaultPolicyFindAction(possibleActions = simWorld.getPossibleActions(), state = simWorld.getStateHash())
             simWorld.makeAction(action)
         return playerDict[-simWorld.playerTurn]

@@ -13,7 +13,7 @@ from typing import List
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, LoadModel
 import copy
 from project2.RLS import ReinforcementLearningSystem
 
@@ -75,6 +75,7 @@ def main():
         print("Game not specified. Quitting...")
 
     # Initiate Neural Net
+    #Anet = NeuralActor(model = LoadModel(""))
     ANET = NeuralActor(
         input_size = input_size,
         output_size = output_size,
@@ -118,14 +119,20 @@ def main():
         raise Exception("Operation  mode not specified choose (play/train)")
 
 def testTournament():
-    agent1 = RandomAgent()
-    agent2 = RandomAgent()
-    agent3 = RandomAgent()
-    simWorld = Nim(12, 2)
-    testTournament = LocalTournament([agent1, agent2, agent3], numberOfFourGames = 5, roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2", agent3: "agent3"})
+    agent1 = LoadModel("hex3gen0")
+    agent2 = LoadModel("hex3gen51")
+    agent3 = LoadModel("hex3gen201")
+    simWorld = Hex(
+        boardType="diamond",
+        boardWidth=3,
+        playerTurn=1,
+        # loadedHexBoardState=[-1, 0, 0, 0, 1, -1, 0, 0, 0, 0],
+    )
+    testTournament = LocalTournament([agent1, agent2, agent3], roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "hex3gen0", agent2: "hex3gen51", agent3: "hex3gen201"})
     testTournament.runTournament()
 
 
 if __name__ == '__main__':
     print("Run!")
+    #testTournament()
     main()

@@ -41,7 +41,7 @@ class ReinforcementLearningSystem:
         self.fileName = fileName
 
     def mctsSearch(self, simWorld) -> Tuple:
-        state =simWorld.getStateHash()
+        state = simWorld.getStateHash()
         mcts = MCTS(
             root= TreeNode(
                 state = state,
@@ -91,7 +91,7 @@ class ReinforcementLearningSystem:
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-                print(actionDistribution)
+                #print(actionDistribution)
 
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
@@ -142,6 +142,7 @@ class ReinforcementLearningSystem:
                     bestMoveValue = actionDistribution[move]
                     bestMove = move
         return bestMove
+        
     def mctsSearch(self):
         pass
 

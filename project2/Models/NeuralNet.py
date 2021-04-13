@@ -83,6 +83,8 @@ class NeuralActor ():
             sample = int(round(randomNumber * (len(indices) - 1)))
             minibatch.append(RBUF[indices[sample]])
             del indices[sample]'''
+        if(len(RBUF) > 30):
+            minibatch = random.sample(RBUF[-30:], k=min(minibatchSize, len(RBUF)-1))
         minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
         for item in minibatch:
             s = [[]]
@@ -94,7 +96,7 @@ class NeuralActor ():
 
             state = np.array(s)
             actionDistribution = np.array(a)
-            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=200)
+            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=100)
 
     def getDistributionForState(self, state: List):
         #print(state)
