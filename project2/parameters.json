@@ -1,5 +1,5 @@
 {
-  "operation_mode": "topp",
+  "operation_mode": "train",
   "game_type": "hex",
   "board_size": 3,
   "board_type": "diamond",
@@ -20,9 +20,10 @@
   "mcts_n_of_search_games_per_move": 100,
   "mcts_num_episodes": 10000000000,
   "save_interval": 25,
-  "file_name": "bra",
+  "file_name": "sindre",
   "visualize": true,
+  "model_save_location": "./saved_models/",
 
   "anet_n_of_topp_games_to_be_played":20,
-  "anet_n_cached_topp_preparations": 2
+  "anet_n_cached_topp_preparations": 4
 }

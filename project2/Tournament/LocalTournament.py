@@ -1,6 +1,6 @@
 from typing import List, Dict
 from project2.Tournament.TournamentPlotter import TournamentPlotter
-from project2.Models.SaveLoadModel import LoadModel
+from project2.Models.SaveLoadModel import LoadModel,  LoadTorchModel
 import copy
 import json
 
@@ -10,7 +10,7 @@ class LocalTournament:
     def __init__(self, agents: List, roundRobin:bool, simWorldTemplate, agentNames: Dict):
         with open('project2/parameters.json') as f:
             parameters = json.load(f)
-        numCachedToppPreparations = 0 #parameters['anet_n_cached_topp_preparations']
+        numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
         numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
         saveInterval = parameters['save_interval']
         fileNamePrefix = parameters['file_name']
@@ -23,14 +23,13 @@ class LocalTournament:
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
         # Load agents based on parameters
-        """
         for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
+            print(f"Load model for TOP: {gameType}{boardSize}{fileNamePrefix}{i}")
             modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
-            NeuralActor = LoadModel(fileNamePrefix+str(i))
+            NeuralActor = LoadTorchModel(f"{gameType}{boardSize}{fileNamePrefix}{i}")
             agentNames[NeuralActor] = fileNamePrefix+str(i)
             self.agents.append(NeuralActor)
-        """
-    
+
     def runTournament(self):
         print("Tournament start")
         if(len(self.agents) >= 2):

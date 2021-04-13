@@ -49,6 +49,7 @@ def main():
     saveInterval = parameters['save_interval']
     fileNamePrefix = parameters['file_name']
     visualize = parameters['visualize']
+    modelSaveLocation = parameters["model_save_location"]
 
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
     numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
@@ -108,8 +109,8 @@ def main():
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld,
             fileName = gameType + str(boardSize) + fileNamePrefix,
-            visualize = visualize
-    )
+            visualize = visualize)
+
     # is = save interval for ANET (the actor network) parameters
     if(operationMode == "play"):
         print("Operation mode: Play")
@@ -135,22 +136,8 @@ def main():
 
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
-        LoadTorchModel(fileName="hex3bra0torch"),
-        LoadTorchModel(fileName="hex3bra25torch"),
-        LoadTorchModel(fileName="hex3bra50torch"),
-        LoadTorchModel(fileName="hex3bra75torch"),
-        LoadTorchModel(fileName="hex3bra100torch"),
-        LoadTorchModel(fileName="hex3bra125torch"),
-        LoadTorchModel(fileName="hex3bra150torch"),
     ]
     agentNames = {
-        agents[0]: "gen0",
-        agents[1]: "gen25",
-        agents[2]: "gen50",
-        agents[3]: "gen75",
-        agents[4]: "gen100",
-        agents[5]: "gen125",
-        agents[6]: "gen150"
     }
     testTournament = LocalTournament(agents=agents, roundRobin = True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()

@@ -13,7 +13,7 @@ from project2.Client_side.BasicClientActor import BasicClientActor
 from project2.visualization.boardAnimator import BoardAnimator
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, SaveTorchModel
 import copy
 import time
 
@@ -74,8 +74,7 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
-        #SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
-        torch.save(self.ANET.neuralNet,  self.fileName + str( anetGenerationNumber) + "torch")
+        SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
             print(f"Playing game number: {game}")
@@ -138,7 +137,8 @@ class ReinforcementLearningSystem:
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
                 #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
-                torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch") 
+                SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
+                #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
         self.playAgainstAnet()
 
 
