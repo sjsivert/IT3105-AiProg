@@ -13,7 +13,7 @@ from typing import List
 from project2.Client_side.BasicClientActor import BasicClientActor
 import random
 from typing import List
-from project2.Models.SaveLoadModel import SaveModel
+from project2.Models.SaveLoadModel import SaveModel, LoadModel
 import copy
 from project2.RLS import ReinforcementLearningSystem
 
@@ -37,6 +37,7 @@ def main():
     optimizer = parameters['anet_optimizer']
     hiddenLayersDim = parameters['anet_hidden_layers_and_neurons_per_layer']
     lossFunction = parameters['loss_function']
+    anetGenerationModelToLoad = parameters["anet_model_to_load"]
 
     explorationBias = parameters['explorationBias']
     epsilon = parameters['epsilon']
@@ -75,16 +76,25 @@ def main():
         print("Game not specified. Quitting...")
 
     # Initiate Neural Net
-    ANET = NeuralActor(
-        input_size = input_size,
-        output_size = output_size,
-        hiddenLayersDim = hiddenLayersDim,
-        learningRate = learningRate,
-        lossFunction = lossFunction,
-        optimizer = optimizer,
-        activation = activationFunction,
-        outputActivation = outputActivationFunction
-    )
+    if len(anetGenerationModelToLoad) == 0:
+        print("Creating a new Neural Network")
+        ANET = NeuralActor(
+            input_size = input_size,
+            output_size = output_size,
+            hiddenLayersDim = hiddenLayersDim,
+            learningRate = learningRate,
+            lossFunction = lossFunction,
+            optimizer = optimizer,
+            activation = activationFunction,
+            outputActivation = outputActivationFunction
+        )
+        anetGenerationNumber = 0
+    else:
+        # Load from a previoussly trained model
+        print(f"Loading anet: {gameType + str(boardSize )+fileNamePrefix + anetGenerationModelToLoad}")
+        ANET = LoadModel(fileName=gameType+ str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
+        anetGenerationNumber = int(anetGenerationModelToLoad)
+
     # Initiate ReinforcementLearningSystem
     RLS = ReinforcementLearningSystem(
             numberOfTreeGames = numSearchGamesPerMove,
@@ -106,7 +116,8 @@ def main():
     elif (operationMode == "train"):
         print("Operation mode: train")
         print(input_size, output_size, hiddenLayersDim, learningRate)
-        RLS.trainNeuralNet(numberOfGames=numEpisodes)
+        RLS.trainNeuralNet(numberOfGames=numEpisodes, anetGenerationNumber = anetGenerationNumber)
+
     elif operationMode == "tournament":
         print("Operation mode: Tournament")
         bsa = BasicClientActor(
@@ -114,15 +125,22 @@ def main():
             RLS = RLS
         )
         bsa.connect_to_server()
+    elif operationMode == "topp":
+        print("Operation mode: TOPP (Local tournament)")
+        testTournament(simWorldTemplate=simWorld)
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 
-def testTournament():
-    agent1 = RandomAgent()
-    agent2 = RandomAgent()
-    agent3 = RandomAgent()
-    simWorld = Nim(12, 2)
-    testTournament = LocalTournament([agent1, agent2, agent3], numberOfFourGames = 5, roundRobin =  True, simWorldTemplate= simWorld, agentNames={agent1: "agent1", agent2: "agent2", agent3: "agent3"})
+def testTournament(simWorldTemplate: SimWorld):
+    agents = [
+        LoadModel(fileName="hex3gen0"),
+        LoadModel(fileName="hex3gen26"),
+    ]
+    agentNames = {
+        agents[0]: "gen0",
+        agents[1]: "gen26",
+    }
+    testTournament = LocalTournament(agents=agents, roundRobin =  True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 
 

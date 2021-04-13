@@ -83,7 +83,12 @@ class NeuralActor ():
             sample = int(round(randomNumber * (len(indices) - 1)))
             minibatch.append(RBUF[indices[sample]])
             del indices[sample]'''
-        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        #minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+        # Train on the last 50 games
+        if (len(RBUF) > minibatchSize):
+            minibatch = random.sample(RBUF[-minibatchSize:], k=min(minibatchSize, len(RBUF) - 1))
+        else:
+            minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF) - 1))
         for item in minibatch:
             s = [[]]
             a = [[]]
@@ -131,6 +136,6 @@ class NeuralActor ():
     def defaultPolicyFindAction(self, possibleActions, state) -> int:
         distribution  = self.getDistributionForState(state)
 
-        #bestActionIndex = self.doDeterministicChoice(distribution, possibleActions)
-        bestActionIndex = self.doStocasticChoice(distribution, possibleActions)
+        bestActionIndex = self.doDeterministicChoice(distribution, possibleActions)
+        #bestActionIndex = self.doStocasticChoice(distribution, possibleActions)
         return bestActionIndex

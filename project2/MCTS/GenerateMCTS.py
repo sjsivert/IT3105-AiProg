@@ -35,7 +35,8 @@ class MCTS:
                 bestActions.append(action)
         if len(bestActions) == 0:
             return None
-        return bestActions[random.randint(0, len(bestActions) -1)]
+        chosenAction = bestActions[random.randint(0, len(bestActions) -1)]
+        return chosenAction
 
     def nodeExpansion(self, action):
         self.currentNode.addChild(
@@ -80,6 +81,7 @@ class MCTS:
             defaultPolicyAction = ANET.defaultPolicyFindAction(self.simWorld.getPossibleActions(), self.simWorld.getStateHash())
             self.History.append([str(self.simWorld.getStateHash()), defaultPolicyAction])
             self.simWorld.makeAction(defaultPolicyAction)
+        #print(f"Rollout win. Reward: {self.simWorld.getReward()}. Player: won {self.simWorld.playerTurn * -1}")
         self.addToTable(self.simWorld.getStateHash(), self.simWorld.getReward(), defaultPolicyAction, self.simWorld.getMaxPossibleActionSpace())
         self.History.reverse()
         return self.simWorld.getReward()
