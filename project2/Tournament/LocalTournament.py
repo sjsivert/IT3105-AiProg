@@ -23,22 +23,13 @@ class LocalTournament:
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
         # Load agents based on parameters
-<<<<<<< HEAD
-=======
-        """
->>>>>>> origin/master
         for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
             print(f"Load model for TOP: {gameType}{boardSize}{fileNamePrefix}{i}")
             modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
             NeuralActor = LoadTorchModel(f"{gameType}{boardSize}{fileNamePrefix}{i}")
             agentNames[NeuralActor] = fileNamePrefix+str(i)
             self.agents.append(NeuralActor)
-<<<<<<< HEAD
-=======
-        """
-        
 
->>>>>>> origin/master
 
     def runTournament(self):
         print("Tournament start")

@@ -49,7 +49,6 @@ netStructure = [{
 }]
 
 class NeuralNetwork(nn.Module):
-<<<<<<< HEAD
 
     def __init__(self,
             inputSize,
@@ -74,29 +73,10 @@ class NeuralNetwork(nn.Module):
         for numberOfNodes in denseLayersDim:
             self.layers.append(nn.Linear(in_features = denseInput, out_features= numberOfNodes))
             denseInput = numberOfNodes
-=======
-    def __init__(self, input_size, output_size, hiddenLayersDimension=[]):
-        super(NeuralNetwork, self).__init__()
-        self.layers = nn.ModuleList()
-        current_dim = input_size
-        outputSize = 256
-        for layer in netStructure:
-            if(layer["type"] == "conv2d"):
-                self.layers.append(nn.Conv2d(in_channels = layer["channels_in"], out_channels = layer["channels_out"], kernel_size = layer["kernel"], padding = layer["padding"]))
-            elif(layer["type"] == "flatten"):
-                outputSize = layer["size"]
-                self.layers.append(nn.Flatten(start_dim=outputSize, end_dim=outputSize))  # Dobbelsjekk
-            elif(layer["type"] == "dense"):
-                self.layers.append(nn.Linear(in_features = outputSize, out_features= layer["size"]))  # Dobbelsjekk
-                outputSize = layer["size"]
-        self.layers.append(nn.Softmax(dim=1))
 
->>>>>>> origin/master
-        
         self.layers.append(nn.Linear(in_features = denseInput, out_features= outputSize))
 
     def forward(self, input):
-<<<<<<< HEAD
         for index, layer in enumerate(self.layers):
             if index == self.totalLayers:
                 input = F.softmax(layer(input))
@@ -107,19 +87,6 @@ class NeuralNetwork(nn.Module):
         return input
 
 class CCLoss(nn.Module):
-=======
-        # Hidden layers
-        for index, layer in enumerate(self.layers):
-            if netStructure[index]["type"] == "flatten":
-                input = layer(input)
-            elif netStructure[index]["activation"] == "relu":
-                input = F.relu(layer(input))
-            elif netStructure[index]["activation"] == "softmax":
-                input = F.softmax(layer(input))
-        return input
-
-class CCLoss(nn.module):
->>>>>>> origin/master
     def init(self):
         super(CCLoss,self).init()
 
