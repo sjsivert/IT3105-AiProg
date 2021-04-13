@@ -41,7 +41,7 @@ class NeuralNetwork(nn.Module):
     def forward(self, input):
         for index, layer in enumerate(self.layers):
             if index == self.totalLayers:
-                input = F.softmax(layer(input))
+                input = F.softmax(layer(input), dim=1)
             elif index == self.convLayers:
                 input = layer(input)
             else:
