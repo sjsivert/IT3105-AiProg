@@ -10,7 +10,7 @@ class LocalTournament:
     def __init__(self, agents: List, roundRobin:bool, simWorldTemplate, agentNames: Dict):
         with open('project2/parameters.json') as f:
             parameters = json.load(f)
-        numCachedToppPreparations = 0 #parameters['anet_n_cached_topp_preparations']
+        numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
         numToppGamesToPlay = parameters['anet_n_of_topp_games_to_be_played']
         saveInterval = parameters['save_interval']
         fileNamePrefix = parameters['file_name']
@@ -23,33 +23,35 @@ class LocalTournament:
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
         # Load agents based on parameters
-        """
-        for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
+        '''for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
             modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
-            NeuralActor = LoadModel(fileNamePrefix+str(i))
+            print(f"Loading model for TOPP: {fileNamePrefix+str(i)}")
+            NeuralActor = LoadModel(fileName=gameType+ str(boardSize)+fileNamePrefix + str(i))
             agentNames[NeuralActor] = fileNamePrefix+str(i)
-            self.agents.append(NeuralActor)
-        """
-        
-
-
+            self.agents.append(NeuralActor)'''
+    
     def runTournament(self):
         print("Tournament start")
         if(len(self.agents) >= 2):
             if self.roundRobin:
                 totalWins = {}
+                versusGames = {}
                 for agent in self.agents:
                     totalWins[agent] = 0
+                    versusGames[agent] = [0]*len(self.agents)
                 for i in range(len(self.agents)-1):
                     for j in range(i+1, len(self.agents)):
                         for numGames in range(self.numberOfGames):
                             results = self.playFourGames(self.agents[i], self.agents[j])
+                            versusGames[self.agents[i]][j] += results[self.agents[i]]
+                            versusGames[self.agents[j]][i] += results[self.agents[j]]
                             for agent in results.keys():
                                 totalWins[agent] += results[agent]
-                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
+                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
+                                #self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
                 self.printTotalWins(totalWins)
                 self.TournamentPlotter.plottWins(totalWins)
+                print(versusGames)
             else:
                 for i in range(len(self.agents)-1):
                     pairWins = {self.agents[i]: 0, self.agents[i+1]: 0}
@@ -57,8 +59,8 @@ class LocalTournament:
                             results = self.playFourGames(self.agents[i], self.agents[i+1])
                             for agent in results.keys():
                                 pairWins[agent] += results[agent]
-                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
+                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
+                                #self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
                 self.printTotalWins(pairWins)
                 self.TournamentPlotter.plottWins(pairWins)
         print("Tournament over")
