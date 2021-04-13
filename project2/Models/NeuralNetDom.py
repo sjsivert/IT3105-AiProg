@@ -74,7 +74,7 @@ class NeuralNetwork(nn.Module):
             elif netStructure[index]["activation"] == "relu":
                 input = F.relu(layer(input))
             elif netStructure[index]["activation"] == "softmax":
-                input = F.softmax(layer(input))
+                input = F.softmax(layer(input), dim=1)
         #print(input)
         return input
 

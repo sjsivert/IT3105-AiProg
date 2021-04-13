@@ -1,5 +1,6 @@
 import json
 from project2.sim_world.hex.Node import Peg
+from project2.visualization.boardAnimator import BoardAnimator
 import networkx as nx
 
 import matplotlib.pyplot as plt
