@@ -68,7 +68,9 @@ class NeuralActor ():
 
         elif optimizer.lower() == "sgd":
             op = keras.optimizers.SGD(learning_rate=learningRate)
-        
+
+        # TODO: Kode inn resten av optimizerne
+
         model.compile(loss=lossFunction, optimizer =op)
         return model
     

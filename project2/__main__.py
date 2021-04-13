@@ -137,8 +137,8 @@ def testTournament(simWorldTemplate: SimWorld):
         LoadTorchModel(fileName="hex3bra25torch"),
         LoadTorchModel(fileName="hex3bra50torch"),
         LoadTorchModel(fileName="hex3bra150torch"),
-        LoadTorchModel(fileName="hex3bra200torch"),
-    ]
+        LoadTorchModel(fileName="hex3bra200torch")
+        ]
     agentNames = {
         agents[0]: "gen0",
         agents[1]: "gen25",
