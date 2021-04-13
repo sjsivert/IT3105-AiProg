@@ -49,9 +49,7 @@ class NeuralActor():
             output_size = outputSize
         )
         # Optimizer stochastic gradient descent
-        self.optimizer = optim.SGD(
-            self.neuralNet.parameters(), lr=self.learningRate)
-
+        self.optimizer = optim.SGD(self.neuralNet.parameters(), lr=self.learningRate)
         self.lossFunction = nn.MSELoss()
 
 

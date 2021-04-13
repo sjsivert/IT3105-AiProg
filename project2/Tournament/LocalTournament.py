@@ -1,6 +1,6 @@
 from typing import List, Dict
 from project2.Tournament.TournamentPlotter import TournamentPlotter
-from project2.Models.SaveLoadModel import LoadModel
+from project2.Models.SaveLoadModel import LoadModel,  LoadTorchModel
 import copy
 import json
 
@@ -23,33 +23,48 @@ class LocalTournament:
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
         # Load agents based on parameters
+<<<<<<< HEAD
+=======
         """
+>>>>>>> origin/master
         for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
+            print(f"Load model for TOP: {gameType}{boardSize}{fileNamePrefix}{i}")
             modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
-            NeuralActor = LoadModel(fileNamePrefix+str(i))
+            NeuralActor = LoadTorchModel(f"{gameType}{boardSize}{fileNamePrefix}{i}")
             agentNames[NeuralActor] = fileNamePrefix+str(i)
             self.agents.append(NeuralActor)
+<<<<<<< HEAD
+=======
         """
         
 
+>>>>>>> origin/master
 
     def runTournament(self):
         print("Tournament start")
         if(len(self.agents) >= 2):
             if self.roundRobin:
                 totalWins = {}
+                versusGames = {}
                 for agent in self.agents:
                     totalWins[agent] = 0
+                    versusGames[self.agentNames[agent]] = [0]*len(self.agents)
                 for i in range(len(self.agents)-1):
                     for j in range(i+1, len(self.agents)):
                         for numGames in range(self.numberOfGames):
                             results = self.playFourGames(self.agents[i], self.agents[j])
+                            versusGames[self.agentNames[self.agents[i]]][j] += results[self.agents[i]]
+                            versusGames[self.agentNames[self.agents[j]]][i] += results[self.agents[j]]
                             for agent in results.keys():
                                 totalWins[agent] += results[agent]
-                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
+                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
+                                #self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
                 self.printTotalWins(totalWins)
                 self.TournamentPlotter.plottWins(totalWins)
+                print("----------\nAgent stats:")
+                for agentName in versusGames.keys():
+                    print("-------\n   ",agentName)
+                    print([x / (self.numberOfGames*4) for x in versusGames[agentName]])
             else:
                 for i in range(len(self.agents)-1):
                     pairWins = {self.agents[i]: 0, self.agents[i+1]: 0}
@@ -57,8 +72,8 @@ class LocalTournament:
                             results = self.playFourGames(self.agents[i], self.agents[i+1])
                             for agent in results.keys():
                                 pairWins[agent] += results[agent]
-                                print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
+                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
+                                #self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
                 self.printTotalWins(pairWins)
                 self.TournamentPlotter.plottWins(pairWins)
         print("Tournament over")
