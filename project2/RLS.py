@@ -74,9 +74,14 @@ class ReinforcementLearningSystem:
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
+<<<<<<< HEAD
         SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
             BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
+=======
+        SaveModel(self.ANET.neuralNet, self.fileName + str( anetGenerationNumber))
+        for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
+>>>>>>> origin/master
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
@@ -102,7 +107,11 @@ class ReinforcementLearningSystem:
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+<<<<<<< HEAD
                 #print(f"Added to RBUFFER. player: {simWorld.playerTurn} simWorld: {simWorld.getStateHash()}, actionDistribution: {actionDistribution}")
+=======
+                print(f"Added to RBUFFER. player: {simWorld.playerTurn} simWorld: {simWorld.getStateHash()}, actionDistribution: {actionDistribution}")
+>>>>>>> origin/master
 
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
@@ -135,10 +144,16 @@ class ReinforcementLearningSystem:
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
 
             if (game) % self.saveInterval == 0 and game != 0:
+<<<<<<< HEAD
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
                 #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
                 SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
                 #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
+=======
+                print(f"--------------SAVING MODEL: {game}--------------")
+                SaveModel(self.ANET.neuralNet,self.fileName + str(game + 1))
+
+>>>>>>> origin/master
         self.playAgainstAnet()
 
 

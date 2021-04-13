@@ -22,9 +22,9 @@
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 501,
+  "mcts_n_of_search_games_per_move": 500,
   "mcts_num_episodes": 10000000000,
-  "save_interval": 25,
+  "save_interval": 5,
   "file_name": "gen",
   "visualize": false,
   "model_save_location": "./saved_models/",
