@@ -41,7 +41,6 @@ def main():
     anetGenerationModelToLoad = parameters["anet_model_to_load"]
 
     explorationBias = parameters['explorationBias']
-    epsilon = parameters['epsilon']
     RBUFsamples = parameters['RBUFsamples']
     exponentialDistributionFactor = parameters['exponentialDistributionFactor']
 
@@ -107,7 +106,6 @@ def main():
             saveInterval = saveInterval,
             ANET = ANET,
             explorationBias = explorationBias,
-            epsilon = epsilon,
             RBUFsamples = RBUFsamples,
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld,
@@ -121,6 +119,11 @@ def main():
         print("Operation mode: Play")
         simWorld.playGame()
 
+    elif(operationMode == "playAgainst"):
+        print("Operation mode: Play against neural net")
+        ANET = LoadTorchModel(fileName=gameType+ str(boardSize)+fileNamePrefix + str(numCachedToppPreparations * saveInterval))
+        simWorld.playAgainst(ANET)
+    
     elif (operationMode == "train"):
         print("Operation mode: train")
         print(input_size, output_size, convLayersDim, denseLayersDim, learningRate)

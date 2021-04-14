@@ -25,7 +25,6 @@ class ReinforcementLearningSystem:
             saveInterval:int,
             ANET:NeuralActor,
             explorationBias:float,
-            epsilon :float,
             RBUFsamples:int,
             exponentialDistributionFactor:float,
             simWorldTemplate: SimWorld,
@@ -39,7 +38,6 @@ class ReinforcementLearningSystem:
         self.saveInterval = saveInterval
         self.ANET = ANET
         self.explorationBias = explorationBias
-        self.epsilon = epsilon
         self.RBUFsamples = RBUFsamples
         self.exponentialDistributionFactor = exponentialDistributionFactor
         self.simWorldTemplate = simWorldTemplate
@@ -151,16 +149,12 @@ class ReinforcementLearningSystem:
 
     def chooseActionPolicy(self, actionDistribution, simWorld) -> int:
         bestMove = 0
-        if self.epsilon > random.uniform(0, 1) and (not simWorld.isWinState()):
-            if len(simWorld.getPossibleActions()) > 1:
-                bestMove = simWorld.getPossibleActions()[random.randint(0, len(simWorld.getPossibleActions()) - 1)]
-        else:
-            bestMove = None
-            bestMoveValue = -math.inf
-            for move in range(len(actionDistribution)):
-                if bestMoveValue <actionDistribution[move] and move in simWorld.getPossibleActions():
-                    bestMoveValue = actionDistribution[move]
-                    bestMove = move
+        bestMove = None
+        bestMoveValue = -math.inf
+        for move in range(len(actionDistribution)):
+            if bestMoveValue <actionDistribution[move] and move in simWorld.getPossibleActions():
+                bestMoveValue = actionDistribution[move]
+                bestMove = move
         return bestMove
 
     def saveModel(self):
