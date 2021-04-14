@@ -25,9 +25,9 @@
   "mcts_num_episodes": 200,
   "save_interval": 25,
   "file_name": "Brage100SearchGames",
-  "visualize": true,
+  "visualize": false,
   "model_save_location": "./saved_models/",
 
-  "anet_n_of_topp_games_to_be_played": 100,
+  "anet_n_of_topp_games_to_be_played":100,
   "anet_n_cached_topp_preparations": 8
 }
