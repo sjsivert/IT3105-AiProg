@@ -116,6 +116,11 @@ def main():
         print("Operation mode: Play")
         simWorld.playGame()
 
+    elif(operationMode == "playAgainst"):
+        print("Operation mode: Play against neural net")
+        ANET = LoadTorchModel(fileName=gameType+ str(boardSize)+fileNamePrefix + str(numCachedToppPreparations * saveInterval))
+        simWorld.playAgainst(ANET)
+    
     elif (operationMode == "train"):
         print("Operation mode: train")
         print(input_size, output_size, convLayersDim, denseLayersDim, learningRate)
