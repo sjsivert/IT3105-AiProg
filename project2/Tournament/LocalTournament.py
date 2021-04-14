@@ -104,4 +104,5 @@ class LocalTournament:
             print(f"Starting player (green): {self.agentNames[playerDict[startingPlayer]]}")
             print(f"Playing against (red): {self.agentNames[playerDict[startingPlayer * -1]]}")
             self.boardVisualizer.animateEpisode()
+            self.boardVisualizer.clearEpisodes()
         return playerDict[-simWorld.playerTurn]
