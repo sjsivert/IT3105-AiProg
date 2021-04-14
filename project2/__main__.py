@@ -48,7 +48,8 @@ def main():
     numSearchGamesPerMove = parameters['mcts_n_of_search_games_per_move']
     saveInterval = parameters['save_interval']
     fileNamePrefix = parameters['file_name']
-    visualize = parameters['visualize']
+    visualizeBoardWhileRunning = parameters['visualize_board_while_running']
+    visualizeInterval = parameters['visualize_interval']
     modelSaveLocation = parameters["model_save_location"]
 
     numCachedToppPreparations = parameters['anet_n_cached_topp_preparations']
@@ -109,7 +110,9 @@ def main():
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld,
             fileName = gameType + str(boardSize) + fileNamePrefix,
-            visualize = visualize)
+            visualizeBoardWhileRunning = visualizeBoardWhileRunning,
+            visualizeInterval = visualizeInterval
+    )
 
     # is = save interval for ANET (the actor network) parameters
     if(operationMode == "play"):

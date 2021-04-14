@@ -15,12 +15,12 @@
     {"in": 16,"out": 32, "kernel": 3, "padding": 1},
     {"in": 32,"out": 64, "kernel": 3, "padding": 1}],
   "anet_dense_layers_and_neurons_per_layer": [128],
-  "anet_model_to_load": "120",
+  "anet_model_to_load": "",
 
   "explorationBias": 1,
+  "epsilon": 0.0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
-
 
   "mcts_n_of_search_games_per_move": 1500,
   "mcts_num_episodes": 100000,
