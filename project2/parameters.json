@@ -18,7 +18,6 @@
   "anet_model_to_load": "",
 
   "explorationBias": 1,
-  "epsilon": 0.0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 

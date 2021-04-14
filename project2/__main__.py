@@ -41,7 +41,6 @@ def main():
     anetGenerationModelToLoad = parameters["anet_model_to_load"]
 
     explorationBias = parameters['explorationBias']
-    epsilon = parameters['epsilon']
     RBUFsamples = parameters['RBUFsamples']
     exponentialDistributionFactor = parameters['exponentialDistributionFactor']
 
@@ -106,7 +105,6 @@ def main():
             saveInterval = saveInterval,
             ANET = ANET,
             explorationBias = explorationBias,
-            epsilon = epsilon,
             RBUFsamples = RBUFsamples,
             exponentialDistributionFactor = exponentialDistributionFactor,
             simWorldTemplate = simWorld,
