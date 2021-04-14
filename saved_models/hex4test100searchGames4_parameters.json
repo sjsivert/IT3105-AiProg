@@ -21,12 +21,13 @@
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 
+
   "mcts_n_of_search_games_per_move": 100,
   "mcts_num_episodes": 200,
   "save_interval": 2,
   "visualize_board_while_running": true,
   "visualize_interval": 1,
-  "file_name": "superModel",
+  "file_name": "test100searchGames",
   "model_save_location": "./saved_models/",
 
   "anet_n_of_topp_games_to_be_played":6,
