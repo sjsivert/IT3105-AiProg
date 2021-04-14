@@ -45,33 +45,6 @@ class ReinforcementLearningSystem:
         self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
         self.visualizeInterval = visualizeInterval
 
-    def mctsSearch(self, simWorld) -> int:
-        state =simWorld.getStateHash()
-        mcts = MCTS(
-            root= TreeNode(
-                state = state,
-                parent = None,
-                possibleActions=simWorld.getMaxPossibleActionSpace(),
-            ),
-            ExplorationBias=1
-        )
-        for gameNr in range(self.numberOfTreeGames):
-            mcts.treeSearch(state,simWorld)
-            reward = mcts.rollout(self.ANET)
-            mcts.backPropogate(reward)
-
-        actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-        #print("Action dist", actionDistributtion)
-
-        # TODO: Use different action policy for tournament?
-        bestAction = self.chooseActionPolicy(
-            actionDistribution=actionDistributtion,
-            simWorld=simWorld
-        )
-        return bestAction
-
-
-
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         print("Training neuralnet")
         SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
@@ -160,3 +133,28 @@ class ReinforcementLearningSystem:
 
     def saveModel(self):
         pass
+
+    def mctsSearch(self, simWorld) -> int:
+        state =simWorld.getStateHash()
+        mcts = MCTS(
+            root= TreeNode(
+                state = state,
+                parent = None,
+                possibleActions=simWorld.getMaxPossibleActionSpace(),
+            ),
+            ExplorationBias=1
+        )
+        for gameNr in range(self.numberOfTreeGames):
+            mcts.treeSearch(state,simWorld)
+            reward = mcts.rollout(self.ANET)
+            mcts.backPropogate(reward)
+
+        actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+        #print("Action dist", actionDistributtion)
+
+        # TODO: Use different action policy for tournament?
+        bestAction = self.chooseActionPolicy(
+            actionDistribution=actionDistributtion,
+            simWorld=simWorld
+        )
+        return bestAction
