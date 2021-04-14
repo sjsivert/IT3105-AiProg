@@ -152,7 +152,10 @@ class NeuralActor:
 
     def defaultPolicyFindAction(self, possibleActions, state) -> int:
         distribution  = self.getDistributionForState(state)[0]
-        return self.doStocasticChoice(distribution, possibleActions)
+        action = self.doStocasticChoice(distribution, possibleActions)
+        #action = self.doDeterministicChoice(distribution, possibleActions)
+        return action
+
         '''#print("distrubution, state", distribution, state)
         bestActionValue = -math.inf
         bestActionIndex = 0

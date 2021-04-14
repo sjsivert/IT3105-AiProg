@@ -95,14 +95,15 @@ class ReinforcementLearningSystem:
                     mcts.treeSearch(currentState, simWorld)
                     #endTime = time.time()
                     #print(f"Time ctrs.treeSearch {endTime - startTime}")
-                    #startTime = time.time()
+                    startTime = time.time()
                     reward = mcts.rollout(self.ANET)
-                    #endTime = time.time()
+                    endTime = time.time()
                     #print(f"Time rollout: {endTime - startTime}")
                     mcts.backPropogate(reward)
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
 
+                print(f"State: {str(simWorld.getStateHash())} Action distribution: {actionDistribution}")
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
                 bestMove = self.chooseActionPolicy(

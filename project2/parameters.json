@@ -1,5 +1,5 @@
 {
-  "operation_mode": "topp",
+  "operation_mode": "train",
   "game_type": "hex",
   "board_size": 4,
   "board_type": "diamond",
@@ -17,18 +17,18 @@
   "anet_dense_layers_and_neurons_per_layer": [128],
   "anet_model_to_load": "",
 
-  "explorationBias": 2,
+  "explorationBias": 1,
   "epsilon": 0.0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 200,
-  "mcts_num_episodes": 10000000000,
-  "save_interval": 25,
-  "file_name": "gen",
+  "mcts_n_of_search_games_per_move": 100,
+  "mcts_num_episodes": 200,
+  "save_interval": 5,
+  "file_name": "100SearchGames",
   "visualize": false,
   "model_save_location": "./saved_models/",
 
-  "anet_n_of_topp_games_to_be_played":20,
-  "anet_n_cached_topp_preparations":4
+  "anet_n_of_topp_games_to_be_played":100,
+  "anet_n_cached_topp_preparations": 41
 }
