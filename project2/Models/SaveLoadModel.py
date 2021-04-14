@@ -3,6 +3,7 @@ import json
 from tensorflow import keras
 from project2.Models.NeuralNetKeras import NeuralActor
 from project2.Models.NeuralNet import NeuralActor as NAD
+from shutil import copyfile
 
 def SaveModel(model, filename):
     model.save(filename)
@@ -36,5 +37,11 @@ def SaveTorchModel(model, fileName):
     with open('project2/parameters.json') as f:
         parameters = json.load(f)
     modelSaveLocation = parameters["model_save_location"]
-    torch.save(model, modelSaveLocation+fileName)
+    path = modelSaveLocation+fileName
+    torch.save(model, path)
+    copyParameterFile(path + "_parameters.json")
     print("Saved model", fileName)
+
+
+def copyParameterFile(path: str) -> None:
+    copyfile("./project2/parameters.json", path)
