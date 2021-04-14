@@ -1,8 +1,8 @@
 import torch
 import json
 from tensorflow import keras
-from project2.Models.NeuralNet import NeuralActor
-from project2.Models.NeuralNetDom import NeuralActor as NAD
+from project2.Models.NeuralNetKeras import NeuralActor
+from project2.Models.NeuralNet import NeuralActor as NAD
 from shutil import copyfile
 
 def SaveModel(model, filename):

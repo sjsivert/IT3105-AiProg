@@ -1,6 +1,6 @@
 from typing import List, Dict
 from project2.Tournament.TournamentPlotter import TournamentPlotter
-from project2.Models.SaveLoadModel import LoadModel,  LoadTorchModel
+from project2.Models.SaveLoadModel import LoadModel, LoadTorchModel
 import copy
 import json
 

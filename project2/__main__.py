@@ -4,7 +4,7 @@ from project2.sim_world.nim.Nim import Nim
 from project2.MCTS.TreeNode import TreeNode
 from project2.sim_world.sim_world import SimWorld
 from project2.MCTS.GenerateMCTS import MCTS
-from project2.Models.NeuralNetDom import NeuralActor
+from project2.Models.NeuralNet import NeuralActor
 from project2.Models.RandomAgent import RandomAgent
 from project2.Models import SaveLoadModel
 from project2.sim_world.hex.Hex import Hex
