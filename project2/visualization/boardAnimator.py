@@ -64,6 +64,23 @@ class BoardAnimator:
 
     def animate(self, frame):
         self.G.add_nodes_from(self.nodes.keys())
+        layer = 0
+        turnnumber = 1
+        count = 2
+        for i in range(self.boardSize**2):
+            if turnnumber > 0:
+                self.G.add_edge(i, i + count, weight=1.2)
+                self.G.add_edge(i, i + count-1, weight=1.2)
+            elif ((self.boardSize * (self.boardSize +1)) / 2) -1< i:
+                self.G.add_edge(i, i - count -1, weight=1.2)
+                self.G.add_edge(i, i - count -2, weight=1.2)
+            if i == (((self.boardSize * self.boardSize) - self.boardSize) /2) -1:
+                turnnumber *= -1
+            if layer == i:
+                layer +=  count
+                count += turnnumber
+            elif i < (self.boardSize**2)-1:
+                self.G.add_edge(i, i + 1, weight=1.2)
         nx.draw(self.G, pos=self.nodes, node_color=self.colorProgression[frame], with_labels=True)
 
 
