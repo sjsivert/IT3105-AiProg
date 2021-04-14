@@ -1,5 +1,3 @@
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,107 +8,148 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import torch.optim as optim
 import math
-from numpy import mean
-from numpy import std
-from sklearn.datasets import make_regression
-from sklearn.model_selection import RepeatedKFold
-from keras.models import Sequential
-from keras.layers import Dense
-from tensorflow import keras
-from tensorflow.keras import layers
+import random
 
-class NeuralActor ():
-    
+class NeuralNetwork(nn.Module):
+
     def __init__(self,
-                input_size = 0,
-                output_size = 0,
-                hiddenLayersDim = 0,
-                learningRate:float = 0,
-                lossFunction:str = "",
-                optimizer:str = "",
-                activation:str = "",
-                outputActivation:str = "",
-                model = None):
+            inputSize,
+            outputSize,
+            activationFunction,
+            convLayersDim = [],
+            denseLayersDim = []):
+        self.convLayers = len(convLayersDim)
+        self.totalLayers = len(convLayersDim) + len(denseLayersDim) + 1
+        self.activationFunction = activationFunction
+        print(self.activationFunction)
+
+        super(NeuralNetwork, self).__init__()
+        self.layers = nn.ModuleList()
+        for convLayer in convLayersDim:
+            self.layers.append(nn.Conv2d(
+            in_channels = convLayer["in"], 
+            out_channels = convLayer["out"], 
+            kernel_size = convLayer["kernel"], 
+            padding = convLayer["padding"]))
+
+        self.layers.append(nn.Flatten())
+        denseInput = convLayersDim[-1]["out"] * (inputSize - 1)
+        
+        for numberOfNodes in denseLayersDim:
+            self.layers.append(nn.Linear(in_features = denseInput, out_features= numberOfNodes))
+            denseInput = numberOfNodes
+
+        self.layers.append(nn.Linear(in_features = denseInput, out_features= outputSize))
+
+    def forward(self, input):
+        for index, layer in enumerate(self.layers):
+            if index == self.totalLayers:
+                input = F.softmax(layer(input), dim=1)
+            elif index == self.convLayers:
+                input = layer(input)
+            else:
+                if(self.activationFunction == "relu"):
+                    input = F.relu(layer(input))
+                elif(self.activationFunction == "linear"):
+                    input = layer(input)
+                if(self.activationFunction == "sigmoid"):
+                    input = torch.sigmoid(layer(input))
+                if(self.activationFunction == "tanh"):
+                    input = torch.tanh(layer(input))
+        return input
+
+class CCLoss(nn.Module):
+    def init(self):
+        super(CCLoss,self).init()
+
+    def forward(self, x, y):
+        return -(y * torch.log(x)).sum(dim=1).mean()
+        
+class NeuralActor:
+    def __init__(self,
+            input_size = None,
+            output_size = None,
+            convLayersDim = None,
+            denseLayersDim = None,
+            learningRate = None,
+            lossFunction = None,
+            optimizer = None,
+            activation = None,
+            outputActivation = None,
+            model = None):
         if model == None:
-            self.neuralNet = self.getModel(
-                input_size=input_size,
-                output_size = output_size,
-                hiddenLayersDimension=hiddenLayersDim,
-                learningRate = learningRate,
-                lossFunction = lossFunction,
-                optimizer = optimizer,
-                activation = activation,
-                outputActivation = outputActivation
-            )
+            self.neuralNet = NeuralNetwork(
+                inputSize= input_size,
+                outputSize= output_size,
+                convLayersDim= convLayersDim, 
+                denseLayersDim = denseLayersDim,
+                activationFunction = activation)
         else:
             self.neuralNet = model
 
-    def getModel(self, 
-                input_size, 
-                output_size, 
-                hiddenLayersDimension,
-                learningRate:float,
-                lossFunction:str,
-                optimizer:str,
-                activation:str,
-                outputActivation:str):
+        if optimizer != None:
+            if optimizer.lower() == "sgd":
+                self.optimizer = optim.SGD(self.neuralNet.parameters(), lr = learningRate)
+            elif optimizer.lower() == "adam":
+                self.optimizer = optim.Adam(self.neuralNet.parameters(), lr = learningRate)
+            elif optimizer.lower() == "rmsprop":
+                self.optimizer = optim.RMSprop(self.neuralNet.parameters(), lr = learningRate)
+            elif optimizer.lower() == "adagrad":
+                self.optimizer = optim.Adagrad(self.neuralNet.parameters(), lr = learningRate)
 
-        model = Sequential()
-        
-        model.add(Dense(20, input_dim=input_size, kernel_initializer='he_uniform', activation=activation.lower()))
-        for i in range(len(hiddenLayersDimension)):
-            model.add(Dense(hiddenLayersDimension[i]))
-        model.add(Dense(output_size, activation=outputActivation.lower()))
+        self.lossFunction = CCLoss()
 
-        op = None
-        if optimizer.lower() == "adam":
-            op = keras.optimizers.Adam(learning_rate=learningRate)
+    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor = None):
+        # Pick random sample amongs the latest minibatch size
+        minibatch = random.sample(RBUF[-minibatchSize*2:], k=min(minibatchSize, len(RBUF)-1))
 
-        elif optimizer.lower() == "sgd":
-            op = keras.optimizers.SGD(learning_rate=learningRate)
-        
-        model.compile(loss=lossFunction, optimizer =op)
-        return model
-    
-    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor:float):
-        '''
-        minibatch = []
-        indices = list(range(0,len(RBUF)))
-        for i in range(0, min(minibatchSize, len(RBUF)-1)):
-            rand1 = random.uniform(0, 1)
-            rand2 = random.uniform(0, 1)
-            randomNumber = rand1 * (rand2 ** exponentialDistributionFactor) 
-            sample = int(round(randomNumber * (len(indices) - 1)))
-            minibatch.append(RBUF[indices[sample]])
-            del indices[sample]'''
-        #minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
-        # Train on the last 50 games
-        if (len(RBUF) > minibatchSize):
-            minibatch = random.sample(RBUF[-minibatchSize:], k=min(minibatchSize, len(RBUF) - 1))
-        else:
-            minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF) - 1))
         for item in minibatch:
-            s = [[]]
-            a = [[]]
-            for i in item[0]:
-                s[0].append(i)
-            for i in item[1]:
-                a[0].append(i)
-
-            state = np.array(s)
-            actionDistribution = np.array(a)
-            self.neuralNet.fit(state, actionDistribution, verbose=0, epochs=50)
+            state = self.structureInput(item[0])
+            actionDistribution = item[1]
+            input = torch.tensor(
+                state, dtype=torch.float32)
+            self.optimizer.zero_grad()
+            output = self.neuralNet(input)
+            loss = self.lossFunction(output, torch.tensor(actionDistribution))
+            loss.backward(retain_graph = True)
+            self.optimizer.step()
 
     def getDistributionForState(self, state: List):
-        #print(state)
-        #print(np.array(state))
-        #print(np.array(state).transpose())
-        s = [[]]
-        for i in state:
-            s[0].append(i)
-        xList = np.array(s)
-        yList = self.neuralNet(xList)
-        return(yList[0])
+        state = self.structureInput(state)
+        input = torch.tensor(
+            state, dtype=torch.float32)
+        self.optimizer.zero_grad()
+        output = self.neuralNet(input)
+        # print("output", output)
+        return output.detach().numpy()
+
+    def defaultPolicyFindAction(self, possibleActions, state) -> int:
+        distribution  = self.getDistributionForState(state)[0]
+        action = self.doStocasticChoice(distribution, possibleActions)
+        #action = self.doDeterministicChoice(distribution, possibleActions)
+        return action
+
+        '''#print("distrubution, state", distribution, state)
+        bestActionValue = -math.inf
+        bestActionIndex = 0
+        for index, value in enumerate(distribution):
+            if index in possibleActions:
+                if value > bestActionValue:
+                    bestActionValue = value 
+                    bestActionIndex = index
+        return bestActionIndex'''
+    
+    def structureInput(self, state):
+        dim = int(math.sqrt(len(state)-1))
+        player = []
+        board = []
+        for i in range(dim):
+            player.append([])
+            board.append([])
+            for j in range(dim):
+                player[i].append(state[0])
+                board[i].append(state[1+i*dim+j])
+        return([[player, board]])
 
     def doDeterministicChoice(self, distribution, possibleActions):
         bestActionValue = -math.inf
@@ -132,10 +171,3 @@ class NeuralActor ():
             if sum >= rand:
                 return index
         return None
-    
-    def defaultPolicyFindAction(self, possibleActions, state) -> int:
-        distribution  = self.getDistributionForState(state)
-
-        bestActionIndex = self.doDeterministicChoice(distribution, possibleActions)
-        #bestActionIndex = self.doStocasticChoice(distribution, possibleActions)
-        return bestActionIndex

@@ -103,7 +103,7 @@ class ReinforcementLearningSystem:
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
 
-                print(f"State: {str(simWorld.getStateHash())} Action distribution: {actionDistribution}")
+                #print(f"State: {str(simWorld.getStateHash())} Action distribution: {actionDistribution}")
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
                 bestMove = self.chooseActionPolicy(
