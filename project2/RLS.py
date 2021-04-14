@@ -30,7 +30,8 @@ class ReinforcementLearningSystem:
             exponentialDistributionFactor:float,
             simWorldTemplate: SimWorld,
             fileName: str,
-            visualize: bool
+            visualizeBoardWhileRunning: bool,
+            visualizeInterval: int,
     ):
         self.RBuffer = []
         self.numberOfTreeGames = numberOfTreeGames
@@ -43,7 +44,8 @@ class ReinforcementLearningSystem:
         self.exponentialDistributionFactor = exponentialDistributionFactor
         self.simWorldTemplate = simWorldTemplate
         self.fileName = fileName
-        self.visualize = visualize
+        self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
+        self.visualizeInterval = visualizeInterval
 
     def mctsSearch(self, simWorld) -> int:
         state =simWorld.getStateHash()
@@ -103,7 +105,6 @@ class ReinforcementLearningSystem:
 
                 actionDistribution =  mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
 
-                print(f"State: {str(simWorld.getStateHash())} Action distribution: {actionDistribution}")
                 self.RBuffer.append((mcts.currentNode.state, actionDistribution))
 
                 bestMove = self.chooseActionPolicy(
@@ -117,9 +118,10 @@ class ReinforcementLearningSystem:
                 mcts.makeAction(bestMove)
                 simWorld.makeAction(bestMove)
                 mcts.reRootTree()
-                if (game) % self.saveInterval == 0 and self.visualize:
+                if (game) % self.visualizeInterval == 0 and self.visualizeBoardWhileRunning:
                     BoardVisualizer.addAnimationState(simWorld.getStateHash())
-            if (game) % self.saveInterval == 0 and self.visualize:
+
+            if (game) % self.saveInterval == 0 and self.visualizeBoardWhileRunning:
                 print("BAOII")
                 BoardVisualizer.animateEpisode()
             # Print ANET Values for debugging
