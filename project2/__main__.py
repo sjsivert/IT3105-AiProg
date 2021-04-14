@@ -138,7 +138,9 @@ def main():
         bsa.connect_to_server()
     elif operationMode == "topp":
         print("Operation mode: TOPP (Local tournament)")
-        testTournament(simWorldTemplate=simWorld)
+        testTournament(
+            simWorldTemplate=simWorld,
+        )
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 

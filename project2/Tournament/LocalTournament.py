@@ -4,6 +4,8 @@ from project2.Models.SaveLoadModel import LoadModel, LoadTorchModel
 import copy
 import json
 
+from project2.visualization.boardAnimator import BoardAnimator
+
 
 class LocalTournament:
 
@@ -16,18 +18,22 @@ class LocalTournament:
         fileNamePrefix = parameters['file_name']
         boardSize = parameters['board_size']
         gameType = parameters['game_type']
+        self.visualizeBoardWhileRunning = parameters['visualize_board_while_running']
+        visualizeInterval = parameters['visualize_interval']
+
         self.agents = agents
-        self.numberOfGames = int(numToppGamesToPlay/4)
+        self.numberOfGames = int(numToppGamesToPlay/4) if numToppGamesToPlay > 4 else 1
         self.roundRobin = roundRobin
         self.simWorldTemplate = simWorldTemplate
         self.agentNames = agentNames
         self.TournamentPlotter = TournamentPlotter(self.agentNames)
+        self.boardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
         # Load agents based on parameters
         for i in range(0, numCachedToppPreparations*saveInterval, saveInterval):
             print(f"Load model for TOP: {gameType}{boardSize}{fileNamePrefix}{i}")
             modelName =  gameType + str(boardSize) + fileNamePrefix + str(i)
             NeuralActor = LoadTorchModel(f"{gameType}{boardSize}{fileNamePrefix}{i}")
-            agentNames[NeuralActor] = fileNamePrefix+str(i)
+            self.agentNames[NeuralActor] = fileNamePrefix+str(i)
             self.agents.append(NeuralActor)
 
 
@@ -90,4 +96,12 @@ class LocalTournament:
         while not simWorld.isWinState():  # Noen vinner altid? Mulig vi trenger en til sjekk. Random krasjer hvis possible = 0
             action = playerDict[simWorld.playerTurn].defaultPolicyFindAction(possibleActions = simWorld.getPossibleActions(), state = simWorld.getStateHash())
             simWorld.makeAction(action)
+            if self.visualizeBoardWhileRunning:
+                self.boardVisualizer.addAnimationState(simWorld.getStateHash())
+
+        if self.visualizeBoardWhileRunning:
+            print(f"----Visualizing match-----")
+            print(f"Starting player (green): {self.agentNames[playerDict[startingPlayer]]}")
+            print(f"Playing against (red): {self.agentNames[playerDict[startingPlayer * -1]]}")
+            self.boardVisualizer.animateEpisode()
         return playerDict[-simWorld.playerTurn]

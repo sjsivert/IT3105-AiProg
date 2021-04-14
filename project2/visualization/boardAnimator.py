@@ -24,7 +24,7 @@ class BoardAnimator:
     def animateEpisode(self):
         self.buildBoard()
         fig, ax = plt.subplots(figsize=(1.33*self.boardSize, 2*self.boardSize))
-        anim = FuncAnimation(fig, self.animate, interval=self.frameDelay, frames=len(self.animationStates), repeat=False)
+        anim = FuncAnimation(fig, self.animate, interval=self.frameDelay, frames=len(self.animationStates), repeat=True)
         plt.draw()
         plt.show()
 
