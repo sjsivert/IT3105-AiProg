@@ -136,6 +136,7 @@ class ReinforcementLearningSystem:
 
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
+                print(f"RBUF Size : {len(self.RBuffer)}")
                 #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
                 SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
                 #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
