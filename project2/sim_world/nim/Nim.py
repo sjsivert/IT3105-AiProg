@@ -59,8 +59,9 @@ class Nim(SimWorld):
     def getMaxPossibleActionSpace(self) -> int:
         return self.maxRemoveEachTurn
 
-    def playGayme(self):
+    def playGame(self):
         while(not self.isWinState()):
+            print("Possible actions", self.getPossibleActions())
             action = input(
                 f"There are {self.state} left. \nplayer {self.playerTurn} how many stones do oyou remove?: ")
             action = int(action)
