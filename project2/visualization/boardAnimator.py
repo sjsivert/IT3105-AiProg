@@ -47,7 +47,6 @@ class BoardAnimator:
                 self.nodes[nodeNum] = (xCoord, yCoord)
                 nodeNum += 1
             rowLen -= 1
-        print("nodes", self.nodes)
 
     def getFrameColors(self, state):
         nodeColors = []
