@@ -1,5 +1,5 @@
 {
-  "operation_mode": "topp",
+  "operation_mode": "train",
   "game_type": "hex",
   "board_size": 4,
   "board_type": "diamond",
@@ -21,14 +21,15 @@
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
 
-  "mcts_n_of_search_games_per_move": 1500,
+
+  "mcts_n_of_search_games_per_move": 100,
   "mcts_num_episodes": 100000,
   "save_interval": 25,
-  "visualize_board_while_running": true,
+  "visualize_board_while_running": false,
   "visualize_interval": 1,
-  "file_name": "superModel",
+  "file_name": "test100searchGames",
   "model_save_location": "./saved_models/",
 
-  "anet_n_of_topp_games_to_be_played":4,
-  "anet_n_cached_topp_preparations": 2
+  "anet_n_of_topp_games_to_be_played":100,
+  "anet_n_cached_topp_preparations": 7
 }

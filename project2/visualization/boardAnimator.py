@@ -47,7 +47,6 @@ class BoardAnimator:
                 self.nodes[nodeNum] = (xCoord, yCoord)
                 nodeNum += 1
             rowLen -= 1
-        print("nodes", self.nodes)
 
     def getFrameColors(self, state):
         nodeColors = []
@@ -67,13 +66,25 @@ class BoardAnimator:
         layer = 0
         turnnumber = 1
         count = 2
+        edgeColors = []
         for i in range(self.boardSize**2):
             if turnnumber > 0:
                 self.G.add_edge(i, i + count, weight=1.2)
                 self.G.add_edge(i, i + count-1, weight=1.2)
+
+                if layer == i:
+                    edgeColors.append("lime")
+                else:
+                    edgeColors.append("black")
+                if layer == i + count -2:
+                    edgeColors.append("red")
+                else:
+                    edgeColors.append("black")
             elif ((self.boardSize * (self.boardSize +1)) / 2) -1< i:
-                self.G.add_edge(i, i - count -1, weight=1.2)
                 self.G.add_edge(i, i - count -2, weight=1.2)
+                self.G.add_edge(i, i - count -1, weight=1.2)
+                edgeColors.append("black")
+                edgeColors.append("black")
             if i == (((self.boardSize * self.boardSize) - self.boardSize) /2) -1:
                 turnnumber *= -1
             if layer == i:
@@ -81,7 +92,12 @@ class BoardAnimator:
                 count += turnnumber
             elif i < (self.boardSize**2)-1:
                 self.G.add_edge(i, i + 1, weight=1.2)
-        nx.draw(self.G, pos=self.nodes, node_color=self.colorProgression[frame], with_labels=True)
+                edgeColors.append("black")
+        nx.draw(self.G, pos=self.nodes, node_color=self.colorProgression[frame], with_labels=True, edge_color = edgeColors)
+    
+    def clearEpisodes(self):
+        self.animationStates = []
+        self.colorProgression = []
 
 
 if __name__ == '__main__':

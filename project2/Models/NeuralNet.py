@@ -21,18 +21,16 @@ class NeuralNetwork(nn.Module):
         self.convLayers = len(convLayersDim)
         self.totalLayers = len(convLayersDim) + len(denseLayersDim) + 1
         self.activationFunction = activationFunction
-        print(self.activationFunction)
-
         super(NeuralNetwork, self).__init__()
         self.layers = nn.ModuleList()
         for convLayer in convLayersDim:
             self.layers.append(nn.Conv2d(
-            in_channels = convLayer["in"], 
+            in_channels = convLayer["in"],  # Number of 2d layers
             out_channels = convLayer["out"], 
-            kernel_size = convLayer["kernel"], 
-            padding = convLayer["padding"]))
+            kernel_size = convLayer["kernel"], # Size of filter(width)
+            padding = convLayer["padding"]))  # Ramme med 0 rundt gameboard
 
-        self.layers.append(nn.Flatten())
+        self.layers.append(nn.Flatten())  # Go from 2d output to 1d input
         denseInput = convLayersDim[-1]["out"] * (inputSize - 1)
         
         for numberOfNodes in denseLayersDim:
@@ -103,7 +101,7 @@ class NeuralActor:
         # Pick random sample amongs the latest minibatch size
         minibatch = random.sample(RBUF[-minibatchSize*2:], k=min(minibatchSize, len(RBUF)-1))
 
-        for item in minibatch:
+        for item in minibatch:  # Item = [state -> [-1, board as list], actionDist -> [actios]
             state = self.structureInput(item[0])
             actionDistribution = item[1]
             input = torch.tensor(
@@ -128,16 +126,6 @@ class NeuralActor:
         action = self.doStocasticChoice(distribution, possibleActions)
         #action = self.doDeterministicChoice(distribution, possibleActions)
         return action
-
-        '''#print("distrubution, state", distribution, state)
-        bestActionValue = -math.inf
-        bestActionIndex = 0
-        for index, value in enumerate(distribution):
-            if index in possibleActions:
-                if value > bestActionValue:
-                    bestActionValue = value 
-                    bestActionIndex = index
-        return bestActionIndex'''
     
     def structureInput(self, state):
         dim = int(math.sqrt(len(state)-1))

@@ -54,18 +54,15 @@ class MCTS:
         self.currentNode.addActionTaken(action)
         self.currentNode = self.currentNode.children.get(action)
         self.simWorld.makeAction(action)
-
         self.currentNode.numTimesVisited += 1
         return self.currentNode
 
     def treeSearch(self, node: TreeNode, simWorld) -> TreeNode:
         self.simWorld = copy.deepcopy(simWorld)
         self.currentPlayer = self.simWorld.playerTurn
-        
         self.currentNode.numTimesVisited += 1
         self.History = []
         nextAction = self.treePolicyFindAction()
-
         while nextAction in self.currentNode.children.keys():
             self.currentNode = self.makeSearchAction(nextAction)
             nextAction = self.treePolicyFindAction()
@@ -76,7 +73,6 @@ class MCTS:
 
     def rollout(self, ANET):
         defaultPolicyAction = 0
-
         while not self.simWorld.isWinState():
             defaultPolicyAction = ANET.defaultPolicyFindAction(self.simWorld.getPossibleActions(), self.simWorld.getStateHash())
             self.History.append([str(self.simWorld.getStateHash()), defaultPolicyAction])
@@ -87,8 +83,8 @@ class MCTS:
         return self.simWorld.getReward()
 
     def backPropogate(self, propogateValue: float):
-        for i in self.History:
-            self.addToTable(i[0], propogateValue, i[1], self.simWorld.getMaxPossibleActionSpace())
+        for action in self.History:
+            self.addToTable(action[0], propogateValue, action[1], self.simWorld.getMaxPossibleActionSpace())
         while self.currentNode.parent != None:
             self.currentNode.totalEvaluation += propogateValue
             self.currentNode = self.currentNode.parent
@@ -103,18 +99,15 @@ class MCTS:
         for i in self.HashTable[stateHash][2]:
             actionDistributtion.append(i)
             actionSum += i
-
-        # Normalise action distribution
         for i in range(len(actionDistributtion)):
             actionDistributtion[i] = (actionDistributtion[i]) / (actionSum)
-
         return actionDistributtion
 
     def addToTable(self, stateHash, reward, action, totalActions):
         if str(stateHash) in self.HashTable.keys():
-            self.HashTable[str(stateHash)][0] = self.HashTable[str(stateHash)][0] + reward
-            self.HashTable[str(stateHash)][1] += 1
-            self.HashTable[str(stateHash)][2] [action] +=  1
+            self.HashTable[str(stateHash)][0] = self.HashTable[str(stateHash)][0] + reward  # Propagated result
+            self.HashTable[str(stateHash)][1] += 1  # Times visited
+            self.HashTable[str(stateHash)][2] [action] +=  1  # Actions taken from state
         else:
             self.HashTable[str(stateHash)] = [reward, 1, [0] * totalActions]
             self.HashTable[str(stateHash)][2] [action] +=  1

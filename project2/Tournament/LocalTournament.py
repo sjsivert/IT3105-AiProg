@@ -54,8 +54,6 @@ class LocalTournament:
                             versusGames[self.agentNames[self.agents[j]]][i] += results[self.agents[j]]
                             for agent in results.keys():
                                 totalWins[agent] += results[agent]
-                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                #self.agentNames[self.agents[j]], ": ", results[self.agents[j]], "wins.")
                 self.printTotalWins(totalWins)
                 self.TournamentPlotter.plottWins(totalWins)
                 print("----------\nAgent stats:")
@@ -69,8 +67,6 @@ class LocalTournament:
                             results = self.playFourGames(self.agents[i], self.agents[i+1])
                             for agent in results.keys():
                                 pairWins[agent] += results[agent]
-                                #print("Four game results: ", self.agentNames[self.agents[i]], ": ", results[self.agents[i]], "wins, ", 
-                                #self.agentNames[self.agents[i+1]], ": ", results[self.agents[i+1]], "wins.")
                 self.printTotalWins(pairWins)
                 self.TournamentPlotter.plottWins(pairWins)
         print("Tournament over")
@@ -104,4 +100,5 @@ class LocalTournament:
             print(f"Starting player (green): {self.agentNames[playerDict[startingPlayer]]}")
             print(f"Playing against (red): {self.agentNames[playerDict[startingPlayer * -1]]}")
             self.boardVisualizer.animateEpisode()
+            self.boardVisualizer.clearEpisodes()
         return playerDict[-simWorld.playerTurn]
