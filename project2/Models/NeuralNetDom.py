@@ -126,8 +126,9 @@ class NeuralActor:
 
         self.lossFunction = CCLoss()
 
-    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor = None): 
-        minibatch = random.sample(RBUF, k=min(minibatchSize, len(RBUF)-1))
+    def trainOnRBUF(self, RBUF, minibatchSize:int, exponentialDistributionFactor = None):
+        # Pick random sample amongs the latest minibatch size
+        minibatch = random.sample(RBUF[-minibatchSize*2:], k=min(minibatchSize, len(RBUF)-1))
 
         for item in minibatch:
             state = self.structureInput(item[0])
