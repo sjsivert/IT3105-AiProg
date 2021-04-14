@@ -76,7 +76,8 @@ class ReinforcementLearningSystem:
         print("Training neuralnet")
         SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
-            BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
+            if (game) % self.visualizeInterval == 0 and self.visualizeBoardWhileRunning:
+                BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
