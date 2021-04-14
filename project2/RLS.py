@@ -46,17 +46,15 @@ class ReinforcementLearningSystem:
         self.visualizeInterval = visualizeInterval
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
+        self.BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
         print("Training neuralnet")
         SaveTorchModel(self.ANET.neuralNet, self.fileName + str(anetGenerationNumber))
         for game in range(0 + anetGenerationNumber, numberOfGames + anetGenerationNumber):
-            if (game) % self.visualizeInterval == 0 and self.visualizeBoardWhileRunning:
-                BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
             print(f"Playing game number: {game}")
             simWorld = copy.deepcopy(self.simWorldTemplate)
             # Random start player
             if(0.5> random.uniform(0,1)):
                 simWorld.playerTurn = -1
-
             currentState = simWorld.getStateHash()
             root = TreeNode(state=currentState, parent=None, possibleActions = simWorld.getMaxPossibleActionSpace())
             mcts = MCTS(
@@ -91,29 +89,15 @@ class ReinforcementLearningSystem:
                 simWorld.makeAction(bestMove)
                 mcts.reRootTree()
                 if (game) % self.visualizeInterval == 0 and self.visualizeBoardWhileRunning:
-                    BoardVisualizer.addAnimationState(simWorld.getStateHash())
-
-            if (game) % self.saveInterval == 0 and self.visualizeBoardWhileRunning:
-                print("BAOII")
-                BoardVisualizer.animateEpisode()
-            # Print ANET Values for debugging
-            """
-            for i in range(1, 12 +1):
-                nonstaones = [0] * (12 - i)
-                nonnonstaones = [1] * (i)
-                state = [-1] + nonstaones + nonnonstaones
-                state2 = [1] + nonstaones + nonnonstaones
-                print(i, ANET.getDistributionForState(state), ANET.defaultPolicyFindAction([0,1],state))
-                print(i, ANET.getDistributionForState(state2), ANET.defaultPolicyFindAction([0,1],state2))
-            """
+                    self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
+            if (game) % self.visualizeInterval == 0 and self.visualizeBoardWhileRunning:
+                self.BoardVisualizer.animateEpisode()
+                self.BoardVisualizer.clearEpisodes()
             self.ANET.trainOnRBUF(RBUF = self.RBuffer, minibatchSize = self.RBUFsamples, exponentialDistributionFactor = self.exponentialDistributionFactor)
-
             if (game) % self.saveInterval == 0 and game != 0:
                 print(f"--------------SAVING MODEL: {self.fileName + str(game)}--------------")
                 print(f"RBUF Size : {len(self.RBuffer)}")
-                #SaveModel(self.ANET.neuralNet,self.fileName + str(game))
                 SaveTorchModel(self.ANET.neuralNet, self.fileName + str(game))
-                #torch.save(copy.deepcopy(self.ANET.neuralNet),  self.fileName + str(game) + "torch")
         self.playAgainstAnet()
 
 
