@@ -1,4 +1,6 @@
 import math
+from project2.visualization.boardAnimator import BoardAnimator
+from project2.Models.SaveLoadModel import LoadTorchModel
 from project2.Client_side.BasicClientActorAbs import BasicClientActorAbs
 from project2.sim_world.hex.Hex import Hex
 from project2.sim_world.nim.Nim import Nim
@@ -7,6 +9,7 @@ from project2.sim_world.sim_world import SimWorld
 from project2.MCTS.GenerateMCTS import MCTS
 from project2.Models.NeuralNet import NeuralActor
 
+
 class BasicClientActor(BasicClientActorAbs):
 
     def __init__(
@@ -14,9 +17,12 @@ class BasicClientActor(BasicClientActorAbs):
             RLS,
             IP_address=None,
             verbose=True,
+            visualizeWhileRunning=visualizeWhileRunning,
     ):
         self.RLS = RLS
         self.series_id = -1
+        self.BoardVisualizer = BoardAnimator(boardSize=6)
+        self.visualizeWhileRunning = visualizeWhileRunning
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
     def handle_get_action(self, state):
@@ -35,18 +41,23 @@ class BasicClientActor(BasicClientActorAbs):
 
         playerTurn = state[0]
         simWorld = Hex(
-           boardType = "diamond" ,
-            boardWidth = 6,
-            playerTurn = playerTurn,
-            loadedHexBoardState = state
+            boardType="diamond",
+            boardWidth=6,
+            playerTurn=playerTurn,
+            loadedHexBoardState=state
         )
+        # Add animation frame
+        self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
+
+        # Find best action
         actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
 
+        # Convert local action nummer to expected coordinates
         coordinates = simWorld.getActionCoordinates(actionNumber)
         actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
         print("Action coordinate chosen: ", actionCordinatesConverted)
-        return actionCordinatesConverted
 
+        return actionCordinatesConverted
 
     def handle_series_start(self, unique_id, series_id, player_map, num_games, game_params):
         """
@@ -57,9 +68,9 @@ class BasicClientActor(BasicClientActorAbs):
         :param num_games - number of games to be played in the series
         :param game_params - important game parameters.  For Hex = list with one item = board size (e.g. 5)
         :return
-
         """
         self.series_id = series_id
+        self.currentSeries = []
         #############################
         #
         #
@@ -100,6 +111,10 @@ class BasicClientActor(BasicClientActorAbs):
         print("Game over, these are the stats:")
         print('Winner: ' + str(winner))
         print('End state: ' + str(end_state))
+        # Animate
+        if (self.visualizeWhileRunning):
+            self.BoardVisualizer.animateEpisode()
+        self.BoardVisualizer.clearEpisodes()
 
     def handle_series_over(self, stats):
         """
@@ -140,7 +155,7 @@ class BasicClientActor(BasicClientActorAbs):
         :param action: The illegal action
         :return:
         """
-        #############################
+        ############################
         #
         #
         # YOUR CODE HERE

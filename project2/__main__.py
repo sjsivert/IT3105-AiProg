@@ -21,6 +21,7 @@ from project2.RLS import ReinforcementLearningSystem
 RBUF = []
 fileName = "test"
 
+
 def main():
     # Load parameters from file
     with open('project2/parameters.json') as f:
@@ -62,19 +63,19 @@ def main():
             playerTurn=1,
             # loadedHexBoardState=[-1, 0, 0, 0, 1, -1, 0, 0, 0, 0],
         )
-        input_size =  (boardSize * boardSize) + 1
+        input_size = (boardSize * boardSize) + 1
         output_size = boardSize * boardSize
 
-        #simWorld.playGame()
+        # simWorld.playGame()
 
     elif gameType == "nim":
         simWorld = Nim(
             boardSize,
             2
         )
-        input_size =  boardSize + 1
+        input_size = boardSize + 1
         output_size = 2
-        #nim.playGayme()
+        # nim.playGayme()
     else:
         print("Game not specified. Quitting...")
 
@@ -82,36 +83,38 @@ def main():
     if len(anetGenerationModelToLoad) == 0:
         print("Creating a new Neural Network")
         ANET = NeuralActor(
-            input_size = input_size,
-            output_size = output_size,
-            denseLayersDim = denseLayersDim,
-            convLayersDim = convLayersDim,
-            learningRate = learningRate,
-            lossFunction = lossFunction,
-            optimizer = optimizer,
-            activation = activationFunction,
-            outputActivation = outputActivationFunction
+            input_size=input_size,
+            output_size=output_size,
+            denseLayersDim=denseLayersDim,
+            convLayersDim=convLayersDim,
+            learningRate=learningRate,
+            lossFunction=lossFunction,
+            optimizer=optimizer,
+            activation=activationFunction,
+            outputActivation=outputActivationFunction
         )
         anetGenerationNumber = 0
     else:
         # Load from a previoussly trained model
-        print(f"Loading anet: {gameType + str(boardSize )+fileNamePrefix + anetGenerationModelToLoad}")
-        ANET = LoadTorchModel(fileName=gameType+ str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
+        print(
+            f"Loading anet: {gameType + str(boardSize )+fileNamePrefix + anetGenerationModelToLoad}")
+        ANET = LoadTorchModel(
+            fileName=gameType + str(boardSize)+fileNamePrefix + anetGenerationModelToLoad)
         anetGenerationNumber = int(anetGenerationModelToLoad)
 
     # Initiate ReinforcementLearningSystem
     RLS = ReinforcementLearningSystem(
-            numberOfTreeGames = numSearchGamesPerMove,
-            numberOfGames = numEpisodes,
-            saveInterval = saveInterval,
-            ANET = ANET,
-            explorationBias = explorationBias,
-            RBUFsamples = RBUFsamples,
-            exponentialDistributionFactor = exponentialDistributionFactor,
-            simWorldTemplate = simWorld,
-            fileName = gameType + str(boardSize) + fileNamePrefix,
-            visualizeBoardWhileRunning = visualizeBoardWhileRunning,
-            visualizeInterval = visualizeInterval
+        numberOfTreeGames=numSearchGamesPerMove,
+        numberOfGames=numEpisodes,
+        saveInterval=saveInterval,
+        ANET=ANET,
+        explorationBias=explorationBias,
+        RBUFsamples=RBUFsamples,
+        exponentialDistributionFactor=exponentialDistributionFactor,
+        simWorldTemplate=simWorld,
+        fileName=gameType + str(boardSize) + fileNamePrefix,
+        visualizeBoardWhileRunning=visualizeBoardWhileRunning,
+        visualizeInterval=visualizeInterval
     )
 
     # is = save interval for ANET (the actor network) parameters
@@ -121,19 +124,23 @@ def main():
 
     elif(operationMode == "playAgainst"):
         print("Operation mode: Play against neural net")
-        ANET = LoadTorchModel(fileName=gameType+ str(boardSize)+fileNamePrefix + str(numCachedToppPreparations * saveInterval))
+        ANET = LoadTorchModel(fileName=gameType + str(boardSize) +
+                              fileNamePrefix + str(numCachedToppPreparations * saveInterval))
         simWorld.playAgainst(ANET)
-    
+
     elif (operationMode == "train"):
         print("Operation mode: train")
-        print(input_size, output_size, convLayersDim, denseLayersDim, learningRate)
-        RLS.trainNeuralNet(numberOfGames=numEpisodes, anetGenerationNumber = anetGenerationNumber)
+        print(input_size, output_size, convLayersDim,
+              denseLayersDim, learningRate)
+        RLS.trainNeuralNet(numberOfGames=numEpisodes,
+                           anetGenerationNumber=anetGenerationNumber)
 
     elif operationMode == "tournament":
         print("Operation mode: Tournament")
         bsa = BasicClientActor(
             verbose=True,
-            RLS = RLS
+            RLS=RLS,
+            visualizeBoardWhileRunning=visualizeBoardWhileRunning,
         )
         bsa.connect_to_server()
     elif operationMode == "topp":
@@ -144,12 +151,27 @@ def main():
     else:
         raise Exception("Operation  mode not specified choose (play/train)")
 
+
 def testTournament(simWorldTemplate: SimWorld):
     agents = [
+        LoadTorchModel("hex6superModel0"),
+        LoadTorchModel("hex6superModel300"),
+        LoadTorchModel("hex6superModel340"),
+        LoadTorchModel("hex6superModel345"),
+        LoadTorchModel("hex6superModel355"),
+        LoadTorchModel("hex6superModel360"),
     ]
     agentNames = {
+        agents[0]: "gen0",
+        agents[1]: "gen300",
+        agents[2]: "gen340",
+        agents[3]: "gen345",
+        agents[4]: "gen355",
+        agents[5]: "gen360",
+
     }
-    testTournament = LocalTournament(agents=agents, roundRobin = True, simWorldTemplate= simWorldTemplate, agentNames=agentNames)
+    testTournament = LocalTournament(
+        agents=agents, roundRobin=True, simWorldTemplate=simWorldTemplate, agentNames=agentNames)
     testTournament.runTournament()
 
 
