@@ -17,12 +17,12 @@ class BasicClientActor(BasicClientActorAbs):
             RLS,
             IP_address=None,
             verbose=True,
-            visualizeWhileRunning=visualizeWhileRunning,
+            visualizeBoardWhileRunning=False,
     ):
         self.RLS = RLS
         self.series_id = -1
         self.BoardVisualizer = BoardAnimator(boardSize=6)
-        self.visualizeWhileRunning = visualizeWhileRunning
+        self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
 
     def handle_get_action(self, state):
@@ -39,12 +39,15 @@ class BasicClientActor(BasicClientActorAbs):
        # next_move = tuple(self.pick_random_free_cell(
         #    state, size=int(math.sqrt(len(state)-1))))
 
-        playerTurn = state[0]
+        stateWithCorrectPlayers = tuple(
+            map(lambda x: -1 if (x == 2) else (1 if (x == 1) else 0), state))
+
+        playerTurn = 1 if stateWithCorrectPlayers[0] == 1 else -1
         simWorld = Hex(
             boardType="diamond",
             boardWidth=6,
             playerTurn=playerTurn,
-            loadedHexBoardState=state
+            loadedHexBoardState=stateWithCorrectPlayers
         )
         # Add animation frame
         self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
@@ -54,8 +57,11 @@ class BasicClientActor(BasicClientActorAbs):
 
         # Convert local action nummer to expected coordinates
         coordinates = simWorld.getActionCoordinates(actionNumber)
+        #print(f"SimWorld coordinates: {coordinates}")
         actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
-        print("Action coordinate chosen: ", actionCordinatesConverted)
+        #print("Action coordinate chosen: ", actionCordinatesConverted)
+
+        # self.BoardVisualizer.animateEpisode()
 
         return actionCordinatesConverted
 
@@ -69,6 +75,7 @@ class BasicClientActor(BasicClientActorAbs):
         :param game_params - important game parameters.  For Hex = list with one item = board size (e.g. 5)
         :return
         """
+        print(f"---------You are Player: {series_id}------------")
         self.series_id = series_id
         self.currentSeries = []
         #############################
@@ -112,7 +119,7 @@ class BasicClientActor(BasicClientActorAbs):
         print('Winner: ' + str(winner))
         print('End state: ' + str(end_state))
         # Animate
-        if (self.visualizeWhileRunning):
+        if (self.visualizeBoardWhileRunning):
             self.BoardVisualizer.animateEpisode()
         self.BoardVisualizer.clearEpisodes()
 

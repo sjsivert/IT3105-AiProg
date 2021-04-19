@@ -1,7 +1,7 @@
 {
-  "operation_mode": "tournament",
+  "operation_mode": "train",
   "game_type": "hex",
-  "board_size": 6,
+  "board_size": 4,
   "board_type": "diamond",
   "anet_learning_rate": 0.001,
   "anet_activation_function": "relu",
@@ -31,17 +31,17 @@
   "anet_dense_layers_and_neurons_per_layer": [
     128
   ],
-  "anet_model_to_load": "540",
+  "anet_model_to_load": "",
   "explorationBias": 1,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
-  "mcts_n_of_search_games_per_move": 1,
-  "mcts_num_episodes": 20000,
-  "save_interval": 20,
+  "mcts_n_of_search_games_per_move": 100,
+  "mcts_num_episodes": 200,
+  "save_interval": 10,
   "visualize_board_while_running": false,
   "visualize_interval": 5,
-  "file_name": "superModel",
+  "file_name": "test",
   "model_save_location": "./saved_models/",
-  "anet_n_of_topp_games_to_be_played": 10,
-  "anet_n_cached_topp_preparations": 28
+  "anet_n_of_topp_games_to_be_played": 100,
+  "anet_n_cached_topp_preparations": 20
 }
