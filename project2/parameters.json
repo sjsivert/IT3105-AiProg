@@ -32,10 +32,10 @@
     128
   ],
   "anet_model_to_load": "540",
-  "explorationBias": 1,
+  "explorationBias": 0,
   "RBUFsamples": 100,
   "exponentialDistributionFactor": 0,
-  "mcts_n_of_search_games_per_move": 1,
+  "mcts_n_of_search_games_per_move": 100,
   "mcts_num_episodes": 20000,
   "save_interval": 20,
   "visualize_board_while_running": false,

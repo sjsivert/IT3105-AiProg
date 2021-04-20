@@ -109,36 +109,42 @@ class ReinforcementLearningSystem:
         bestMove = 0
         bestMove = None
         bestMoveValue = -math.inf
+        
+        #print(actionDistribution)
         for move in range(len(actionDistribution)):
+            #print(actionDistribution[move], move)
             if bestMoveValue <actionDistribution[move] and move in simWorld.getPossibleActions():
                 bestMoveValue = actionDistribution[move]
                 bestMove = move
         return bestMove
 
     def saveModel(self):
-        pass
+        SaveTorchModel(self.ANET,"turnamentTrained")
 
-    def mctsSearch(self, simWorld) -> int:
-        state =simWorld.getStateHash()
-        mcts = MCTS(
-            root= TreeNode(
-                state = state,
-                parent = None,
-                possibleActions=simWorld.getMaxPossibleActionSpace(),
-            ),
-            ExplorationBias=1
-        )
-        for gameNr in range(self.numberOfTreeGames):
-            mcts.treeSearch(state,simWorld)
-            reward = mcts.rollout(self.ANET)
-            mcts.backPropogate(reward)
+    def mctsSearch(self, simWorld):
+        if self.numberOfTreeGames > 1:
+            state =simWorld.getStateHash()
+            mcts = MCTS(
+                root= TreeNode(
+                    state = state,
+                    parent = None,
+                    possibleActions=simWorld.getMaxPossibleActionSpace(),
+                ),
+                ExplorationBias=1
+            )
+            for gameNr in range(self.numberOfTreeGames):
+                mcts.treeSearch(state,simWorld)
+                reward = mcts.rollout(self.ANET)
+                mcts.backPropogate(reward)
 
-        actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
-        #print("Action dist", actionDistributtion)
-
+            actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+            #print("Action dist", actionDistributtion)
+        else:
+            actionDistributtion = self.ANET.getDistributionForState(simWorld.getStateHash())[0]
         # TODO: Use different action policy for tournament?
+
         bestAction = self.chooseActionPolicy(
             actionDistribution=actionDistributtion,
             simWorld=simWorld
         )
-        return bestAction
+        return bestAction, actionDistributtion

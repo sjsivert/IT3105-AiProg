@@ -24,6 +24,9 @@ class BasicClientActor(BasicClientActorAbs):
         self.BoardVisualizer = BoardAnimator(boardSize=6)
         self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
         BasicClientActorAbs.__init__(self, IP_address, verbose=verbose)
+        self.RBUF = []
+        self.RBUFSamples = 40
+        self.lastState = None
 
     def handle_get_action(self, state):
         """
@@ -38,7 +41,9 @@ class BasicClientActor(BasicClientActorAbs):
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
        # next_move = tuple(self.pick_random_free_cell(
         #    state, size=int(math.sqrt(len(state)-1))))
-
+        
+        
+        
         stateWithCorrectPlayers = tuple(
             map(lambda x: -1 if (x == 2) else (1 if (x == 1) else 0), state))
 
@@ -49,18 +54,33 @@ class BasicClientActor(BasicClientActorAbs):
             playerTurn=playerTurn,
             loadedHexBoardState=stateWithCorrectPlayers
         )
+        if self.lastState == None:
+            self.lastState = simWorld.getStateHash()
+            for i in range(1, len(self.lastState)):
+                if self.lastState[i] != 0:
+                    self.lastState[i] = 0
+                    break
+        distributionOponent = [0] * simWorld.getMaxPossibleActionSpace()
+        for key, value in simWorld.possibleActions.items():
+            if simWorld.state.state[value[0]][value[1]].pegValue != 0:
+                distributionOponent[key] = 1
+        self.RBUF.append((self.lastState,distributionOponent))
+        
+
+
         # Add animation frame
         self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
 
         # Find best action
-        actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
+        actionNumber,distribution = self.RLS.mctsSearch(simWorld=simWorld)
+        self.RBUF.append((simWorld.getStateHash(),distribution))
 
         # Convert local action nummer to expected coordinates
         coordinates = simWorld.getActionCoordinates(actionNumber)
         #print(f"SimWorld coordinates: {coordinates}")
         actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
         #print("Action coordinate chosen: ", actionCordinatesConverted)
-
+        self.lastState = simWorld.peekAction(actionNumber)
         # self.BoardVisualizer.animateEpisode()
 
         return actionCordinatesConverted
@@ -119,9 +139,11 @@ class BasicClientActor(BasicClientActorAbs):
         print('Winner: ' + str(winner))
         print('End state: ' + str(end_state))
         # Animate
+        self.RLS.ANET.trainOnRBUF(self.RBUF, self.RBUFSamples)
         if (self.visualizeBoardWhileRunning):
             self.BoardVisualizer.animateEpisode()
         self.BoardVisualizer.clearEpisodes()
+
 
     def handle_series_over(self, stats):
         """
@@ -152,6 +174,7 @@ class BasicClientActor(BasicClientActorAbs):
         #
         #
         #############################
+        self.RLS.saveModel()
         print("Tournament over. Your score was: " + str(score))
 
     def handle_illegal_action(self, state, illegal_action):

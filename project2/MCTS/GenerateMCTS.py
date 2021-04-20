@@ -76,7 +76,10 @@ class MCTS:
         while not self.simWorld.isWinState():
             defaultPolicyAction = ANET.defaultPolicyFindAction(self.simWorld.getPossibleActions(), self.simWorld.getStateHash())
             self.History.append([str(self.simWorld.getStateHash()), defaultPolicyAction])
+            #print(defaultPolicyAction, self.simWorld.getPossibleActions(), self.simWorld.isWinState(), self.simWorld.getStateHash())
             self.simWorld.makeAction(defaultPolicyAction)
+            if len(self.simWorld.possibleActions) == 0 and not self.simWorld.isWinState():
+                return -10
         #print(f"Rollout win. Reward: {self.simWorld.getReward()}. Player: won {self.simWorld.playerTurn * -1}")
         self.addToTable(self.simWorld.getStateHash(), self.simWorld.getReward(), defaultPolicyAction, self.simWorld.getMaxPossibleActionSpace())
         self.History.reverse()

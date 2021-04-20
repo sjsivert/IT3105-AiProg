@@ -30,6 +30,7 @@ class Hex(SimWorld):
                 loadedHexBoardState=loadedHexBoardState,
                 boardWidth=boardWidth
             )
+
         else:
             self.playerTurn = playerTurn
             # Create a new board from scratch
@@ -37,6 +38,15 @@ class Hex(SimWorld):
         self.lastAction = None
         # Dic[actionNumberIndex] -> (x, y) cordinates
         self.possibleActions = self.generatePossibleActions()
+        if loadedHexBoardState != None:
+            
+            count = 0
+            for x in range(len(self.state.state)):
+                for y in range(len(self.state.state[x])):
+                    if self.state.state[x][y].pegValue != 0:
+                        self.possibleActions.pop(count)
+                        
+                    count += 1
         self.actionSpace = self.generatePossibleActions()
 
         self.upperLeft, self.upperRight, self.lowerLeft, self.lowerRight = self.generateBoardSideCordinates()
@@ -71,6 +81,11 @@ class Hex(SimWorld):
             Makes and action, changes state.
             And changes playerTurn.
         """
+        if len(self.possibleActions) == 0:
+            return 0
+        if self.isWinState():
+            return self.getReward()
+        
         actionTuple = self.possibleActions[action]
 
         self.state.setPegValue(

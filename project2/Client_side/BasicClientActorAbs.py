@@ -23,7 +23,6 @@ class BasicClientActorAbs(ABC):
         context.verify_mode = ssl.CERT_REQUIRED
         context.check_hostname = False # We have no hostname for the server
         self.ssl_sock = context.wrap_socket(self.s)
-
         self.series_id = -1
 
 
