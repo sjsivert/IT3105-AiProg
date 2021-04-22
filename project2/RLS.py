@@ -44,6 +44,7 @@ class ReinforcementLearningSystem:
         self.fileName = fileName
         self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
         self.visualizeInterval = visualizeInterval
+        self.MCTS = None
 
     def trainNeuralNet(self, numberOfGames, anetGenerationNumber):
         self.BoardVisualizer = BoardAnimator(self.simWorldTemplate.boardWidth)
@@ -118,26 +119,33 @@ class ReinforcementLearningSystem:
                 bestMove = move
         return bestMove
 
-    def saveModel(self):
-        SaveTorchModel(self.ANET,"turnamentTrained")
+    def saveModel(self, gameNumber = 0):
+        SaveTorchModel(self.ANET.neuralNet, self.fileName + str(gameNumber))
 
-    def mctsSearch(self, simWorld):
-        if self.numberOfTreeGames > 1:
+    def mctsSearch(self, simWorld, action):
+        if self.numberOfTreeGames > 0:
             state =simWorld.getStateHash()
-            mcts = MCTS(
-                root= TreeNode(
-                    state = state,
-                    parent = None,
-                    possibleActions=simWorld.getMaxPossibleActionSpace(),
-                ),
-                ExplorationBias=1
-            )
+            if self.MCTS == None:
+                self.MCTS = MCTS(
+                    root= TreeNode(
+                        state = state,
+                        parent = None,
+                        possibleActions=simWorld.getMaxPossibleActionSpace(),
+                    ),
+                    ExplorationBias=1
+                )
+            else:
+                
+                #print(state, 4)
+                #print(action)
+                self.MCTS.makeAction(action, state)
+                self.MCTS.reRootTree()
             for gameNr in range(self.numberOfTreeGames):
-                mcts.treeSearch(state,simWorld)
-                reward = mcts.rollout(self.ANET)
-                mcts.backPropogate(reward)
+                self.MCTS.treeSearch(state,simWorld)
+                reward = self.MCTS.rollout(self.ANET)
+                self.MCTS.backPropogate(reward)
 
-            actionDistributtion = mcts.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
+            actionDistributtion = self.MCTS.normaliseActionDistribution(stateHash=str(simWorld.getStateHash()))
             #print("Action dist", actionDistributtion)
         else:
             actionDistributtion = self.ANET.getDistributionForState(simWorld.getStateHash())[0]
@@ -147,4 +155,9 @@ class ReinforcementLearningSystem:
             actionDistribution=actionDistributtion,
             simWorld=simWorld
         )
+        
+        #print(state, 5)
+        self.MCTS.makeAction(bestAction)
+        self.MCTS.reRootTree()
+
         return bestAction, actionDistributtion

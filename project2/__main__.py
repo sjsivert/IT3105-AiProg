@@ -156,16 +156,16 @@ def testTournament(simWorldTemplate: SimWorld):
     agents = [
         LoadTorchModel("hex6superModel0"),
         LoadTorchModel("hex6superModel300"),
-        LoadTorchModel("hex6superModel340"),
-        LoadTorchModel("hex6superModel345"),
+        LoadTorchModel("hex6superModel160"),
+        LoadTorchModel("hex6superModel20"),
         LoadTorchModel("hex6superModel355"),
         LoadTorchModel("hex6superModel360"),
     ]
     agentNames = {
         agents[0]: "gen0",
         agents[1]: "gen300",
-        agents[2]: "gen340",
-        agents[3]: "gen345",
+        agents[2]: "gen160",
+        agents[3]: "gen20",
         agents[4]: "gen355",
         agents[5]: "gen360",
 

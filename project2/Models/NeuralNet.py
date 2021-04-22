@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import math
 import random
+import json
 
 
 class NeuralNetwork(nn.Module):
@@ -134,7 +135,7 @@ class NeuralActor:
 
     def defaultPolicyFindAction(self, possibleActions, state) -> int:
         distribution = self.getDistributionForState(state)[0]
-        # action = self.doStocasticChoice(distribution, possibleActions)
+        #action = self.doStocasticChoice(distribution, possibleActions)
         action = self.doDeterministicChoice(distribution, possibleActions)
         return action
 

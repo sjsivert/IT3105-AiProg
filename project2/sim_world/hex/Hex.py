@@ -81,7 +81,7 @@ class Hex(SimWorld):
             Makes and action, changes state.
             And changes playerTurn.
         """
-        if len(self.possibleActions) == 0:
+        if len(self.possibleActions) == 0 or action not in self.possibleActions.keys():
             return 0
         if self.isWinState():
             return self.getReward()

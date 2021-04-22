@@ -39,14 +39,30 @@ class MCTS:
         return chosenAction
 
     def nodeExpansion(self, action):
+        if action == None:
+            return
         self.currentNode.addChild(
             action=action,
             child=TreeNode(self.simWorld.peekAction(action),
                            self.simWorld.getMaxPossibleActionSpace())
         )
         self.makeSearchAction(action)
-    def makeAction(self, action: int):
+        
+    def makeAction(self, action: int, state = None):
+        if action not in self.currentNode.children.keys():
+            #print(action,self.simWorld.peekAction(action),self.simWorld.getMaxPossibleActionSpace())
+            #print(action,self.simWorld.getStateHash(),self.simWorld.getMaxPossibleActionSpace())
+            self.currentNode.addChild(
+                action=action,
+                child=TreeNode(state,
+                self.simWorld.getMaxPossibleActionSpace())
+            )
+            self.currentNode = self.currentNode.children.get(action)
+            self.currentNode.numTimesVisited += 1
+            #print(self.simWorld.getStateHash(),1)
+            return self.currentNode
         self.currentNode = self.currentNode.children.get(action)
+        #print(self.simWorld.getStateHash(),2)
         return self.currentNode
 
     def makeSearchAction(self, action: int):
@@ -63,7 +79,7 @@ class MCTS:
         self.currentNode.numTimesVisited += 1
         self.History = []
         nextAction = self.treePolicyFindAction()
-        while nextAction in self.currentNode.children.keys():
+        while nextAction in self.currentNode.children.keys() and not self.simWorld.isWinState():
             self.currentNode = self.makeSearchAction(nextAction)
             nextAction = self.treePolicyFindAction()
         self.currentLeafNode = self.currentNode
