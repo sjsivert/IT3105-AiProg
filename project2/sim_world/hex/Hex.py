@@ -61,6 +61,9 @@ class Hex(SimWorld):
             if value == actionTuple:
                 return key
         return False
+
+    def isAllowedActionNumber(self, action: int) -> bool:
+        return False if self.possibleActions.get(action, None) == None else True
         # return True if action in self.possibleActions.values() else False
 
     def getActionCoordinates(self, action: int) -> Tuple[int, int]:
@@ -112,10 +115,10 @@ class Hex(SimWorld):
         startLocations: List,
         endLocations: List
     ):
-        #print(f"node: {node.location}")
+        # print(f"node: {node.location}")
         # print(node.getChildren())
         if node not in visited:
-            #print(f"Visiting: {node.location}")
+            # print(f"Visiting: {node.location}")
             visited.append(node)
 
             # Check if winState

@@ -132,10 +132,11 @@ class NeuralActor:
         # print("output", output)
         return output.detach().numpy()
 
-    def defaultPolicyFindAction(self, possibleActions, state) -> int:
+    def defaultPolicyFindAction(self, possibleActions, state, useStochastic=False) -> int:
         distribution = self.getDistributionForState(state)[0]
-        # action = self.doStocasticChoice(distribution, possibleActions)
         action = self.doDeterministicChoice(distribution, possibleActions)
+        if useStochastic:
+            action = self.doStocasticChoice(distribution, possibleActions)
         return action
 
     def structureInput(self, state):

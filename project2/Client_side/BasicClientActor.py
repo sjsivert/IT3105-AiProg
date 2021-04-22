@@ -18,8 +18,10 @@ class BasicClientActor(BasicClientActorAbs):
             IP_address=None,
             verbose=True,
             visualizeBoardWhileRunning=False,
+            ANET=None,
     ):
         self.RLS = RLS
+        self.ANET = ANET
         self.series_id = -1
         self.BoardVisualizer = BoardAnimator(boardSize=6)
         self.visualizeBoardWhileRunning = visualizeBoardWhileRunning
@@ -36,8 +38,6 @@ class BasicClientActor(BasicClientActorAbs):
         :return: Your actor's selected action as a tuple (row, column)
         """
         # This is an example player who picks random moves. REMOVE THIS WHEN YOU ADD YOUR OWN CODE !!
-       # next_move = tuple(self.pick_random_free_cell(
-        #    state, size=int(math.sqrt(len(state)-1))))
 
         stateWithCorrectPlayers = tuple(
             map(lambda x: -1 if (x == 2) else (1 if (x == 1) else 0), state))
@@ -53,8 +53,15 @@ class BasicClientActor(BasicClientActorAbs):
         self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
 
         # Find best action
+        # actionNumber = self.ANET.defaultPolicyFindAction(
+        # possibleActions=simWorld.getPossibleActions(), state=simWorld.getStateHash())
+        #print(f"Suggested action: {actionNumber}")
         actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
 
+        if not simWorld.isAllowedActionNumber(actionNumber):
+            print("Not a valid action!")
+            return tuple(self.pick_random_free_cell(
+                state, size=int(math.sqrt(len(state)-1))))
         # Convert local action nummer to expected coordinates
         coordinates = simWorld.getActionCoordinates(actionNumber)
         #print(f"SimWorld coordinates: {coordinates}")
@@ -172,6 +179,33 @@ class BasicClientActor(BasicClientActorAbs):
         print("An illegal action was attempted:")
         print('State: ' + str(state))
         print('Action: ' + str(illegal_action))
+        stateWithCorrectPlayers = tuple(
+            map(lambda x: -1 if (x == 2) else (1 if (x == 1) else 0), state))
+
+        playerTurn = 1 if stateWithCorrectPlayers[0] == 1 else -1
+        simWorld = Hex(
+            boardType="diamond",
+            boardWidth=6,
+            playerTurn=playerTurn,
+            loadedHexBoardState=stateWithCorrectPlayers
+        )
+        # Add animation frame
+        self.BoardVisualizer.addAnimationState(simWorld.getStateHash())
+
+        # Find best action
+        actionNumber = self.ANET.defaultPolicyFindAction(
+            possibleActions=simWorld.getPossibleActions(), state=simWorld.getStateHash(), useStochastic=True)
+        # actionNumber = self.RLS.mctsSearch(simWorld=simWorld)
+
+        # Convert local action nummer to expected coordinates
+        coordinates = simWorld.getActionCoordinates(actionNumber)
+        #print(f"SimWorld coordinates: {coordinates}")
+        actionCordinatesConverted = simWorld.state.simWorldToTournament[coordinates]
+        #print("Action coordinate chosen: ", actionCordinatesConverted)
+
+        # self.BoardVisualizer.animateEpisode()
+
+        return actionCordinatesConverted
 
 
 if __name__ == '__main__':

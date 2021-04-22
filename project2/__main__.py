@@ -141,6 +141,7 @@ def main():
             verbose=True,
             RLS=RLS,
             visualizeBoardWhileRunning=visualizeBoardWhileRunning,
+            ANET=ANET,
         )
         bsa.connect_to_server()
     elif operationMode == "topp":
