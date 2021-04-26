@@ -1,15 +1,12 @@
+from agent.reinforcement_learning import ReinforcementLearning
 from enums import Action
 from environment.mountain_car import MountainCar
 
 
 def main():
 
-    env = MountainCar()
-
-    for x in range(1000):
-        env.execute_action(Action.FORWARD)
-
-    env.animate(env.position_sequence, False)
+    rl = ReinforcementLearning()
+    rl.fit()
 
 
 if __name__ == "__main__":

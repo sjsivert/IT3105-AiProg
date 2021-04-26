@@ -15,11 +15,12 @@ from enums import Action
 
 class MountainCar(Environment):
 
-    def __init__(self, goal_position: float = 0.6, position_bounds: tuple = (-1.2, 0.6), start_position_range: tuple = (-0.6, -0.4), max_velocity: float = 0.07, slope_resolution: float = 0.01) -> None:
+    def __init__(self, goal_position: float = 0.6, position_bounds: tuple = (-1.2, 0.6), start_position_range: tuple = (-0.6, -0.4), max_velocity: float = 0.07, slope_resolution: float = 0.01, max_actions: int = 1000) -> None:
         self.goal_position = goal_position
         self.position_bounds = position_bounds
         self.start_position_range = start_position_range
         self.max_velocity = max_velocity
+        self.max_actions = max_actions
 
         self.reset()
         self.xs, self.ys = self.__generate_slope(slope_resolution)
@@ -36,6 +37,15 @@ class MountainCar(Environment):
         self.position += self.velocity
 
         self.position_sequence.append(self.position)
+
+        if self.check_win_condition():
+            return 1
+        elif len(self.position_sequence) >= self.max_actions:
+            return -1
+        elif self.position <= self.position_bounds[0]:
+            return -1
+        else:
+            return -0.002
 
     def check_win_condition(self) -> bool:
         return True if self.position >= self.goal_position else False

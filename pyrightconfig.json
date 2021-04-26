@@ -1,8 +1,9 @@
 {
     "include": [
-        "./project1",
-        "./project1/sim_world",
-        "./project1/actor_critic",
-        "./project1/neuralnet"
+        "./project3",
+        "./project3/environment",
+        "./project3/actor",
+        "./project3/utils",
+        "./project3/abstract_classes"
     ]
 }
