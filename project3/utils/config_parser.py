@@ -18,7 +18,6 @@ class Config:
 
     episodes = int(config.get('LEARNING', 'episodes'))
     test_episodes = int(config.get('LEARNING', 'test_episodes'))
-    epochs = int(config.get('LEARNING', 'epochs'))
 
     critic_learning_rate = float(config.get('LEARNING', 'critic_learning_rate'))
     nn_dimensions = list(ast.literal_eval(config.get('LEARNING', 'nn_dimensions')))

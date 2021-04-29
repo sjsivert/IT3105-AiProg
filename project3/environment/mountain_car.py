@@ -38,14 +38,16 @@ class MountainCar(Environment):
 
         self.position_sequence.append(self.position)
 
+        self.max_position = max(self.max_position, self.position)
+
         if self.check_win_condition():
             return 1
         elif len(self.position_sequence) >= self.max_actions:
-            return -1
+            return self.max_position + 0.5
         elif self.position <= self.position_bounds[0]:
-            return -1
+            return self.max_position + 0.5
         else:
-            return -0.002
+            return -0.0002
 
     def check_win_condition(self) -> bool:
         return True if self.position >= self.goal_position else False
@@ -56,6 +58,7 @@ class MountainCar(Environment):
     def reset(self) -> None:
         self.position = self.__get_start_position()
         self.velocity = 0
+        self.max_position = self.position
 
         self.position_sequence = []
 
@@ -75,7 +78,9 @@ class MountainCar(Environment):
         ax.plot(self.xs, self.ys)
         #ax.add_patch(Rectangle((self.position, self.compute_y(self.position)), 0.1, 0.2, facecolor='grey'))
         car = plt.Circle((self.position, self.__compute_y(self.position)), 0.05, color='grey')
+        goal = plt.Circle((self.goal_position, self.__compute_y(self.goal_position)), 0.02, color='grey')
         ax.add_patch(car)
+        ax.add_patch(goal)
 
         def __update_animation(i) -> None:
             position = position_sequence[i]

@@ -10,24 +10,23 @@ from utils.instantiate import instantiate_activation_func, instantiate_optimizer
 
 class Critic(nn.Module):
 
-    def __init__(self, epochs: int = 1, learning_rate: float = 0.001, nn_dimensions: list = [125, 256, 256, 1], activation_functions: list = ['tanh', 'tanh', 'linear'], optimizer: str = 'adam', loss_function: str = 'mse', discount_factor: float = 0.9, decay_rate: float = 0.9) -> None:
+    def __init__(self, learning_rate: float = 0.7, nn_dimensions: list = [50, 64, 64, 64, 1], activation_functions: list = ['tanh', 'tanh', 'tanh', 'linear'], optimizer: str = 'adam', loss_function: str = 'mse', discount_factor: float = 0.9, decay_rate: float = 0.9) -> None:
         super(Critic, self).__init__()
 
         assert len(nn_dimensions) - 1 == len(activation_functions)
 
         self.eligibilities = []
-        self.state_values = {}
 
-        self.epochs = epochs
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.decay_rate = decay_rate
 
         self.__init_model(nn_dimensions, activation_functions, optimizer, loss_function)
+        self.reset_eligibilities()
 
         print(self.model)
 
-    def __init_model(self, nn_dimensions: list, activation_functions: list, optimizer: str, loss_funciton: str) -> None:
+    def __init_model(self, nn_dimensions: list, activation_functions: list, optimizer: str, loss_function: str) -> None:
         self.model = nn.Sequential()
         for x in range(1, len(nn_dimensions)):
             self.model.add_module(f'L{x-1}', nn.Linear(nn_dimensions[x - 1], nn_dimensions[x]))
@@ -37,7 +36,7 @@ class Critic(nn.Module):
 
         # self.model.apply(self.init_weights)
         self.optimizer = instantiate_optimizer(optimizer, self.model.parameters(), self.learning_rate)
-        self.loss_function = instantiate_loss_func(loss_funciton)
+        self.loss_function = instantiate_loss_func(loss_function)
 
     def compute_temporal_difference_error(self, state: np.ndarray, next_state: np.ndarray, reinforcement: int) -> float:
         state_value = float(self.get_state_value(state))
@@ -50,17 +49,17 @@ class Critic(nn.Module):
 
         target_value = torch.add(reinforcement, torch.multiply(discount_factor, self.model(next_state)))
 
+        self.optimizer.zero_grad()
         prediction = self.model(state)
 
         loss = self.loss_function(prediction, target_value)
-        self.optimizer.zero_grad()
         loss.backward()
 
         # Modify gradients
-        for index, value in enumerate(self.model.parameters()):
-            value.grad *= 0.5 / td_error
-            self.eligibilities[index] += value.grad
-            value.grad = self.eligibilities[index] * td_error
+        for index, weight in enumerate(self.model.parameters()):
+            weight.grad *= 0.5 / td_error
+            self.eligibilities[index] += weight.grad
+            weight.grad = self.eligibilities[index] * td_error
 
         self.optimizer.step()
 
@@ -71,8 +70,8 @@ class Critic(nn.Module):
 
     def reset_eligibilities(self) -> None:
         self.eligibilities.clear()
-        for var in self.model.parameters():
-            self.eligibilities.append(torch.zeros_like(var))
+        for index, weight in enumerate(self.model.parameters()):
+            self.eligibilities.append(torch.zeros_like(weight))
 
     def decay_eligibilities(self) -> None:
         for i in range(len(self.eligibilities)):
