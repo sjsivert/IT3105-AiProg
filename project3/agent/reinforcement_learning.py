@@ -1,4 +1,6 @@
 
+from copy import deepcopy
+from turtle import position
 from matplotlib import pyplot as plt
 import numpy as np
 from agent.actor import Actor
@@ -24,13 +26,15 @@ class ReinforcementLearning:
 
         # Exploration vs. exploitation configuration
         initial_epsilon = Config.epsilon
-        epsilon_decay = 2 * initial_epsilon / Config.episodes
+        epsilon_decay = initial_epsilon / Config.episodes
 
         # Statistics
         training_wins = 0
         test_wins = 0
         losses = 0
         final_positions = []
+
+        position_sequences = {}
 
         for episode in range(Config.episodes + Config.test_episodes):
             env.reset()
@@ -57,9 +61,6 @@ class ReinforcementLearning:
                 next_state_coarse: np.ndarray = encoder.coarse_encode_one_hot(state)
                 next_action: Action = actor.generate_action(next_state_coarse, epsilon)
 
-                # if not reinforcement:
-                #     reinforcement = 100 * ((sin(3 * next_state[0]) * 0.0025 + 0.5 * next_state[1] * next_state[1]) - (sin(3 * state[0]) * 0.0025 + 0.5 * state[1] * state[1]))
-
                 actor.set_eligibility(state_coarse, action, 1)
                 td_error = critic.compute_temporal_difference_error(state_coarse, next_state_coarse, reinforcement)
 
@@ -72,20 +73,14 @@ class ReinforcementLearning:
                 actor.decay_eligibilities()
 
                 if env.check_win_condition():
-                    print('Win')
                     if episode < Config.episodes:
                         training_wins += 1
                     else:
                         test_wins += 1
-                    break
-
-                if env.position <= env.position_bounds[0]:
-                    print('Wrong exit')
-                    losses += 1
+                        position_sequences[episode - Config.episodes] = deepcopy(env.position_sequence)
                     break
 
                 if len(env.position_sequence) >= Config.max_actions:
-                    print('Max actions reached')
                     losses += 1
                     break
 
@@ -93,25 +88,21 @@ class ReinforcementLearning:
                 state_coarse = next_state_coarse
                 action = next_action
 
-            print(env.max_position)
+            final_positions.append(env.best_position)
 
-            final_positions.append(env.max_position)
-
-            visualize = True
-            if visualize:
-                if episode < Config.episodes:
-                    print(f'Episode: {episode}, wins: {training_wins}, losses: {losses}, epsilon: {round(epsilon, 5)}')
-                if episode == Config.episodes:
-                    print(f'Testing final model...')
-
-                # env.animate(env.position_sequence)
+            if episode < Config.episodes:
+                print(f'Episode: {episode}, wins: {training_wins}, losses: {losses}, epsilon: {round(epsilon, 5)}, best_pos: {env.best_position:.5}, best_vel: {env.best_velocity:.5}')
+            if episode == Config.episodes:
+                print(f'Testing final model...')
 
         print(f'Final model win rate: {test_wins}/{Config.test_episodes} = {round(test_wins/Config.test_episodes*100, 2)}% ')
         self.visualize_progress(final_positions, Config.position_bounds)
-        env.animate(env.position_sequence, True)
+
+        for key, seq in position_sequences.items():
+            env.animate(seq, True, key)
 
     def visualize_progress(self, final_positions: list, position_bounds: tuple) -> None:
-        plt.figure()
+        plt.figure(figsize=(24, 12))
         plt.xlabel('episodes')
         plt.ylabel('Position')
         plt.ylim(ymin=position_bounds[0], ymax=position_bounds[1])
