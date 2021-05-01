@@ -36,18 +36,21 @@ class MountainCar(Environment):
         # Update position
         self.position += self.velocity
 
+        # Handle invalid position using inelastic collision
+        if self.position < self.position_bounds[0]:
+            #print('Reached left position bound')
+            self.position = self.position_bounds[0]
+            self.velocity = 0
+
         self.position_sequence.append(self.position)
 
-        self.max_position = max(self.max_position, self.position)
+        self.best_position = max(self.best_position, self.position)
+        self.best_velocity = max(self.best_velocity, self.velocity)
 
         if self.check_win_condition():
-            return 1
-        elif len(self.position_sequence) >= self.max_actions:
-            return self.max_position + 0.5
-        elif self.position <= self.position_bounds[0]:
-            return self.max_position + 0.5
+            return 100
         else:
-            return -0.0002
+            return abs(self.velocity) - self.max_velocity
 
     def check_win_condition(self) -> bool:
         return True if self.position >= self.goal_position else False
@@ -58,7 +61,8 @@ class MountainCar(Environment):
     def reset(self) -> None:
         self.position = self.__get_start_position()
         self.velocity = 0
-        self.max_position = self.position
+        self.best_position = self.position
+        self.best_velocity = self.velocity
 
         self.position_sequence = []
 
@@ -71,10 +75,10 @@ class MountainCar(Environment):
         ax.add_patch(plt.Circle((self.position, self.__compute_y(self.position)), 0.05, color='grey'))
         plt.show()
 
-    def animate(self, position_sequence: list, save: bool = False) -> None:
+    def animate(self, position_sequence: list, save: bool = False, num: int = None) -> None:
         # plt.style.use('ggplot')
 
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(24, 12))
         ax.plot(self.xs, self.ys)
         #ax.add_patch(Rectangle((self.position, self.compute_y(self.position)), 0.1, 0.2, facecolor='grey'))
         car = plt.Circle((self.position, self.__compute_y(self.position)), 0.05, color='grey')
@@ -90,7 +94,8 @@ class MountainCar(Environment):
 
         if save:
             Path("animations").mkdir(parents=True, exist_ok=True)
-            animation.save('animations/output.mp4')
+            name = 'output' if not num else f'output_{num}'
+            animation.save(f'animations/{name}.mp4')
 
         plt.draw()
         plt.show()
